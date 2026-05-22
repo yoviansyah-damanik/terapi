@@ -184,6 +184,7 @@ return [
         'expanded' => 'bpjs/*',
         'children' => [
             ['title' => 'Ringkasan', 'route' => 'bpjs.summary', 'icon' => 'chart-bar-square'],
+            ['title' => 'vClaim', 'route' => 'bpjs.vclaim', 'icon' => 'document-text'],
             ['title' => 'Antrean Online', 'route' => 'bpjs.antrean-online', 'icon' => 'queue-list'],
             ['title' => 'Aplicare', 'route' => 'bpjs.aplicare', 'icon' => 'home-modern'],
             ['title' => 'eRM', 'route' => 'bpjs.erm', 'icon' => 'document-check', 'active_match' => 'bpjs.erm*'],

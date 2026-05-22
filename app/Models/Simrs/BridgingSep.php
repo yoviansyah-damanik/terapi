@@ -83,6 +83,33 @@ class BridgingSep extends SimrsModel
         return $this->belongsTo(RegPeriksa::class, 'no_rawat', 'no_rawat');
     }
 
+    /**
+     * IGD: jnspelayanan='2' ATAU nmpolitujuan/kdpolitujuan mengandung kata darurat/igd/ugd/gawat.
+     */
+    public function scopeIgd($query)
+    {
+        return $query->where('jnspelayanan', '2')
+            ->where('nmpolitujuan', 'like', '%darurat%');
+    }
+
+    /** Rawat Jalan murni (bukan IGD). */
+    public function scopeRalanOnly($query)
+    {
+        return $query->where('jnspelayanan', '2')
+            ->where('nmpolitujuan', 'not like', '%darurat%');
+    }
+
+    /** Cek apakah record ini adalah kunjungan IGD. */
+    public function isIgd(): bool
+    {
+        if ((string) $this->jnspelayanan === '1')
+            return true;
+
+        $poli = strtolower((string) $this->nmpolitujuan);
+
+        return str_contains($poli, 'darurat');
+    }
+
     public function scopeSearch($query, ?string $search)
     {
         if (!$search) {

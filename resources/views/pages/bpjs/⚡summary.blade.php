@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Bpjs\BpjsAntreanBooking;
+use App\Models\Bpjs\BpjsAntreanRegistration;
 use App\Models\Bpjs\BpjsErm;
 use App\Models\Bpjs\BpjsHealthcareService;
 use App\Models\Bpjs\BpjsIcd10;
@@ -16,6 +18,7 @@ use App\Models\Simrs\JnsPerawatan;
 use App\Models\Simrs\JnsPerawatanInap;
 use App\Models\Simrs\JnsPerawatanLab;
 use App\Models\Simrs\JnsPerawatanRadiologi;
+use App\Models\Simrs\BridgingSep;
 use App\Models\Simrs\Pasien;
 use App\Models\Simrs\Pegawai;
 use App\Models\Simrs\Poliklinik;
@@ -93,6 +96,24 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
         $icd10Registered = BpjsIcd10::count();
         $icd9Registered = BpjsIcd9::count();
 
+        // --- Antrean Online ---
+        $antreanTotal    = BpjsAntreanBooking::count();
+        $antreanHariIni  = BpjsAntreanBooking::where('tanggal', today()->format('Y-m-d'))->count();
+        $antreanBulanIni = BpjsAntreanBooking::whereYear('tanggal', now()->year)->whereMonth('tanggal', now()->month)->count();
+        $antreanSelesai  = BpjsAntreanBooking::whereRaw('LOWER(status) = ?', ['selesai'])->count();
+        $antreanBatal    = BpjsAntreanBooking::whereRaw('LOWER(status) = ?', ['batal'])->count();
+        $antreanTerdaftar = BpjsAntreanRegistration::count();
+
+        // --- vClaim SEP (SIMRS) ---
+        $sepTotal = $sepBulanIni = $sepRalan = $sepRanap = $sepIgd = 0;
+        try {
+            $sepTotal    = BridgingSep::count();
+            $sepBulanIni = BridgingSep::whereYear('tglsep', now()->year)->whereMonth('tglsep', now()->month)->count();
+            $sepRalan    = BridgingSep::ralanOnly()->count();
+            $sepRanap    = BridgingSep::where('jnspelayanan', '1')->count();
+            $sepIgd      = BridgingSep::igd()->count();
+        } catch (\Exception) {}
+
         // --- Medication (SIMRS) ---
         $medicationRegistered = BpjsMedication::count();
         $medicationTotal = 0;
@@ -111,6 +132,8 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
             'procedure' => [['label' => 'Rawat Jalan', 'total' => $ralanTotal, 'mapped' => $procCounts['ralan'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Rawat Inap', 'total' => $ranapTotal, 'mapped' => $procCounts['ranap'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Lab Jenis', 'total' => $labTotal, 'mapped' => $procCounts['lab'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Lab Item', 'total' => $itemLabTotal, 'mapped' => $procCounts['item_lab'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Radiologi', 'total' => $radTotal, 'mapped' => $procCounts['rad'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure']],
             'clinical' => [['label' => 'ICD-10', 'total' => $icd10Total, 'mapped' => $icd10Registered, 'route' => 'bpjs.fhir-resource.icd10'], ['label' => 'ICD-9CM', 'total' => $icd9Total, 'mapped' => $icd9Registered, 'route' => 'bpjs.fhir-resource.icd9']],
             'medication' => [['label' => 'Obat / Alkes', 'total' => $medicationTotal, 'mapped' => $medicationRegistered, 'route' => 'bpjs.fhir-resource.medication']],
+            'sep' => compact('sepTotal', 'sepBulanIni', 'sepRalan', 'sepRanap', 'sepIgd'),
+            'antrean' => compact('antreanTotal', 'antreanHariIni', 'antreanBulanIni', 'antreanSelesai', 'antreanBatal', 'antreanTerdaftar'),
         ];
     }
 };
@@ -149,6 +172,74 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
                     value="{{ number_format($ermCounts[$type] ?? 0) }}" color="{{ $meta['color'] }}"
                     subtitle="{{ $sub }}" />
             @endforeach
+        </div>
+    </section>
+
+    {{-- vClaim SEP --}}
+    <section>
+        <div class="flex items-center gap-2 mb-4">
+            <h2 class="text-lg font-bold text-zinc-800 dark:text-primary-dark-100 flex items-center gap-2">
+                <flux:icon name="document-text" class="w-5 h-5 text-blue-500" />
+                vClaim SEP
+            </h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-zinc-200 to-transparent dark:from-primary-dark-800 ml-4"></div>
+            <x-atoms.button wire:navigate href="{{ route('bpjs.vclaim') }}" variant="ghost" size="sm"
+                icon="arrow-right">Lihat Detail</x-atoms.button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim') }}" title="Total SEP"
+                :value="number_format($sep['sepTotal'])" color="zinc"
+                :subtitle="number_format($sep['sepBulanIni']) . ' bulan ini'" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'ralan']) }}"
+                title="Rawat Jalan" :value="number_format($sep['sepRalan'])" color="blue"
+                :subtitle="$sep['sepTotal'] > 0 ? round($sep['sepRalan'] / $sep['sepTotal'] * 100) . '% dari total' : ''" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'ranap']) }}"
+                title="Rawat Inap" :value="number_format($sep['sepRanap'])" color="emerald"
+                :subtitle="$sep['sepTotal'] > 0 ? round($sep['sepRanap'] / $sep['sepTotal'] * 100) . '% dari total' : ''" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'igd']) }}"
+                title="IGD" :value="number_format($sep['sepIgd'])" color="red"
+                :subtitle="$sep['sepTotal'] > 0 ? round($sep['sepIgd'] / $sep['sepTotal'] * 100) . '% dari total' : ''" />
+            @php
+                $sepHariIni = 0;
+                try {
+                    $sepHariIni = \App\Models\Simrs\BridgingSep::whereDate('tglsep', today())->count();
+                } catch (\Throwable) {}
+            @endphp
+            <x-organisms.stat-card wire:navigate
+                href="{{ route('bpjs.vclaim', ['filterMode' => 'tanggal', 'filterTanggal' => now()->format('Y-m-d')]) }}"
+                title="SEP Hari Ini" :value="number_format($sepHariIni)" color="sky" />
+        </div>
+    </section>
+
+    {{-- Antrean Online --}}
+    <section>
+        <div class="flex items-center gap-2 mb-4">
+            <h2 class="text-lg font-bold text-zinc-800 dark:text-primary-dark-100 flex items-center gap-2">
+                <flux:icon name="queue-list" class="w-5 h-5 text-violet-500" />
+                Antrean Online
+            </h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-zinc-200 to-transparent dark:from-primary-dark-800 ml-4"></div>
+            <x-atoms.button wire:navigate href="{{ route('bpjs.antrean-online') }}" variant="ghost" size="sm"
+                icon="arrow-right">Lihat Detail</x-atoms.button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Total Booking"
+                :value="number_format($antrean['antreanTotal'])" color="zinc" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Hari Ini"
+                :value="number_format($antrean['antreanHariIni'])" color="sky" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Bulan Ini"
+                :value="number_format($antrean['antreanBulanIni'])" color="violet" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Selesai"
+                :value="number_format($antrean['antreanSelesai'])" color="emerald"
+                :subtitle="$antrean['antreanTotal'] > 0 ? round($antrean['antreanSelesai'] / $antrean['antreanTotal'] * 100) . '% dari total' : ''" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Batal"
+                :value="number_format($antrean['antreanBatal'])" color="red"
+                :subtitle="$antrean['antreanTotal'] > 0 ? round($antrean['antreanBatal'] / $antrean['antreanTotal'] * 100) . '% dari total' : ''" />
+            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Terdaftar SIMRS"
+                :value="number_format($antrean['antreanTerdaftar'])" color="amber"
+                :subtitle="$antrean['antreanTotal'] > 0 ? round($antrean['antreanTerdaftar'] / $antrean['antreanTotal'] * 100) . '% dari total' : ''" />
         </div>
     </section>
 

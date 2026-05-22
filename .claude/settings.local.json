@@ -116,7 +116,8 @@
       "Bash(Get-ChildItem -Path \"d:\\\\WebApps\\\\terapi\\\\app\\\\Jobs\" -File)",
       "Bash(Select-Object Name)",
       "Bash(for f *)",
-      "Read(//d/WebApps/terapi/app/**)"
+      "Read(//d/WebApps/terapi/app/**)",
+      "Bash(Get-ChildItem -Path \"d:\\\\WebApps\\\\terapi\\\\app\\\\Models\" -Filter \"*[Ss]ep*\" -Recurse)"
     ]
   }
 }

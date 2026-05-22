@@ -211,6 +211,7 @@ Route::middleware('auth')
             Route::livewire('/summary', 'pages::bpjs.summary')->name('summary');
             Route::livewire('/antrean-online', 'pages::bpjs.antrean-online')->name('antrean-online');
             Route::livewire('/aplicare', 'pages::bpjs.aplicare')->name('aplicare');
+            Route::livewire('/vclaim', 'pages::bpjs.vclaim')->name('vclaim');
             Route::livewire('/erm', 'pages::bpjs.erm')->name('erm');
             Route::livewire('/erm/{id}', 'pages::bpjs.erm-detail')->name('erm-detail');
             Route::get('/erm-scheduler', fn() => redirect()->route('bpjs.erm', ['tab' => 'scheduler']))->name('erm-scheduler');

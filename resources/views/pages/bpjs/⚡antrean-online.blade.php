@@ -586,7 +586,7 @@ new #[Layout('layouts::app')] #[Title('BPJS — Antrean Online')] class extends 
                 return collect();
             }
 
-            // Cek no_rawat yang sudah terbit antrian via SIMRS referensi_mobilejkn_bpjs
+            // Cek no_rawat yang sudah terbit Antrean via SIMRS referensi_mobilejkn_bpjs
             $bookedNoRawat = BpjsAntreanRegistration::whereHas('antrean', fn($q) => $q->where('status', '!=', 'Batal'))->pluck('no_rawat')->flip();
 
             return $regs->filter(fn($r) => !$bookedNoRawat->has($r->no_rawat))->values();
@@ -805,7 +805,7 @@ new #[Layout('layouts::app')] #[Title('BPJS — Antrean Online')] class extends 
                             'modalType' => 'regs',
                         ],
                         [
-                            'label' => 'Terbit Antrian',
+                            'label' => 'Terbit Antrean',
                             'sub' => null,
                             'value' => $rekapData['total_antrean'],
                             'icon' => 'check-circle',
@@ -813,7 +813,7 @@ new #[Layout('layouts::app')] #[Title('BPJS — Antrean Online')] class extends 
                             'modalType' => 'antrean',
                         ],
                         [
-                            'label' => 'Belum Antrian',
+                            'label' => 'Belum Antrean',
                             'sub' => null,
                             'value' => $rekapData['belum_antrean'],
                             'icon' => 'clock',
@@ -1465,10 +1465,10 @@ new #[Layout('layouts::app')] #[Title('BPJS — Antrean Online')] class extends 
             'regs' => ['title' => 'Daftar Pasien BPJS', 'color' => 'zinc', 'note' => null],
             'antrean' => ['title' => 'Daftar Antrean Terbit', 'color' => 'emerald', 'note' => null],
             'belum' => [
-                'title' => 'Estimasi Belum Antrian (per Slot)',
+                'title' => 'Estimasi Belum Antrean (per Slot)',
                 'color' => 'amber',
                 'note' =>
-                    'Menampilkan registrasi BPJS (non-Batal) yang tidak memiliki antrean — kemungkinan pasien tersebut belum mendapat nomor antrian.',
+                    'Menampilkan registrasi BPJS (non-Batal) yang tidak memiliki antrean — kemungkinan pasien tersebut belum mendapat nomor Antrean.',
             ],
             default => ['title' => '-', 'color' => 'zinc', 'note' => null],
         };

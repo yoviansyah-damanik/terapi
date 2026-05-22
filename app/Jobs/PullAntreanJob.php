@@ -64,22 +64,22 @@ class PullAntreanJob implements ShouldQueue
             $upsertData = collect($items)
                 ->filter(fn($item) => !empty($item['kodebooking']))
                 ->map(fn($item) => [
-                    'kode_booking'           => $item['kodebooking'],
-                    'tanggal'                => $date,
-                    'kd_poli'                => $item['kodepoli'] ?? null,
-                    'kd_dokter'              => $item['kodedokter'] ?? null,
-                    'jam_praktek'            => $item['jampraktek'] ?? null,
-                    'nik'                    => $item['nik'] ?? null,
-                    'no_kartu'               => $item['nokapst'] ?? null,
-                    'no_hp'                  => $item['nohp'] ?? null,
-                    'no_rm'                  => $item['norekammedis'] ?? null,
-                    'jenis_kunjungan'        => (string) ($item['jeniskunjungan'] ?? ''),
-                    'no_referensi'           => $item['nomorreferensi'] ?? null,
-                    'sumber_data'            => $item['sumberdata'] ?? null,
-                    'is_peserta'             => (bool) ($item['ispeserta'] ?? false),
-                    'no_antrean'             => $item['noantrean'] ?? null,
-                    'estimasi_timestamp'     => isset($item['estimasidilayani']) && $item['estimasidilayani'] ? (int) $item['estimasidilayani'] : null,
-                    'status'                 => $item['status'] ?? null,
+                    'kode_booking' => $item['kodebooking'],
+                    'tanggal' => $date,
+                    'kd_poli' => $item['kodepoli'] ?? null,
+                    'kd_dokter' => $item['kodedokter'] ?? null,
+                    'jam_praktek' => $item['jampraktek'] ?? null,
+                    'nik' => $item['nik'] ?? null,
+                    'no_kartu' => $item['nokapst'] ?? null,
+                    'no_hp' => $item['nohp'] ?? null,
+                    'no_rm' => $item['norekammedis'] ?? null,
+                    'jenis_kunjungan' => (string) ($item['jeniskunjungan'] ?? ''),
+                    'no_referensi' => $item['nomorreferensi'] ?? null,
+                    'sumber_data' => $item['sumberdata'] ?? null,
+                    'is_peserta' => (bool) ($item['ispeserta'] ?? false),
+                    'no_antrean' => $item['noantrean'] ?? null,
+                    'estimasi_timestamp' => isset($item['estimasidilayani']) && $item['estimasidilayani'] ? (int) $item['estimasidilayani'] : null,
+                    'status' => $item['status'] ?? null,
                     'created_time_timestamp' => isset($item['createdtime']) && $item['createdtime'] ? (int) $item['createdtime'] : null,
                 ])
                 ->values()
@@ -119,6 +119,7 @@ class PullAntreanJob implements ShouldQueue
 
         try {
             $query = RegPeriksa::bpjsOnly()
+                ->whereNotLike('no_rawat', 'C%')
                 ->with(['poliklinik', 'dokter'])
                 ->whereDate('tgl_registrasi', $date)
                 ->select(['no_rawat', 'kd_poli', 'kd_dokter', 'status_lanjut']);
@@ -137,12 +138,12 @@ class PullAntreanJob implements ShouldQueue
 
             BpjsAntreanRegistration::upsert(
                 $regs->map(fn($r) => [
-                    'no_rawat'      => $r->no_rawat,
-                    'tanggal'       => $date,
-                    'kd_poli'       => $r->kd_poli,
-                    'nm_poli'       => $r->poliklinik->nm_poli,
-                    'kd_dokter'     => $r->kd_dokter,
-                    'nm_dokter'     => $r->dokter->nm_dokter,
+                    'no_rawat' => $r->no_rawat,
+                    'tanggal' => $date,
+                    'kd_poli' => $r->kd_poli,
+                    'nm_poli' => $r->poliklinik->nm_poli,
+                    'kd_dokter' => $r->kd_dokter,
+                    'nm_dokter' => $r->dokter->nm_dokter,
                     'status_lanjut' => $r->status_lanjut,
                 ])->toArray(),
                 ['no_rawat'],
