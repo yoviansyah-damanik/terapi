@@ -1,0 +1,194 @@
+{
+    "search_code": "93025356",
+    "search_identifier": "Kamus Farmalkes (KFA \u2013 IHS)",
+    "result": {
+        "name": "Paracetamol 500 mg Tablet (STRIP, sumber tanushu pharmaceutical industri)",
+        "kfa_code": "93025356",
+        "active": true,
+        "state": "valid",
+        "image": null,
+        "updated_at": "2025-07-30 05:47:16",
+        "farmalkes_type": {
+            "code": "medicine",
+            "name": "Obat",
+            "group": "farmasi"
+        },
+        "ucum": {
+            "name": "milligram",
+            "cs_code": "mg"
+        },
+        "uom": {
+            "name": "Tablet"
+        },
+        "dosage_form": {
+            "code": "BS066",
+            "name": "Tablet"
+        },
+        "controlled_drug": {
+            "code": "1",
+            "name": "Obat Bebas"
+        },
+        "rute_pemberian": {
+            "code": "O",
+            "name": "Oral"
+        },
+        "produksi_buatan": "lokal",
+        "nie": "GBL2424802304A1",
+        "nama_dagang": "Paracetamol",
+        "manufacturer": "SUMBER TANUSHU PHARMACEUTICAL INDUSTRI",
+        "registrar": "SUMBER TANUSHU PHARMACEUTICAL INDUSTRI",
+        "generik": true,
+        "rxterm": 525,
+        "dose_per_unit": 1,
+        "fix_price": null,
+        "het_price": 500,
+        "farmalkes_hscode": null,
+        "tayang_lkpp": null,
+        "kode_lkpp": null,
+        "score_tkdn": null,
+        "score_bmp": null,
+        "score_tkdn_bmp": 0,
+        "net_weight": 500,
+        "net_weight_uom_name": "mg",
+        "volume": null,
+        "volume_uom_name": "mL",
+        "med_dev_jenis": null,
+        "med_dev_subkategori": null,
+        "med_dev_kategori": null,
+        "med_dev_kelas_risiko": null,
+        "klasifikasi_izin": null,
+        "atc_ddd": {
+            "name": "3 g - O"
+        },
+        "atc_l1": {
+            "code": "N",
+            "name": "NERVOUS SYSTEM",
+            "level": "1",
+            "comment": null,
+            "parent_code": null
+        },
+        "atc_l2": {
+            "code": "N02",
+            "name": "ANALGESICS",
+            "level": "2",
+            "comment": null,
+            "parent_code": "N"
+        },
+        "atc_l3": {
+            "code": "N02B",
+            "name": "OTHER ANALGESICS AND ANTIPYRETICS",
+            "level": "3",
+            "comment": null,
+            "parent_code": "N02"
+        },
+        "atc_l4": {
+            "code": "N02BE",
+            "name": "Anilides",
+            "level": "4",
+            "comment": null,
+            "parent_code": "N02B"
+        },
+        "atc_l5": {
+            "code": "N02BE01",
+            "name": "Paracetamol",
+            "level": "5",
+            "comment": null,
+            "parent_code": "N02BE"
+        },
+        "description": "<p>Analgesik-Antipiretik<\/p><p>- Sebagai Analgesik, bekerja dengan meningkatkan ambang rangsangan rasa sakit<\/p><p>- Sebagai Antipiretik, diduga bekerja langsung pada pusat pengatur panas di hipotalamus\u00a0<\/p>",
+        "indication": "<p>Meringankan rasa sakit pada keadaan sakit kepala, sakit gigi, dan menurunkan demam<br><\/p>",
+        "warning": "<p style=\"font-family: Roboto, sans-serif;\">1. Hati - hati penggunaan obat ini pada penderita penyakit ginjal<\/p><p style=\"font-family: Roboto, sans-serif;\">2. Bila setelah 2 hari demam tidak menurun atau setelah 5 hari nyeri tidak menghilang, segera hubungi Unit Pelayanan Kesehatan<\/p><p style=\"font-family: Roboto, sans-serif;\">3. Penggunaan obat ini pada penderita yang mengkonsumsi alkohol, dapat meningkatkan resiko kerusakan fungsi hati<\/p>",
+        "side_effect": "<p style=\"font-family: Roboto, sans-serif;\">1. Penggunaan jangka lama dan dosis besar dapat menyebakan kerusakan hati\u00a0<\/p><p style=\"font-family: Roboto, sans-serif;\">2. Reaksi hipersensitivitas<\/p>",
+        "identifier_ids": [
+            {
+                "url": null,
+                "code": "93025356",
+                "name": "Paracetamol 500 mg Tablet",
+                "source_name": "Kamus Farmalkes (KFA \u2013 IHS)"
+            }
+        ],
+        "packaging_ids": [
+            {
+                "qty": 10,
+                "name": "Strip isi 10",
+                "uom_id": "Tablet",
+                "kfa_code": "94031944",
+                "pack_price": 5000
+            },
+            {
+                "qty": 100,
+                "name": "Dus isi 100",
+                "uom_id": "Tablet",
+                "kfa_code": "94031945",
+                "pack_price": 50000
+            }
+        ],
+        "product_template": {
+            "name": "Paracetamol 500 mg Tablet",
+            "state": "valid",
+            "bmhp": null,
+            "active": true,
+            "kfa_code": "92001267",
+            "updated_at": "2025-07-30 05:31:21",
+            "display_name": "Paracetamol 500 mg Tablet"
+        },
+        "active_ingredients": [
+            {
+                "state": "valid",
+                "active": true,
+                "kfa_code": "91000101",
+                "zat_aktif": "Paracetamol",
+                "updated_at": "2022-10-12 07:33:58",
+                "kekuatan_zat_aktif": "500 mg"
+            }
+        ],
+        "dosage_usage": [
+            {
+                "qty": 250,
+                "name": "Anak: 250 - 500 mg; 3 - 4 kali tiap 1 hari",
+                "period": 1,
+                "qty_uom": "mg",
+                "category": "child",
+                "duration": 0,
+                "qty_high": 500,
+                "qty_ucum": null,
+                "use_ucum": false,
+                "frequency": 3,
+                "updated_at": "2022-12-13 05:08:16",
+                "period_ucum": "hari",
+                "display_name": "Anak: 250 - 500 mg; 3 - 4 kali tiap 1 hari",
+                "duration_max": 0,
+                "duration_ucum": "hari",
+                "frequency_max": 4,
+                "body_weight_max": 0,
+                "body_weight_min": 0
+            },
+            {
+                "qty": 500,
+                "name": "Dewasa: 500 - 1000 mg; 3 - 4 kali tiap 1 hari",
+                "period": 1,
+                "qty_uom": "mg",
+                "category": "adult",
+                "duration": 0,
+                "qty_high": 1000,
+                "qty_ucum": null,
+                "use_ucum": false,
+                "frequency": 3,
+                "updated_at": "2022-11-09 07:34:23",
+                "period_ucum": "hari",
+                "display_name": "Dewasa: 500 - 1000 mg; 3 - 4 kali tiap 1 hari",
+                "duration_max": 0,
+                "duration_ucum": "hari",
+                "frequency_max": 4,
+                "body_weight_max": 0,
+                "body_weight_min": 0
+            }
+        ],
+        "tags": [],
+        "replacement": {
+            "product": null,
+            "template": null
+        },
+        "cvx_info": []
+    }
+}

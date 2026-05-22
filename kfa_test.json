@@ -1,0 +1,93 @@
+{
+    "total": 1235,
+    "page": 1,
+    "size": 1,
+    "items": {
+        "data": [
+            {
+                "name": "Paracetamol 500 mg Tablet (STRIP, sumber tanushu pharmaceutical industri)",
+                "kfa_code": "93025356",
+                "active": true,
+                "state": "valid",
+                "image": null,
+                "updated_at": "2025-07-30 05:47:16",
+                "farmalkes_type": {
+                    "code": "medicine",
+                    "name": "Obat",
+                    "group": "farmasi"
+                },
+                "dosage_form": {
+                    "code": "BS066",
+                    "name": "Tablet"
+                },
+                "produksi_buatan": "lokal",
+                "nie": "GBL2424802304A1",
+                "nama_dagang": "Paracetamol",
+                "manufacturer": "SUMBER TANUSHU PHARMACEUTICAL INDUSTRI",
+                "registrar": "SUMBER TANUSHU PHARMACEUTICAL INDUSTRI",
+                "generik": true,
+                "rxterm": 525,
+                "dose_per_unit": 1,
+                "fix_price": null,
+                "het_price": 500,
+                "farmalkes_hscode": null,
+                "tayang_lkpp": null,
+                "kode_lkpp": null,
+                "net_weight": 500,
+                "net_weight_uom_name": "mg",
+                "volume": null,
+                "volume_uom_name": "mL",
+                "med_dev_jenis": null,
+                "med_dev_subkategori": null,
+                "med_dev_kategori": null,
+                "med_dev_kelas_risiko": null,
+                "klasifikasi_izin": null,
+                "uom": {
+                    "name": "Tablet"
+                },
+                "product_template": {
+                    "name": "Paracetamol 500 mg Tablet",
+                    "state": "valid",
+                    "bmhp": null,
+                    "active": true,
+                    "kfa_code": "92001267",
+                    "updated_at": "2025-07-30 05:31:21",
+                    "display_name": "Paracetamol 500 mg Tablet"
+                },
+                "active_ingredients": [
+                    {
+                        "state": "valid",
+                        "active": true,
+                        "kfa_code": "91000101",
+                        "zat_aktif": "Paracetamol",
+                        "updated_at": "2022-10-12 07:33:58",
+                        "kekuatan_zat_aktif": "500 mg"
+                    }
+                ],
+                "tags": [
+                    {
+                        "code": null,
+                        "name": null
+                    }
+                ],
+                "replacement": {
+                    "product": {
+                        "name": null,
+                        "reason": null,
+                        "kfa_code": null
+                    },
+                    "template": {
+                        "name": null,
+                        "reason": null,
+                        "kfa_code": null
+                    }
+                },
+                "fornas": {
+                    "is_fornas": null,
+                    "documents": null
+                },
+                "total_data": 0
+            }
+        ]
+    }
+}

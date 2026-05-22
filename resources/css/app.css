@@ -1,0 +1,349 @@
+@import "tailwindcss";
+@import "../../vendor/livewire/flux/dist/flux.css";
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+/* Dark mode berdasarkan class */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans:
+        "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+    /* Background colors */
+    --color-background: #f3f7fc;
+    --color-background-dark: #13253e;
+
+    /* Primary colors (Biru) */
+    --color-primary-50: #f3f7fc;
+    --color-primary-100: #e5edf9;
+    --color-primary-200: #c5daf2;
+    --color-primary-300: #92bce7;
+    --color-primary-400: #589ad8;
+    --color-primary-500: #337dc4;
+    --color-primary-600: #2362a6;
+    --color-primary-700: #1c4a7f;
+    --color-primary-800: #1c4370;
+    --color-primary-900: #1d3a5d;
+    --color-primary-950: #13253e;
+
+    /* Primary dark */
+    --color-primary-dark-50: #ecf0f8;
+    --color-primary-dark-100: #dae1f1;
+    --color-primary-dark-200: #b4c2e4;
+    --color-primary-dark-300: #8fa4d6;
+    --color-primary-dark-400: #6986c9;
+    --color-primary-dark-500: #4468bb;
+    --color-primary-dark-600: #365396;
+    --color-primary-dark-700: #293e70;
+    --color-primary-dark-800: #1b294b;
+    --color-primary-dark-900: #0e1525;
+    --color-primary-dark-950: #090e1a;
+
+    /* Secondary colors (Kuning) */
+    --color-secondary-50: #fffee6;
+    --color-secondary-100: #fffdcc;
+    --color-secondary-200: #fffc99;
+    --color-secondary-300: #fffa66;
+    --color-secondary-400: #fff933;
+    --color-secondary-500: #fff700;
+    --color-secondary-600: #ccc600;
+    --color-secondary-700: #999400;
+    --color-secondary-800: #666300;
+    --color-secondary-900: #333100;
+    --color-secondary-950: #1a1900;
+
+    /* Flux accent menggunakan primary */
+    --color-accent: var(--color-primary-500);
+    --color-accent-foreground: #ffffff;
+
+    /* Custom Animations */
+    --animate-wave: wave 4s linear infinite;
+}
+
+@keyframes wave {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+@keyframes wave-x {
+    0%   { background-position-y: 0; }
+    100% { background-position-y: 200px; }
+}
+
+/* Custom Flux overrides */
+:root {
+    --flux-accent: var(--color-primary-500);
+    --flux-accent-foreground: #ffffff;
+}
+
+/* Sidebar styling - teks kontras pada background hijau */
+[data-flux-sidebar].bg-primary-800,
+[data-flux-sidebar].bg-primary-900,
+.dark [data-flux-sidebar] {
+    --flux-foreground: #ffffff;
+    --flux-muted: rgba(255, 255, 255, 0.7);
+    --flux-border: rgba(255, 255, 255, 0.15);
+}
+
+/* Navlist items dalam sidebar */
+[data-flux-sidebar] [data-flux-sidebar-item] {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+[data-flux-sidebar] [data-flux-sidebar-item]:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-flux-sidebar] [data-flux-sidebar-item][data-current="data-current"] {
+    color: var(--color-primary-900);
+    background-color: var(--color-primary-50);
+}
+
+.dark
+    [data-flux-sidebar]
+    [data-flux-sidebar-item][data-current="data-current"] {
+    color: var(--color-primary-900);
+    background-color: var(--color-primary-100);
+}
+
+/* Navlist group heading dalam sidebar */
+[data-flux-sidebar] [data-flux-sidebar-group] > button,
+[data-flux-sidebar] [data-flux-sidebar-heading] {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    /* text-transform: uppercase; */
+    letter-spacing: 0.05em;
+}
+
+[data-flux-sidebar] [data-flux-sidebar-group] > button:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Icon dalam sidebar navlist */
+[data-flux-sidebar] [data-flux-sidebar-item] [data-flux-icon] {
+    color: inherit;
+    opacity: 0.8;
+}
+
+[data-flux-sidebar] [data-flux-sidebar-item]:hover [data-flux-icon],
+[data-flux-sidebar]
+    [data-flux-sidebar-item][data-current="data-current"]
+    [data-flux-icon] {
+    opacity: 1;
+}
+
+/* Brand dalam sidebar */
+[data-flux-sidebar] [data-flux-brand] {
+    color: #ffffff;
+}
+
+[data-flux-sidebar] [data-flux-brand] span {
+    color: var(--color-secondary-400);
+    font-weight: 700;
+}
+
+/* Sidebar toggle button */
+[data-flux-sidebar] [data-flux-sidebar-toggle] {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+[data-flux-sidebar] [data-flux-sidebar-toggle]:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Profile dalam sidebar */
+[data-flux-sidebar] [data-flux-profile] {
+    color: #ffffff;
+}
+
+[data-flux-sidebar] [data-flux-profile]:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Button primary menggunakan warna primary */
+[data-flux-button][data-variant="primary"] {
+    --flux-btn-bg: var(--color-primary-500);
+    --flux-btn-bg-hover: var(--color-primary-600);
+    --flux-btn-text: #ffffff;
+}
+
+/* Badge success menggunakan primary */
+[data-flux-badge][data-color="green"],
+[data-flux-badge][data-color="success"] {
+    --flux-badge-bg: var(--color-primary-100);
+    --flux-badge-text: var(--color-primary-700);
+}
+
+/* Navlist item active state */
+[data-flux-sidebar-item][data-current="data-current"] {
+    --flux-sidebar-item-bg: var(--color-primary-500);
+    --flux-sidebar-item-text: #ffffff;
+}
+
+/* Card styling untuk kontras dengan background */
+[data-flux-card] {
+    --flux-card-bg: #ffffff;
+    --flux-card-border: var(--color-primary-100);
+}
+
+.dark [data-flux-card] {
+    --flux-card-bg: #27272a;
+    --flux-card-border: #3f3f46;
+}
+
+/* Main content area */
+[data-flux-main] {
+    background-color: transparent;
+}
+
+/* Hide elements with x-cloak until Alpine initializes */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Global Modern Mini Scrollbar */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Firefox Support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+}
+
+.dark * {
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+/* Sidebar scrollbar styling */
+.sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    overflow: overlay;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Sidebar scrollbar styling */
+.modal-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(230, 245, 236, 0.8) transparent;
+    overflow: overlay;
+}
+
+.modal-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-track {
+    background: rgba(230, 245, 236, 0.15);
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(230, 245, 236, 0.3);
+    border-radius: 3px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(230, 245, 236, 0.5);
+}
+
+/* ===== Print: Halaman SIRS ===== */
+@media print {
+    /* Sembunyikan navigasi dan chrome aplikasi */
+    [data-flux-sidebar],
+    body > div > header,
+    body > div > footer {
+        display: none !important;
+    }
+
+    /* Reset layout body agar tidak flex */
+    body {
+        display: block !important;
+        background: white !important;
+        min-height: unset !important;
+    }
+
+    /* Reset wrapper konten utama */
+    body > div {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Biarkan main melebar dan tidak scroll */
+    main {
+        overflow: visible !important;
+        flex: none !important;
+        height: auto !important;
+    }
+
+    /* Hapus overflow pada wrapper tabel agar tidak terpotong */
+    [data-area-print] {
+        overflow: visible !important;
+    }
+
+    /* Cegah baris tabel terpotong antar halaman */
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    @page {
+        margin: 1cm;
+    }
+}

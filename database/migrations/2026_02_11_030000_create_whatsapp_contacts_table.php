@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('whatsapp_contacts', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->string('phone');
+            $table->string('group')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
+
+            $table->index('phone');
+            $table->index('group');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('whatsapp_contacts');
+    }
+};

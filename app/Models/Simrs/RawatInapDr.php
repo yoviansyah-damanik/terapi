@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Models\Simrs;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class RawatInapDr extends SimrsModel
+{
+    protected $table = 'rawat_inap_dr';
+
+    protected $primaryKey = 'no_rawat';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = [
+        'no_rawat',
+        'kd_jenis_prw',
+        'kd_dokter',
+        'tgl_perawatan',
+        'jam_rawat',
+        'material',
+        'bhp',
+        'tarif_tindakandr',
+        'kso',
+        'menejemen',
+        'biaya_rawat',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'tgl_perawatan' => 'date',
+            'tarif_tindakandr' => 'decimal:2',
+            'biaya_rawat' => 'decimal:2',
+        ];
+    }
+
+    public function jenisPerawatan(): BelongsTo
+    {
+        return $this->belongsTo(JnsPerawatanInap::class, 'kd_jenis_prw', 'kd_jenis_prw');
+    }
+
+    public function dokter(): BelongsTo
+    {
+        return $this->belongsTo(Dokter::class, 'kd_dokter', 'kd_dokter');
+    }
+}

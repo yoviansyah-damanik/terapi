@@ -1,0 +1,47 @@
+type,system_code,system_term,system_defenition,system_display
+immunization-reason,396460002,Imunisasi Rutin,Pemberian imunisasi sesuai jadwal program nasional,Routine immunization
+immunization-reason,281657000,Pencegahan Penyakit,Imunisasi diberikan untuk tujuan pencegahan penyakit,Preventive immunization
+immunization-reason,78648007,Risiko Tinggi,Pasien berisiko tinggi terhadap penyakit yang dapat dicegah dengan vaksin,At risk for disease
+immunization-reason,374789006,Program Imunisasi Anak,Bagian dari program imunisasi nasional untuk anak,Child immunization program
+immunization-reason,73621000119105,Imunisasi Kejar,Imunisasi yang diberikan untuk melengkapi jadwal yang terlewat,Catch-up immunization
+immunization-reason,409498004,Persyaratan Kesehatan,Imunisasi diperlukan untuk persyaratan pekerjaan atau perjalanan,Vaccine required for entry
+immunization-routine-timing,NEONATUS,Neonatus (0–7 hari),Diberikan segera setelah lahir sebelum 7 hari,Neonatal
+immunization-routine-timing,1-BULAN,1 Bulan,Diberikan pada usia 1 bulan,1 month
+immunization-routine-timing,2-BULAN,2 Bulan,Diberikan pada usia 2 bulan,2 months
+immunization-routine-timing,3-BULAN,3 Bulan,Diberikan pada usia 3 bulan,3 months
+immunization-routine-timing,4-BULAN,4 Bulan,Diberikan pada usia 4 bulan,4 months
+immunization-routine-timing,9-BULAN,9 Bulan,Diberikan pada usia 9 bulan,9 months
+immunization-routine-timing,12-BULAN,12 Bulan,Diberikan pada usia 12 bulan,12 months
+immunization-routine-timing,18-BULAN,18 Bulan,Diberikan pada usia 18 bulan,18 months
+immunization-routine-timing,24-BULAN,24 Bulan,Diberikan pada usia 24 bulan,24 months
+immunization-routine-timing,KELAS-1-SD,Kelas 1 SD,Bulan imunisasi anak sekolah kelas 1 SD,School grade 1
+immunization-routine-timing,KELAS-2-SD,Kelas 2 SD,Bulan imunisasi anak sekolah kelas 2 SD,School grade 2
+immunization-routine-timing,KELAS-5-SD,Kelas 5 SD,Bulan imunisasi anak sekolah kelas 5 SD,School grade 5
+immunization-routine-timing,WUS,Wanita Usia Subur,Imunisasi untuk wanita usia subur (15–49 tahun),Women of reproductive age
+immunization-routine-timing,IBU-HAMIL,Ibu Hamil,Diberikan selama masa kehamilan,Pregnant woman
+episode-of-care-type,diab,Diabetes Mellitus,Program pengelolaan penyakit diabetes mellitus,Diabetes Program
+episode-of-care-type,da,Drug & Alcohol Rehabilitation,Program rehabilitasi narkoba dan alkohol,Drug and Alcohol Rehabilitation
+episode-of-care-type,cacp,Community Aged Care Package,Program perawatan komunitas lanjut usia,Community Aged Care Package
+episode-of-care-type,hacc,Home and Community Care,Program perawatan di rumah dan komunitas,Home and Community Care
+episode-of-care-type,pac,Post Acute Care,Perawatan pasca-akut,Post Acute Care
+episode-of-care-type,CNC,Cancer Management,Program manajemen kanker,Cancer Management
+episode-of-care-type,CAD,Coronary Arterial Disease,Program penyakit jantung koroner,Coronary Arterial Disease
+episode-of-care-type,CVD,Cerebrovascular Disease,Program penyakit serebrovaskular,Cerebrovascular Disease
+episode-of-care-type,CKD,Chronic Kidney Disease,Program penyakit ginjal kronik,Chronic Kidney Disease
+episode-of-care-type,TB-SO,TB Sensitif Obat,Program tuberkulosis sensitif obat,TB Drug Sensitive
+episode-of-care-type,TB-RO,TB Resisten Obat,Program tuberkulosis resisten obat,TB Drug Resistant
+episode-of-care-type,ANC,Antenatal Care,Program perawatan antenatal,Antenatal Care
+episode-of-care-type,Neonate,Neonate,Program perawatan neonatus,Neonate
+episode-of-care-type,PNC,Postnatal Care,Program perawatan postnatal,Postnatal Care
+immunization-reason,IM-Program,Imunisasi Program,"Kategori imunisasi yang termasuk dalam program nasional.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-Rutin,Imunisasi Program Rutin,"Imunisasi yang diberikan secara rutin sesuai jadwal nasional.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-Dasar,Imunisasi Program Dasar,"Imunisasi dasar yang wajib diberikan pada bayi dan anak.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-Lanjutan,Imunisasi Program Rutin Lanjutan,"Imunisasi lanjutan setelah imunisasi dasar.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-Baduta,Imunisasi Program Rutin Lanjutan Bawah Dua Tahun,"Imunisasi lanjutan untuk anak usia bawah dua tahun.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-SD,Imunisasi Program Rutin Lanjutan Sekolah Dasar,"Imunisasi lanjutan untuk anak usia sekolah dasar.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-WUS,Imunisasi Program Rutin Lanjutan Wanita Usia Subur,"Imunisasi lanjutan untuk wanita usia subur.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-Tambahan,Imunisasi Program Tambahan,"Imunisasi tambahan di luar program rutin.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-Khusus,Imunisasi Program Khusus,"Imunisasi untuk kondisi atau kelompok khusus.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-reason,IM-Pilihan,Imunisasi Pilihan,"Imunisasi yang bersifat opsional di luar program pemerintah.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
+immunization-routine-timing,IM-Ideal,Imunisasi Ideal,"Pemberian imunisasi sesuai jadwal yang direkomendasikan.",http://terminology.kemkes.go.id/CodeSystem/immunization-routine-timing
+immunization-routine-timing,IM-Kejar,Imunisasi Kejar,"Pemberian imunisasi untuk mengejar ketertinggalan jadwal.",http://terminology.kemkes.go.id/CodeSystem/immunization-routine-timing
