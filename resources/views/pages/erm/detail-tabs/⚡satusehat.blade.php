@@ -808,6 +808,7 @@ new class extends Component {
             'Immunization' => SatuSehatImmunization::class,
             'Care Plan' => SatuSehatCarePlan::class,
             'Questionnaire Response' => SatuSehatQuestionnaireResponse::class,
+            'Document Reference' => SatuSehatDocumentReference::class,
         ];
 
         foreach ($modelMap as $label => $class) {
