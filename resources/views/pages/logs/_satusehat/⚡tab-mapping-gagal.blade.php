@@ -341,20 +341,13 @@ new #[Lazy] class extends Component {
                         </x-atoms.table-cell>
                         <x-atoms.table-cell align="center" :nowrap="true" :action="true">
                             <div class="flex items-center justify-center gap-1.5">
-                                <button
+                                <x-atoms.button variant="ghost" size="sm" icon="document-magnifying-glass"
                                     wire:click="showBundleDetails('{{ $rt }}', '{{ $item->simrs_code }}')"
-                                    title="Lihat bundle terlibat"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-zinc-600 dark:text-primary-dark-300 bg-zinc-50 dark:bg-primary-dark-700 hover:bg-zinc-100 dark:hover:bg-primary-dark-600 border border-zinc-200 dark:border-primary-dark-600 rounded-lg transition-colors">
-                                    <flux:icon name="document-magnifying-glass" class="w-3.5 h-3.5" />
-                                    Bundle
-                                </button>
+                                    tooltip="Lihat bundle terlibat" />
                                 @if ($mappingHref)
-                                    <a href="{{ $mappingHref }}" target="_blank"
-                                        title="Buka halaman mapping"
-                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/40 border border-primary-200 dark:border-primary-800/50 rounded-lg transition-colors">
-                                        Petakan
-                                        <flux:icon name="arrow-top-right-on-square" class="w-3.5 h-3.5" />
-                                    </a>
+                                    <x-atoms.button variant="ghost" size="sm" icon="arrow-top-right-on-square"
+                                        href="{{ $mappingHref }}" target="_blank" :navigate="false"
+                                        tooltip="Buka halaman mapping" />
                                 @endif
                             </div>
                         </x-atoms.table-cell>
@@ -421,11 +414,9 @@ new #[Lazy] class extends Component {
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <flux:badge color="{{ $b['status_color'] }}" size="sm">{{ $b['status_label'] }}</flux:badge>
-                                <a href="{{ $b['erm_url'] }}" target="_blank"
-                                    class="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:underline">
-                                    eRM
-                                    <flux:icon name="arrow-top-right-on-square" class="w-3 h-3" />
-                                </a>
+                                <x-atoms.button variant="ghost" size="sm" icon="arrow-top-right-on-square"
+                                    href="{{ $b['erm_url'] }}" target="_blank" :navigate="false"
+                                    tooltip="Buka eRM">eRM</x-atoms.button>
                             </div>
                         </div>
 
