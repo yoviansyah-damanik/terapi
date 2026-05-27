@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.token'    => \App\Http\Middleware\ApiTokenAuth::class,
             'api.scope'    => \App\Http\Middleware\ApiScopeCheck::class,
             'api.size'     => \App\Http\Middleware\LimitRequestSize::class,
+            'api.version'  => \App\Http\Middleware\ApiModuleVersionGate::class,
             'sec.headers'  => \App\Http\Middleware\SecurityHeaders::class,
             'ip.blacklist' => \App\Http\Middleware\CheckIpBlacklist::class,
         ]);
@@ -31,4 +32,22 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(fn($request) => $request->is('api/*'));
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Endpoint tidak ditemukan.',
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Method tidak diizinkan untuk endpoint ini.',
+                ], 405);
+            }
+        });
     })->create();

@@ -11,13 +11,14 @@ use App\Models\SatuSehat\{SatuSehatMedication, SatuSehatMedicationRequest, SatuS
 use App\Models\SatuSehat\{SatuSehatMedicationStatement, SatuSehatMedicationAdministration, SatuSehatCarePlan};
 use App\Models\SatuSehat\{SatuSehatAllergyIntolerance, SatuSehatClinicalImpression, SatuSehatSpecimen, SatuSehatImagingStudy, SatuSehatDiagnosticReport};
 use App\Models\SatuSehat\SatuSehatComposition;
+use App\Models\SatuSehat\SatuSehatDocumentReference;
 use App\Models\SatuSehat\SatuSehatQuestionnaireResponse;
 use App\Models\SatuSehat\SatuSehatBundle;
 use App\Models\SatuSehat\SatuSehatBundleLog;
 use App\Models\Simrs\{DiagnosaPasien, PemeriksaanRalan, PemeriksaanRanap, ProsedurPasien, RegPeriksa, DetailPemberianObat, ResepPulang, PeriksaLab, Pegawai, CatatanAdimeGizi, SaranKesanLab, HasilRadiologi, Operasi, PermintaanRadiologi};
 use App\Services\SatuSehat\Resources\{ConditionService, EncounterService, ObservationService, ProcedureService, CompositionService};
 use App\Services\SatuSehat\Resources\{MedicationService, MedicationRequestService, MedicationDispenseService, MedicationAdministrationService, ServiceRequestService, CarePlanService};
-use App\Services\SatuSehat\Resources\QuestionnaireResponseService;
+use App\Services\SatuSehat\Resources\{DocumentReferenceService, QuestionnaireResponseService};
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -504,6 +505,7 @@ class ErmFhirService
                     'patient_ihs' => $encounter->patient_ihs,
                     'encounter_ihs' => $encounter->ihs_number,
                     'status' => 'completed',
+                    'category' => 'icd-9',
                     'code' => $code,
                     'code_display' => $display,
                     'raw_response' => $response->data,
@@ -526,6 +528,7 @@ class ErmFhirService
                             'encounter_ihs' => $encounter->ihs_number,
                             'performer_ihs' => $encounter->practitioner_ihs,
                             'status' => 'completed',
+                            'category' => 'icd-9',
                             'code' => $code,
                             'code_display' => $display,
                             'raw_response' => $found,
@@ -627,6 +630,7 @@ class ErmFhirService
                     'patient_ihs' => $encounter->patient_ihs,
                     'encounter_ihs' => $encounter->ihs_number,
                     'status' => 'completed',
+                    'category' => $isRalan ? 'tindakan-rj' : 'tindakan-rl',
                     'code' => $snomedCode,
                     'code_display' => $snomedDisplay,
                     'raw_response' => $response->data,
@@ -2142,7 +2146,7 @@ class ErmFhirService
                 // Cek apakah sudah sinkron secara lokal berdasarkan local_id
                 if (\App\Models\SatuSehat\SatuSehatImagingStudy::where('local_id', $idStr)->exists()) {
                     $items[] = ['id' => $idStr, 'label' => $itemLabel, 'status' => 'ok', 'message' => 'Sudah tersinkronisasi.', 'sent_at' => $sentAt];
-                    $this->logBundleItem(bundle: $bundle, type: 'ImagingStudy', localId: $idStr, status: 'success', response: ['message' => 'Sudah tersinkronisasi (local_id ditemukan).']);
+                    $this->logBundleItem(bundle: $bundle, type: 'ImagingStudy', localId: $idStr, status: 'skipped', response: ['message' => 'Sudah tersinkronisasi (local_id ditemukan).']);
                     $sent++;
                     continue;
                 }
@@ -2301,7 +2305,7 @@ class ErmFhirService
 
                         if (\App\Models\SatuSehat\SatuSehatImagingStudy::where('local_id', $idStr)->exists()) {
                             $items[] = ['id' => $idStr, 'label' => $itemLabel, 'status' => 'ok', 'message' => 'Sudah tersinkronisasi.', 'sent_at' => $sentAt];
-                            $this->logBundleItem(bundle: $bundle, type: 'ImagingStudy', localId: $idStr, status: 'warning', error: 'Sudah tersinkronisasi.');
+                            $this->logBundleItem(bundle: $bundle, type: 'ImagingStudy', localId: $idStr, status: 'skipped', error: 'Sudah tersinkronisasi.');
                             $sent++;
                             continue;
                         }
@@ -5162,18 +5166,20 @@ class ErmFhirService
             'AllergyIntolerance' => fn() => $this->sendAllergyIntolerances($reg, $encounter, null, $bundle),
             'ClinicalImpression' => fn() => $this->sendClinicalImpressions($reg, $encounter, null, $bundle),
             'CarePlan' => fn() => $this->sendCarePlans($reg, $encounter, null, $bundle),
-            'QuestionnaireResponse' => fn() => $this->sendQuestionnaireResponses($reg, $encounter, null, $bundle),
 
             // DiagnosticReport Rad dan Observation Rad tidak dikirimkan dikarenakan menunggu trigger dari webhook ImagingStudy
             // 'DiagnosticReport Rad' => fn() => $this->sendRadDiagnosticReports($reg, $encounter, null, $bundle),
             // 'Observation Rad' => fn() => $this->sendRadObservations($reg, $encounter, null, $bundle),
 
+            // FARMASI
             'MedicationRequest' => fn() => $this->sendMedicationRequests($reg, $encounter, null, $bundle),
             'MedicationDispense' => fn() => $this->sendMedicationDispenses($reg, $encounter, null, $bundle),
             'MedicationStatement' => fn() => $this->sendMedicationStatements($reg, $encounter, null, $bundle),
             'MedicationAdministration' => fn() => $this->sendMedicationAdministrations($reg, $encounter, null, $bundle),
-
+            'QuestionnaireResponse' => fn() => $this->sendQuestionnaireResponses($reg, $encounter, null, $bundle),
+            'DocumentReference' => fn() => $this->sendDocumentReferences($reg, $encounter, null, $bundle),
             'Immunization' => fn() => $this->sendImmunizations($reg, $encounter, null, $bundle),
+
             'Composition' => fn() => $this->sendCompositions($reg, $encounter, null, $bundle),
             'Catatan Gizi ADIME' => fn() => $this->sendAdimeGiziCompositions($reg, $encounter, null, $bundle),
             'Medication Composition' => fn() => $this->sendMedicationCompositions($reg, $encounter, $bundle),
@@ -6011,5 +6017,313 @@ class ErmFhirService
             $this->logBundleItem(bundle: $bundle, type: 'Composition', localId: $localId, status: 'failed', error: $e->getMessage());
             return ['success' => false, 'message' => $e->getMessage(), 'count' => 0, 'items' => []];
         }
+    }
+
+    /**
+     * Kirim DocumentReference per resep farmasi ke Satu Sehat.
+     * Prasyarat: MedicationRequest dalam resep harus sudah dikirim.
+     *
+     * @return array{success: bool, message: string, count?: int, items?: array}
+     */
+    public function sendDocumentReferences(RegPeriksa $reg, SatuSehatEncounter $encounter, ?array $selectedIds = null, ?SatuSehatBundle $bundle = null): array
+    {
+        if ($err = $this->validateEncounter($encounter))
+            return $err;
+
+        $bundle = $this->ensureBundleLog($reg->no_rawat, $bundle);
+        $conn = DB::connection('simrs');
+
+        // Ambil daftar resep — sama pattern dengan sendQuestionnaireResponses
+        $prescriptions = collect();
+        foreach (['nota_resep' => 'no_nota', 'resep_obat' => 'no_resep'] as $joinTable => $joinKey) {
+            try {
+                $prescriptions = $conn->table('telaah_farmasi as tf')
+                    ->join("{$joinTable} as r", 'tf.no_resep', '=', "r.{$joinKey}")
+                    ->where('r.no_rawat', $reg->no_rawat)
+                    ->select('tf.no_resep', 'r.tgl_peresepan', 'r.jam')
+                    ->get();
+                break;
+            } catch (\Exception) {
+            }
+        }
+
+        if ($prescriptions->isEmpty()) {
+            return ['success' => false, 'message' => 'Tidak ada data resep farmasi untuk kunjungan ini.'];
+        }
+
+        // Build content dari konfigurasi RS
+        $phone = preg_replace('/[^0-9]/', '', config('hospital.phone', ''));
+        if ($phone && str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+        $waUrl = $phone ? "https://wa.me/{$phone}" : '';
+        $contents = array_values(array_filter([
+            config('hospital.website') ? [
+                'title' => 'Homepage ' . config('hospital.name', 'RS'),
+                'url' => config('hospital.website'),
+                'format_code' => 'DF000001',
+                'format_display' => 'Homepage Fasyankes',
+            ] : null,
+            $waUrl ? [
+                'title' => 'Kontak WA ' . config('hospital.name', 'RS'),
+                'url' => $waUrl,
+                'format_code' => 'DF000002',
+                'format_display' => 'Link Kontak Emergensi',
+            ] : null,
+            $waUrl ? [
+                'title' => 'Konfirmasi Resep ' . config('hospital.name', 'RS'),
+                'url' => $waUrl,
+                'format_code' => 'DF000003',
+                'format_display' => 'Link Kontak Konfirmasi Resep',
+            ] : null,
+        ]));
+
+        // Coverage type dari kd_pj
+        $kd_pj = strtoupper($reg->kd_pj ?? '');
+        $coverageType = match (true) {
+            str_starts_with($kd_pj, 'BPJ') || str_starts_with($kd_pj, 'BPN') => 'BPJS-K',
+            str_starts_with($kd_pj, 'A') => 'Asuransi-Swasta',
+            str_starts_with($kd_pj, 'P') => 'Biaya-Perusahaan',
+            default => 'Biaya-Sendiri',
+        };
+
+        // no_sep dari BridgingSep (HasOne di RegPeriksa)
+        $noSep = null;
+        try {
+            $noSep = $reg->bridgingSep?->no_sep;
+        } catch (\Exception) {
+        }
+
+        // Nama lokasi (poli/bangsal)
+        $namaLokasi = '';
+        try {
+            $namaLokasi = $reg->status_lanjut === 'Ranap'
+                ? ($reg->kamarInap?->bangsal?->nm_bangsal ?? $reg->kd_poli)
+                : ($reg->poliklinik?->nm_poli ?? $reg->kd_poli);
+        } catch (\Exception) {
+        }
+
+        $patientName = '';
+        try {
+            $patientName = $reg->pasien?->nm_pasien ?? '';
+        } catch (\Exception) {
+        }
+
+        // Nama practitioner dari lokal (fallback ke IHS)
+        $authorDisplay = $encounter->practitioner_ihs;
+        try {
+            $practitioner = SatuSehatPractitioner::where('ihs_number', $encounter->practitioner_ihs)->first();
+            if ($practitioner) {
+                $authorDisplay = $practitioner->name ?? $authorDisplay;
+            }
+        } catch (\Exception) {
+        }
+
+        $service = new DocumentReferenceService();
+        $orgId = $this->getOrganizationId();
+        $sent = 0;
+        $errors = [];
+        $warnings = [];
+        $items = [];
+
+        foreach ($prescriptions as $presc) {
+            $noResep = $presc->no_resep;
+            $idStr = $reg->no_rawat . '-DOCREF_' . $noResep;
+
+            if ($selectedIds !== null && !in_array($noResep, $selectedIds))
+                continue;
+
+            // Skip jika sudah terkirim
+            if (
+                SatuSehatDocumentReference::where('local_id', $noResep)
+                    ->where('encounter_ihs', $encounter->ihs_number)->exists()
+            ) {
+                $this->logBundleItem($bundle, 'DocumentReference', $idStr, 'skipped', null, null, 'Sudah tersinkronisasi.');
+                $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'ok', 'message' => 'Sudah terkirim.', 'sent_at' => now()->toIso8601String()];
+                continue;
+            }
+
+            // Ambil kode obat per no_resep langsung dari tabel resep SIMRS
+            $tglYmd = $presc->tgl_peresepan ? Carbon::parse($presc->tgl_peresepan)->format('Ymd') : null;
+            $tglCarbon = $presc->tgl_peresepan ? Carbon::parse($presc->tgl_peresepan)->toDateString() : null;
+
+            $prescKodeBrng = collect();
+            foreach (['resep_obat' => 'no_resep', 'nota_resep' => 'no_nota'] as $tbl => $col) {
+                try {
+                    $list = DB::connection('simrs')->table($tbl)
+                        ->where($col, $noResep)
+                        ->whereNotNull('kode_brng')
+                        ->pluck('kode_brng');
+                    if ($list->isNotEmpty()) {
+                        $prescKodeBrng = $list;
+                        break;
+                    }
+                } catch (\Exception) {
+                }
+            }
+
+            // Susun daftar item SIMRS: detail_pemberian_obat + resep_pulang (ranap),
+            // difilter by kode_brng resep agar tidak tercampur dengan resep lain di hari sama
+            $simrsItems = collect();
+            try {
+                $q = DB::connection('simrs')->table('detail_pemberian_obat')
+                    ->where('no_rawat', $reg->no_rawat)
+                    ->when($tglCarbon, fn($q) => $q->whereDate('tgl_perawatan', $tglCarbon))
+                    ->when($prescKodeBrng->isNotEmpty(), fn($q) => $q->whereIn('kode_brng', $prescKodeBrng))
+                    ->select('kode_brng', 'tgl_perawatan', 'jam');
+                $simrsItems = $simrsItems->merge($q->get());
+            } catch (\Exception) {
+            }
+
+            if ($reg->status_lanjut === 'Ranap') {
+                try {
+                    $q = DB::connection('simrs')->table('resep_pulang')
+                        ->where('no_rawat', $reg->no_rawat)
+                        ->when($tglCarbon, fn($q) => $q->whereDate('tanggal', $tglCarbon))
+                        ->when($prescKodeBrng->isNotEmpty(), fn($q) => $q->whereIn('kode_brng', $prescKodeBrng))
+                        ->select('kode_brng', DB::raw('tanggal as tgl_perawatan'), 'jam');
+                    $simrsItems = $simrsItems->merge($q->get());
+                } catch (\Exception) {
+                }
+            }
+
+            // Cari MedicationRequest yang sudah terkirim untuk resep ini
+            $sentMedRequests = SatuSehatMedicationRequest::where('encounter_ihs', $encounter->ihs_number)
+                ->whereNotNull('ihs_number')
+                ->when($tglYmd, fn($q) => $q->where('local_id', 'like', "%-{$tglYmd}-%"))
+                ->when($prescKodeBrng->isNotEmpty(), function ($q) use ($prescKodeBrng, $reg) {
+                    $q->where(function ($inner) use ($prescKodeBrng, $reg) {
+                        foreach ($prescKodeBrng as $kode) {
+                            $inner->orWhere('local_id', 'like', "{$reg->no_rawat}-MED_REQ_{$kode}-%");
+                        }
+                    });
+                })
+                ->get();
+
+            // Validasi per kode obat: pastikan setiap obat dalam resep sudah ada MedRequest-nya
+            $missingKodeBrng = [];
+            foreach ($simrsItems as $item) {
+                $itemYmd = $item->tgl_perawatan ? Carbon::parse($item->tgl_perawatan)->format('Ymd') : '';
+                $itemJam = str_replace(':', '', $item->jam ?? '');
+                $expectedId = $reg->no_rawat . '-MED_REQ_' . $item->kode_brng . '-' . $itemYmd . '-' . $itemJam;
+                if ($sentMedRequests->where('local_id', $expectedId)->isEmpty()) {
+                    $missingKodeBrng[] = $item->kode_brng;
+                }
+            }
+
+            if ($sentMedRequests->isEmpty()) {
+                $warnMsg = "[{$noResep}]: Belum ada MedicationRequest terkirim untuk resep ini.";
+                $warnings[] = $warnMsg;
+                $this->logBundleItem($bundle, 'DocumentReference', $idStr, 'warning', null, null, $warnMsg);
+                $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'warn', 'message' => 'Belum ada MedicationRequest terkirim.', 'sent_at' => now()->toIso8601String()];
+                continue;
+            }
+
+            if (!empty($missingKodeBrng)) {
+                $missing = implode(', ', array_unique($missingKodeBrng));
+                $warnMsg = "[{$noResep}]: MedicationRequest belum terkirim untuk obat: {$missing}.";
+                $warnings[] = $warnMsg;
+                $this->logBundleItem($bundle, 'DocumentReference', $idStr, 'warning', null, null, $warnMsg);
+                $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'warn', 'message' => count(array_unique($missingKodeBrng)) . ' obat belum ada MedRequest terkirim.', 'sent_at' => now()->toIso8601String()];
+                continue;
+            }
+
+            // Validasi: QuestionnaireResponse harus sudah terkirim untuk resep ini
+            $sentQrs = SatuSehatQuestionnaireResponse::where('encounter_ihs', $encounter->ihs_number)
+                ->whereNotNull('ihs_number')
+                ->where('local_id', 'like', "%-QR_{$noResep}-%")
+                ->get();
+
+            if ($sentQrs->isEmpty()) {
+                $warnMsg = "[{$noResep}]: QuestionnaireResponse belum terkirim untuk resep ini.";
+                $warnings[] = $warnMsg;
+                $this->logBundleItem($bundle, 'DocumentReference', $idStr, 'warning', null, null, $warnMsg);
+                $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'warn', 'message' => 'QuestionnaireResponse belum terkirim.', 'sent_at' => now()->toIso8601String()];
+                continue;
+            }
+
+            $relatedRefs = $sentMedRequests->map(fn($mr) => "MedicationRequest/{$mr->ihs_number}")->values()->all();
+            foreach ($sentQrs as $qr) {
+                $relatedRefs[] = "QuestionnaireResponse/{$qr->ihs_number}";
+            }
+
+            // Build identifiers
+            $identifiers = [
+                [
+                    'system' => FhirDictionary::prescriptionSystem($orgId),
+                    'use' => 'official',
+                    'value' => $noResep,
+                ],
+                [
+                    'system' => FhirDictionary::KEMKES_CS_COVERAGE_TYPE,
+                    'value' => $coverageType,
+                ],
+            ];
+            if ($noSep) {
+                $identifiers[] = [
+                    'system' => FhirDictionary::claimNumberSystem($orgId),
+                    'value' => $noSep,
+                ];
+            }
+
+            $tglFormatted = $presc->tgl_peresepan
+                ? Carbon::parse($presc->tgl_peresepan)->translatedFormat('j F Y')
+                : now()->translatedFormat('j F Y');
+            $description = "Instruksi Obat {$patientName} ({$noResep}) yang berasal dari {$namaLokasi} pada tanggal {$tglFormatted}";
+
+            $sentAt = now()->toIso8601String();
+
+            try {
+                $resp = $service->createPrescriptionDocumentReference(
+                    identifiers: $identifiers,
+                    patientId: $encounter->patient_ihs,
+                    patientDisplay: $patientName,
+                    encounterId: $encounter->ihs_number,
+                    authorId: $encounter->practitioner_ihs,
+                    authorDisplay: $authorDisplay,
+                    contents: $contents,
+                    relatedRefs: $relatedRefs,
+                    description: $description,
+                    date: now()->utc()->toIso8601String(),
+                );
+                $this->throttle();
+
+                if (!$resp->success) {
+                    $this->logBundleItem(bundle: $bundle, type: 'DocumentReference', localId: $idStr, status: 'failed', payload: $service->getLastPayload(), response: $resp->data, error: $resp->error);
+                    $errors[] = "[{$noResep}]: " . $resp->error;
+                    $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'fail', 'message' => $resp->error, 'sent_at' => $sentAt];
+                    continue;
+                }
+
+                $this->logBundleItem(bundle: $bundle, type: 'DocumentReference', localId: $idStr, status: 'success', payload: $service->getLastPayload(), response: $resp->data, ihsId: $resp->resourceId);
+
+                SatuSehatDocumentReference::create([
+                    'ihs_number' => $resp->resourceId,
+                    'local_id' => $noResep,
+                    'doc_type' => SatuSehatDocumentReference::TYPE_PRESCRIPTION,
+                    'patient_ihs' => $encounter->patient_ihs,
+                    'encounter_ihs' => $encounter->ihs_number,
+                    'author_ihs' => $encounter->practitioner_ihs,
+                    'status' => 'current',
+                    'doc_status' => 'final',
+                    'raw_response' => $resp->data,
+                    'synced_at' => now(),
+                ]);
+
+                $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'ok', 'message' => '', 'sent_at' => $sentAt];
+                $sent++;
+            } catch (\Exception $e) {
+                $this->logBundleItem(bundle: $bundle, type: 'DocumentReference', localId: $idStr, status: 'failed', error: $e->getMessage());
+                $errors[] = "[ERR] [{$noResep}]: " . $e->getMessage();
+                $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'fail', 'message' => $e->getMessage(), 'sent_at' => $sentAt];
+            }
+        }
+
+        $msg = $sent > 0
+            ? "{$sent} DocumentReference berhasil dikirim."
+            : (empty($items) ? 'Tidak ada DocumentReference.' : 'Tidak ada DocumentReference yang dikirim.');
+        $msg = $this->logAndFormatSummary($bundle, 'DocumentReference', $msg, $errors, $warnings, '/\[([^\]]+)\]/');
+
+        return ['success' => $sent > 0 || empty($errors), 'message' => $msg, 'count' => $sent, 'items' => $items];
     }
 }

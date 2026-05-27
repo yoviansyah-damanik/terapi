@@ -3,7 +3,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/hospital</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['hospital'] }}/hospital</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Identitas Rumah Sakit</h3>
 
@@ -105,7 +105,7 @@
             <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                 Contoh
                 Request</h4>
-            <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/hospital" \
+            <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/{{ $activeVersions['hospital'] }}/hospital" \
   -H "Authorization: Bearer &lt;token&gt;" \
   -H "Accept: application/json"</x-atoms.code-block>
         </div>
@@ -117,7 +117,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/hospital/service</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['hospital'] }}/hospital/service</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Info Layanan Sistem</h3>
 
@@ -214,7 +214,7 @@
             <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                 Contoh
                 Request</h4>
-            <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/hospital/service" \
+            <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/{{ $activeVersions['hospital'] }}/hospital/service" \
   -H "Authorization: Bearer &lt;token&gt;" \
   -H "Accept: application/json"</x-atoms.code-block>
         </div>

@@ -321,6 +321,13 @@ new #[Layout('layouts::app')] #[Title('Healthcare Service — Poliklinik')] clas
         $this->showHsPullModal = true;
     }
 
+    /** Update HealthcareService langsung dari tabel tanpa buka modal detail */
+    public function quickUpdateHs(string $kdPoli): void
+    {
+        $this->selectedService = SatuSehatHealthcareService::findByIdentifier($kdPoli);
+        $this->updateHsService();
+    }
+
     // --- SS Location ralan ---
 
     public function openSendLocModal(string $localCode, string $localName): void
@@ -475,6 +482,22 @@ new #[Layout('layouts::app')] #[Title('Healthcare Service — Poliklinik')] clas
         $this->selectedLocation = SatuSehatLocation::where('identifier', $kdPoli)->where('type', 'ralan')->with('organization')->first();
         $this->showLocDetailModal = true;
         $this->dispatch('detail-modal-opened');
+    }
+
+    /** Update Location langsung dari tabel — load data dan buka modal posisi dalam mode update */
+    public function openUpdateLocDirect(string $kdPoli): void
+    {
+        $this->selectedLocation = SatuSehatLocation::where('identifier', $kdPoli)
+            ->where('type', 'ralan')
+            ->with('organization')
+            ->first();
+
+        if (!$this->selectedLocation) {
+            $this->toastError('Data Location tidak ditemukan.');
+            return;
+        }
+
+        $this->openUpdateLocModal();
     }
 
     public function openLocPullModal(string $localCode, string $localName): void
@@ -826,6 +849,9 @@ new #[Layout('layouts::app')] #[Title('Healthcare Service — Poliklinik')] clas
                             @if ($hsIhs)
                                 <x-atoms.button size="sm" variant="ghost" icon="eye" tooltip="Detail HS SS"
                                     wire:click="viewHsDetail('{{ $item->kd_poli }}')" />
+                                <x-atoms.button size="sm" variant="ghost" icon="arrow-path" tooltip="Update HS SS"
+                                    wire:click="quickUpdateHs('{{ $item->kd_poli }}')"
+                                    wire:loading.attr="disabled" wire:target="quickUpdateHs('{{ $item->kd_poli }}')" />
                                 <x-atoms.button size="sm" variant="ghost" icon="trash" class="text-red-500"
                                     tooltip="Hapus HS SS"
                                     wire:click="confirmHsDelete('{{ $item->kd_poli }}', '{{ addslashes($item->nm_poli) }}')" />
@@ -845,6 +871,9 @@ new #[Layout('layouts::app')] #[Title('Healthcare Service — Poliklinik')] clas
                                 <x-atoms.button size="sm" variant="ghost" icon="eye"
                                     tooltip="Detail Location SS"
                                     wire:click="viewLocDetail('{{ $item->kd_poli }}')" />
+                                <x-atoms.button size="sm" variant="ghost" icon="arrow-path"
+                                    tooltip="Update Location SS"
+                                    wire:click="openUpdateLocDirect('{{ $item->kd_poli }}')" />
                                 <x-atoms.button size="sm" variant="ghost" icon="trash" class="text-red-500"
                                     tooltip="Hapus Location SS"
                                     wire:click="confirmLocDelete('{{ $item->kd_poli }}', '{{ addslashes($item->nm_poli) }}')" />

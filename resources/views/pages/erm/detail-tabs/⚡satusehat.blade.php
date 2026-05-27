@@ -30,6 +30,7 @@ use App\Models\SatuSehat\SatuSehatServiceRequest;
 use App\Models\SatuSehat\SatuSehatMedicationStatement;
 use App\Models\SatuSehat\SatuSehatMedicationAdministration;
 use App\Models\SatuSehat\SatuSehatCarePlan;
+use App\Models\SatuSehat\SatuSehatDocumentReference;
 use App\Models\SatuSehat\SatuSehatQuestionnaireResponse;
 use App\Models\SatuSehat\SatuSehatSpecimen;
 use App\Models\SatuSehat\SatuSehatLog;
@@ -75,6 +76,7 @@ new class extends Component {
     public array $ssSelectedMedicationCompositions = [];
     public array $ssSelectedCarePlans = [];
     public array $ssSelectedQuestionnaireResponses = [];
+    public array $ssSelectedDocumentReferences = [];
     public array $ssSelectedSurgeries = [];
 
     public array $sendAllResults = [];
@@ -516,21 +518,27 @@ new class extends Component {
             }
 
             // Validasi: semua MedReq, MedDisp, MedAdm harus sudah terkirim seluruhnya
-            $sentReq  = \App\Models\SatuSehat\SatuSehatMedicationRequest::where('encounter_ihs', $encIhs)->whereNotNull('ihs_number')->count();
+            $sentReq = \App\Models\SatuSehat\SatuSehatMedicationRequest::where('encounter_ihs', $encIhs)->whereNotNull('ihs_number')->count();
             $sentDisp = \App\Models\SatuSehat\SatuSehatMedicationDispense::where('encounter_ihs', $encIhs)->whereNotNull('ihs_number')->count();
-            $sentAdm  = \App\Models\SatuSehat\SatuSehatMedicationAdministration::where('encounter_ihs', $encIhs)->whereNotNull('ihs_number')->count();
+            $sentAdm = \App\Models\SatuSehat\SatuSehatMedicationAdministration::where('encounter_ihs', $encIhs)->whereNotNull('ihs_number')->count();
 
             $incomplete = [];
-            if ($sentReq < $expectedCount)  $incomplete[] = "MedicationRequest ({$sentReq}/{$expectedCount})";
-            if ($sentDisp < $expectedCount) $incomplete[] = "MedicationDispense ({$sentDisp}/{$expectedCount})";
-            if ($sentAdm < $expectedCount)  $incomplete[] = "MedicationAdministration ({$sentAdm}/{$expectedCount})";
+            if ($sentReq < $expectedCount) {
+                $incomplete[] = "MedicationRequest ({$sentReq}/{$expectedCount})";
+            }
+            if ($sentDisp < $expectedCount) {
+                $incomplete[] = "MedicationDispense ({$sentDisp}/{$expectedCount})";
+            }
+            if ($sentAdm < $expectedCount) {
+                $incomplete[] = "MedicationAdministration ({$sentAdm}/{$expectedCount})";
+            }
 
             if (!empty($incomplete)) {
                 $this->toastError('Belum semua resource terkirim: ' . implode(', ', $incomplete) . '.');
                 return;
             }
 
-            $result = (new ErmFhirService())->sendMedicationCompositions($this->reg, $encounter, $this->ssBundleLog);
+            $result = new ErmFhirService()->sendMedicationCompositions($this->reg, $encounter, $this->ssBundleLog);
             $result['success'] ? $this->toastSuccess($result['message']) : $this->toastError($result['message']);
         } catch (\Exception $e) {
             $this->toastError('Error: ' . $e->getMessage());
@@ -716,6 +724,25 @@ new class extends Component {
         }
     }
 
+    public function sendSsDocumentReferences(): void
+    {
+        try {
+            $encounter = $this->getEncounter();
+            if (!$encounter) {
+                $this->toastError('Encounter belum dikirim ke Satu Sehat. Kirim Encounter terlebih dahulu.');
+                return;
+            }
+            if (empty($this->ssSelectedDocumentReferences)) {
+                $this->toastError('Silakan pilih minimal 1 resep untuk dikirim.');
+                return;
+            }
+            $result = new ErmFhirService()->sendDocumentReferences($this->reg, $encounter, $this->ssSelectedDocumentReferences, $this->ssBundleLog);
+            $result['success'] ? $this->toastSuccess($result['message']) : $this->toastError($result['message']);
+        } catch (\Exception $e) {
+            $this->toastError('Error: ' . $e->getMessage());
+        }
+    }
+
     public function checkOrthancStudy(string $accession): void
     {
         try {
@@ -873,6 +900,7 @@ new class extends Component {
         $ssSpecimens = $ssCompositions = $ssClinicalImpressions = collect();
         $ssAllergyIntolerances = $ssImmunizations = $ssMedicationStatements = $ssMedicationAdministrations = $ssAdimeGiziCompositions = $ssMedicationCompositions = $ssCarePlans = collect();
         $ssQuestionnaireResponses = $ssImagingStudies = collect();
+        $ssDocumentReferences = collect();
         $ssEpisodeOfCares = collect();
         $ssDetectedEpisodes = collect();
         $telaahFarmasis = collect();
@@ -938,21 +966,21 @@ new class extends Component {
         $laporanOperasis = LaporanOperasi::where('no_rawat', $noRawat)->orderBy('tanggal')->get();
 
         // Tindakan dari SIMRS (rawat_jl_* / rawat_inap_*)
-        $isRalan   = $this->reg->status_lanjut === 'Ralan';
-        $refTable  = $isRalan ? 'jns_perawatan' : 'jns_perawatan_inap';
-        $tndTables = $isRalan
-            ? ['DR' => 'rawat_jl_dr', 'PR' => 'rawat_jl_pr', 'DRPR' => 'rawat_jl_drpr']
-            : ['DR' => 'rawat_inap_dr', 'PR' => 'rawat_inap_pr', 'DRPR' => 'rawat_inap_drpr'];
+        $isRalan = $this->reg->status_lanjut === 'Ralan';
+        $refTable = $isRalan ? 'jns_perawatan' : 'jns_perawatan_inap';
+        $tndTables = $isRalan ? ['DR' => 'rawat_jl_dr', 'PR' => 'rawat_jl_pr', 'DRPR' => 'rawat_jl_drpr'] : ['DR' => 'rawat_inap_dr', 'PR' => 'rawat_inap_pr', 'DRPR' => 'rawat_inap_drpr'];
 
         $allTindakan = collect();
         try {
             $simrsTnd = DB::connection('simrs');
             foreach ($tndTables as $suffix => $table) {
-                $simrsTnd->table("{$table} as t")
+                $simrsTnd
+                    ->table("{$table} as t")
                     ->join("{$refTable} as ref", 't.kd_jenis_prw', '=', 'ref.kd_jenis_prw')
                     ->where('t.no_rawat', $noRawat)
                     ->select('t.kd_jenis_prw', 't.tgl_perawatan', 't.jam_rawat', 'ref.nm_perawatan')
-                    ->orderBy('t.tgl_perawatan')->orderBy('t.jam_rawat')
+                    ->orderBy('t.tgl_perawatan')
+                    ->orderBy('t.jam_rawat')
                     ->get()
                     ->each(fn($row) => $allTindakan->push((object) array_merge((array) $row, ['_suffix' => $suffix])));
             }
@@ -968,9 +996,7 @@ new class extends Component {
         foreach ($usgConfigs as $key => $config) {
             $data = $config['model']::where('no_rawat', $noRawat)->get();
             if ($data->isNotEmpty()) {
-                $images = $config['gambar_model']::where('no_rawat', $noRawat)
-                    ->whereIn('noorder', $data->pluck('noorder'))
-                    ->get()->pluck('photo_url');
+                $images = $config['gambar_model']::where('no_rawat', $noRawat)->whereIn('noorder', $data->pluck('noorder'))->get()->pluck('photo_url');
 
                 $usgResults[$key] = [
                     'label' => $config['label'],
@@ -998,10 +1024,8 @@ new class extends Component {
             $ssDiagnosticReports = SatuSehatDiagnosticReport::where('encounter_ihs', $encIhs)->get();
             $ssSpecimens = SatuSehatSpecimen::where('encounter_ihs', $encIhs)->get();
             $ssCompositions = SatuSehatComposition::where('encounter_ihs', $encIhs)
-                ->whereNotIn('composition_type', [
-                    SatuSehatComposition::TYPE_CATATAN_GIZI,
-                    SatuSehatComposition::TYPE_RESUME_FARMASI,
-                ])->get();
+                ->whereNotIn('composition_type', [SatuSehatComposition::TYPE_CATATAN_GIZI, SatuSehatComposition::TYPE_RESUME_FARMASI])
+                ->get();
             $ssClinicalImpressions = SatuSehatClinicalImpression::where('encounter_ihs', $encIhs)->get();
             $ssAllergyIntolerances = SatuSehatAllergyIntolerance::where('encounter_ihs', $encIhs)->get();
             $ssImmunizations = SatuSehatImmunization::where('encounter_ihs', $encIhs)->get();
@@ -1011,6 +1035,7 @@ new class extends Component {
             $ssMedicationCompositions = SatuSehatComposition::where('encounter_ihs', $encIhs)->where('composition_type', SatuSehatComposition::TYPE_RESUME_FARMASI)->get();
             $ssCarePlans = SatuSehatCarePlan::where('encounter_ihs', $encIhs)->get();
             $ssQuestionnaireResponses = SatuSehatQuestionnaireResponse::where('encounter_ihs', $encIhs)->get();
+            $ssDocumentReferences = SatuSehatDocumentReference::where('encounter_ihs', $encIhs)->get();
         }
 
         // Episode of Care — deteksi & status kirim per pasien
@@ -1039,6 +1064,26 @@ new class extends Component {
                 }
             }
         } catch (\Exception $e) {
+        }
+
+        // Enrich telaahFarmasis: tambahkan kode_brng per no_resep dari SIMRS
+        if ($telaahFarmasis->isNotEmpty()) {
+            $telaahFarmasis = $telaahFarmasis->map(function ($tf) use ($connSimrs) {
+                $tf->kode_brng_list = collect();
+                foreach (['resep_obat' => 'no_resep', 'nota_resep' => 'no_nota'] as $tbl => $col) {
+                    try {
+                        $list = $connSimrs->table($tbl)
+                            ->where($col, $tf->no_resep)
+                            ->whereNotNull('kode_brng')
+                            ->pluck('kode_brng');
+                        if ($list->isNotEmpty()) {
+                            $tf->kode_brng_list = $list;
+                            break;
+                        }
+                    } catch (\Exception) {}
+                }
+                return $tf;
+            });
         }
 
         // Riwayat bundle job per no_rawat (5 terbaru)
@@ -1113,6 +1158,7 @@ new class extends Component {
             'ClinicalImpression' => $pemeriksaans->filter(fn($p) => !empty($p->keluhan) || !empty($p->penilaian) || !empty($p->tindak_lanjut))->count(),
             'CarePlan' => $instruksiList->count(),
             'QuestionnaireResponse' => $telaahFarmasis->count(),
+            'DocumentReference' => $telaahFarmasis->count(),
             'ServiceRequest' => $ptSrLab + $ptSrRad + $ptSrUsg,
             'Specimen' => $ptSpecimen,
             'ImagingStudy' => $ptImgRad + $ptImgUsg,
@@ -1141,7 +1187,7 @@ new class extends Component {
             'laboratorium' => [['label' => 'ServiceRequest', 'count' => $ssServiceRequests->where('note', 'LAB')->count(), 'total' => $ptSrLab], ['label' => 'Specimen', 'count' => $ssSpecimens->count(), 'total' => $ptSpecimen], ['label' => 'Observation', 'count' => $ssObservations->where('category', 'laboratory')->count(), 'total' => $ptObsLab], ['label' => 'DiagnosticReport', 'count' => $ssDiagnosticReports->filter(fn($dr) => str_contains($dr->local_id, 'DR_LAB_'))->count(), 'total' => $ptDrLab]],
             'radiologi' => [['label' => 'ServiceRequest', 'count' => $ssServiceRequests->where('note', 'RAD')->count(), 'total' => $ptSrRad], ['label' => 'ImagingStudy', 'count' => $ssImagingStudies->filter(fn($is) => str_contains($is->local_id, 'IMG_RAD_'))->count(), 'total' => $ptImgRad], ['label' => 'Observation', 'count' => $ssObservations->filter(fn($o) => str_contains($o->local_id, 'OBS_RAD_'))->count(), 'total' => $ptObsRad], ['label' => 'DiagnosticReport', 'count' => $ssDiagnosticReports->filter(fn($dr) => str_contains($dr->local_id, 'DR_RAD_'))->count(), 'total' => $ptDrRad]],
             'usg' => [['label' => 'ServiceRequest', 'count' => $ssServiceRequests->where('note', 'USG')->count(), 'total' => $ptSrUsg], ['label' => 'ImagingStudy', 'count' => $ssImagingStudies->filter(fn($is) => str_contains($is->local_id, 'IMG_USG_'))->count(), 'total' => $ptImgUsg], ['label' => 'Observation', 'count' => $ssObservations->filter(fn($o) => str_contains($o->local_id, 'OBS_USG_'))->count(), 'total' => $ptObsUsg], ['label' => 'DiagnosticReport', 'count' => $ssDiagnosticReports->filter(fn($dr) => str_contains($dr->local_id, 'DR_USG_'))->count(), 'total' => $ptDrUsg]],
-            'farmasi' => [['label' => 'MedicationRequest', 'count' => $ssMedications->count(), 'total' => $potentialSummary['MedicationRequest']], ['label' => 'MedicationDispense', 'count' => $ssMedicationDispenses->count(), 'total' => $potentialSummary['MedicationDispense']], ['label' => 'MedicationStatement', 'count' => $ssMedicationStatements->count(), 'total' => $potentialSummary['MedicationStatement']], ['label' => 'MedicationAdministration', 'count' => $ssMedicationAdministrations->count(), 'total' => $potentialSummary['MedicationAdministration']], ['label' => 'Immunization', 'count' => $ssImmunizations->count(), 'total' => $potentialSummary['Immunization']], ['label' => 'QuestionnaireResponse', 'count' => $ssQuestionnaireResponses->where('type', 'telaah_farmasi')->count(), 'total' => $potentialSummary['QuestionnaireResponse']]],
+            'farmasi' => [['label' => 'MedicationRequest', 'count' => $ssMedications->count(), 'total' => $potentialSummary['MedicationRequest']], ['label' => 'MedicationDispense', 'count' => $ssMedicationDispenses->count(), 'total' => $potentialSummary['MedicationDispense']], ['label' => 'MedicationStatement', 'count' => $ssMedicationStatements->count(), 'total' => $potentialSummary['MedicationStatement']], ['label' => 'MedicationAdministration', 'count' => $ssMedicationAdministrations->count(), 'total' => $potentialSummary['MedicationAdministration']], ['label' => 'Immunization', 'count' => $ssImmunizations->count(), 'total' => $potentialSummary['Immunization']], ['label' => 'QuestionnaireResponse', 'count' => $ssQuestionnaireResponses->where('type', 'telaah_farmasi')->count(), 'total' => $potentialSummary['QuestionnaireResponse']], ['label' => 'DocumentReference', 'count' => $ssDocumentReferences->count(), 'total' => $potentialSummary['DocumentReference']]],
             'komposisi' => [['label' => 'Composition', 'count' => $ssCompositions->count() + $ssAdimeGiziCompositions->count() + $ssMedicationCompositions->count(), 'total' => $potentialSummary['Composition']]],
         ];
 
@@ -1150,7 +1196,62 @@ new class extends Component {
 
         $ssBundleLog = $this->ssBundleLog;
 
-        return compact('isBundleProcessing', 'ssEncounter', 'ssConditions', 'ssObservations', 'ssProcedures', 'ssMedications', 'ssMedicationDispenses', 'ssServiceRequests', 'ssImagingStudies', 'ssDiagnosticReports', 'ssSpecimens', 'ssCompositions', 'ssClinicalImpressions', 'ssAllergyIntolerances', 'ssImmunizations', 'ssMedicationStatements', 'ssMedicationAdministrations', 'ssAdimeGiziCompositions', 'ssMedicationCompositions', 'ssCarePlans', 'ssQuestionnaireResponses', 'ssEpisodeOfCares', 'ssDetectedEpisodes', 'ssSummary', 'ssBundleLog', 'ssBundleLogs', 'telaahFarmasis', 'hasSsErrors', 'ssValidationMessages', 'diagnosas', 'prosedurs', 'pemeriksaans', 'catatanGizis', 'obats', 'resepPulangs', 'periksaLabsPk', 'saranKesanLabs', 'permintaanRadiologis', 'periksaRadiologis', 'hasilRadiologis', 'permintaanUsgs', 'alergiPasiens', 'vaksin', 'dicomStudies', 'dicomRouterResponses', 'grandTotalTarget', 'potentialSummary', 'medList', 'instruksiList', 'usgResults', 'operasis', 'laporanOperasis', 'allTindakan');
+        return compact(
+            'isBundleProcessing',
+            'ssEncounter',
+            'ssConditions',
+            'ssObservations',
+            'ssProcedures',
+            'ssMedications',
+            'ssMedicationDispenses',
+            'ssServiceRequests',
+            'ssImagingStudies',
+            'ssDiagnosticReports',
+            'ssSpecimens',
+            'ssCompositions',
+            'ssClinicalImpressions',
+            'ssAllergyIntolerances',
+            'ssImmunizations',
+            'ssMedicationStatements',
+            'ssMedicationAdministrations',
+            'ssAdimeGiziCompositions',
+            'ssMedicationCompositions',
+            'ssCarePlans',
+            'ssQuestionnaireResponses',
+            'ssDocumentReferences',
+            'ssEpisodeOfCares',
+            'ssDetectedEpisodes',
+            'ssSummary',
+            'ssBundleLog',
+            'ssBundleLogs',
+            'telaahFarmasis',
+            'hasSsErrors',
+            'ssValidationMessages',
+            'diagnosas',
+            'prosedurs',
+            'pemeriksaans',
+            'catatanGizis',
+            'obats',
+            'resepPulangs',
+            'periksaLabsPk',
+            'saranKesanLabs',
+            'permintaanRadiologis',
+            'periksaRadiologis',
+            'hasilRadiologis',
+            'permintaanUsgs',
+            'alergiPasiens',
+            'vaksin',
+            'dicomStudies',
+            'dicomRouterResponses',
+            'grandTotalTarget',
+            'potentialSummary',
+            'medList',
+            'instruksiList',
+            'usgResults',
+            'operasis',
+            'laporanOperasis',
+            'allTindakan',
+        );
     }
 };
 ?>
@@ -1167,28 +1268,34 @@ new class extends Component {
     $prereq_obs_rad = isset($ssObservations) && $ssObservations->where('category', 'imaging')->count() > 0;
 
     // Ketersediaan Location reference — wajib untuk pengiriman Medication, Lab, dan Rad
-    $prereq_location_apotek = \App\Models\SatuSehat\SatuSehatLocation::where('type', 'apotek')->whereNotNull('ihs_number')->exists();
-    $prereq_location_lab    = \App\Models\SatuSehat\SatuSehatLocation::where('type', 'lab')->whereNotNull('ihs_number')->exists();
-    $prereq_location_rad    = \App\Models\SatuSehat\SatuSehatLocation::where('type', 'rad')->whereNotNull('ihs_number')->exists();
+    $prereq_location_apotek = \App\Models\SatuSehat\SatuSehatLocation::where('type', 'apotek')
+        ->whereNotNull('ihs_number')
+        ->exists();
+    $prereq_location_lab = \App\Models\SatuSehat\SatuSehatLocation::where('type', 'lab')
+        ->whereNotNull('ihs_number')
+        ->exists();
+    $prereq_location_rad = \App\Models\SatuSehat\SatuSehatLocation::where('type', 'rad')
+        ->whereNotNull('ihs_number')
+        ->exists();
 @endphp
 <div x-data="{
     ssFhirTab: new URLSearchParams(location.search).get('ssFhirTab') || 'encounter'
-}" x-init="
-    $watch('ssFhirTab', val => {
-        if (activeTab === 'satusehat') {
-            let url = new URL(window.location.href);
-            url.searchParams.set('ssFhirTab', val);
-            window.history.replaceState({}, '', url);
-        }
-    });
-    $watch('activeTab', val => {
-        if (val === 'satusehat') {
-            let url = new URL(window.location.href);
-            url.searchParams.set('ssFhirTab', ssFhirTab);
-            window.history.replaceState({}, '', url);
-        }
-    });
-" @if ($isBundleProcessing) wire:poll.5000ms @endif>
+}" x-init="$watch('ssFhirTab', val => {
+    if (activeTab === 'satusehat') {
+        let url = new URL(window.location.href);
+        url.searchParams.set('ssFhirTab', val);
+        window.history.replaceState({}, '', url);
+    }
+});
+$watch('activeTab', val => {
+    if (val === 'satusehat') {
+        let url = new URL(window.location.href);
+        url.searchParams.set('ssFhirTab', ssFhirTab);
+        window.history.replaceState({}, '', url);
+    }
+});" @if ($isBundleProcessing)
+    wire:poll.5000ms
+    @endif>
     @if (!$ssEncounter)
         <div class="space-y-3">
             {{-- Panel validasi prasyarat --}}
@@ -1429,6 +1536,14 @@ new class extends Component {
                     $ssQuestionnaireResponses->count(),
                     'Telaah Farmasi & lainnya',
                     $ps['QuestionnaireResponse'],
+                ],
+                [
+                    'document-reference',
+                    'document-text',
+                    'Doc. Reference',
+                    $ssDocumentReferences->count(),
+                    'Instruksi resep farmasi',
+                    $telaahFarmasis->count(),
                 ],
             ];
         @endphp
@@ -1871,6 +1986,12 @@ new class extends Component {
                         class="overflow-hidden bg-white rounded-xl border border-zinc-200/80 shadow-sm dark:bg-primary-dark-800 dark:border-primary-dark-700/60">
                         @include('pages.erm.detail-tabs._satusehat.questionnaire-response')
                     </div>
+
+                    {{-- Document Reference --}}
+                    <div x-show="ssFhirTab === 'document-reference'" x-cloak
+                        class="overflow-hidden bg-white rounded-xl border border-zinc-200/80 shadow-sm dark:bg-primary-dark-800 dark:border-primary-dark-700/60">
+                        @include('pages.erm.detail-tabs._satusehat.document-reference')
+                    </div>
                 </div>
             </div>
         </div>
@@ -2104,8 +2225,14 @@ new class extends Component {
                     'Composition' => [
                         ['Encounter', $encOk],
                         ['MedicationRequest', $ssMedications->count() >= $medList->count() && $medList->count() > 0],
-                        ['MedicationDispense', $ssMedicationDispenses->count() >= $medList->count() && $medList->count() > 0],
-                        ['MedicationAdministration', $ssMedicationAdministrations->count() >= $medList->count() && $medList->count() > 0],
+                        [
+                            'MedicationDispense',
+                            $ssMedicationDispenses->count() >= $medList->count() && $medList->count() > 0,
+                        ],
+                        [
+                            'MedicationAdministration',
+                            $ssMedicationAdministrations->count() >= $medList->count() && $medList->count() > 0,
+                        ],
                     ],
                 ];
             @endphp

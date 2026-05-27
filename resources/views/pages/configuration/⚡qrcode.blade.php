@@ -11,7 +11,6 @@ use Livewire\Attributes\Title;
 new #[Layout('layouts::app')] #[Title('Pengaturan QR Code')] class extends Component {
     use WithFileUploads;
 
-    // Generator QR defaults
     public string $foregroundColor = '#000000';
     public string $backgroundColor = '#FFFFFF';
     public int $size = 300;
@@ -21,7 +20,6 @@ new #[Layout('layouts::app')] #[Title('Pengaturan QR Code')] class extends Compo
     public $logoFile = null;
     public int $logoSize = 60;
     public ?string $currentLogoPath = null;
-
     public ?string $qrPreview = null;
 
     public function mount(): void
@@ -35,6 +33,14 @@ new #[Layout('layouts::app')] #[Title('Pengaturan QR Code')] class extends Compo
         $this->logoSize = (int) ConfigurationHelper::get('qrcode.logo_size', '60');
         $this->currentLogoPath = ConfigurationHelper::get('qrcode.logo_path');
         $this->generatePreview();
+    }
+
+    public function updated(string $property): void
+    {
+        $triggers = ['foregroundColor', 'backgroundColor', 'size', 'margin', 'errorCorrection', 'logoEnabled', 'logoSize'];
+        if (in_array($property, $triggers)) {
+            $this->generatePreview();
+        }
     }
 
     public function generatePreview(): void
@@ -106,75 +112,81 @@ new #[Layout('layouts::app')] #[Title('Pengaturan QR Code')] class extends Compo
 ?>
 
 <div>
-    <x-ui.page-header title="Pengaturan QR Code" subtitle="Konfigurasi default generator QR Code">
+    <x-ui.page-header title="Pengaturan QR Code" subtitle="Konfigurasi tampilan default generator QR Code">
         <x-slot:actions>
-            <div class="flex items-center gap-3">
-                <x-atoms.button wire:click="saveSettings" variant="primary" icon="check">Simpan
-                    Perubahan</x-atoms.button>
-            </div>
+            <x-atoms.button wire:click="saveSettings" variant="primary" icon="check">Simpan Perubahan</x-atoms.button>
         </x-slot:actions>
     </x-ui.page-header>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
-        {{-- Form --}}
-        <div class="lg:col-span-2">
-            <x-ui.section-card title="Default Generator QR">
-                <div class="space-y-5">
+        {{-- Form Settings --}}
+        <div class="space-y-4 lg:col-span-2">
 
-                    {{-- Warna --}}
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <flux:field>
-                            <flux:label>Warna Modul</flux:label>
-                            <div class="flex items-center gap-2">
-                                <input type="color" wire:model.live.debounce.300ms="foregroundColor"
-                                    class="h-9 w-12 rounded border border-zinc-200 dark:border-primary-dark-700 cursor-pointer bg-transparent" />
-                                <flux:input wire:model.live.debounce.300ms="foregroundColor"
-                                    class="font-mono text-sm flex-1" />
-                            </div>
-                            @error('foregroundColor')
-                                <flux:error>{{ $message }}</flux:error>
-                            @enderror
-                        </flux:field>
-
-                        <flux:field>
-                            <flux:label>Latar Belakang</flux:label>
-                            <div class="flex items-center gap-2">
-                                <input type="color" wire:model.live.debounce.300ms="backgroundColor"
-                                    class="h-9 w-12 rounded border border-zinc-200 dark:border-primary-dark-700 cursor-pointer bg-transparent" />
-                                <flux:input wire:model.live.debounce.300ms="backgroundColor"
-                                    class="font-mono text-sm flex-1" />
-                            </div>
-                            @error('backgroundColor')
-                                <flux:error>{{ $message }}</flux:error>
-                            @enderror
-                        </flux:field>
+            {{-- Tampilan --}}
+            <x-ui.section-card>
+                <x-slot:title>
+                    <div class="flex items-center gap-2">
+                        <flux:icon name="swatch" class="h-4 w-4 text-zinc-400" />
+                        <span>Tampilan</span>
                     </div>
-
-                    {{-- Ukuran & Margin --}}
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <flux:field>
-                            <flux:label>Ukuran Default (px)</flux:label>
-                            <flux:input type="number" wire:model.live.debounce.300ms="size" min="50"
-                                max="2000" />
-                            @error('size')
-                                <flux:error>{{ $message }}</flux:error>
-                            @enderror
-                        </flux:field>
-
-                        <flux:field>
-                            <flux:label>Margin Default (px)</flux:label>
-                            <flux:input type="number" wire:model.live.debounce.300ms="margin" min="0"
-                                max="100" />
-                            @error('margin')
-                                <flux:error>{{ $message }}</flux:error>
-                            @enderror
-                        </flux:field>
-                    </div>
-
-                    {{-- Error Correction --}}
+                </x-slot:title>
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <flux:field>
-                        <flux:label>Koreksi Error Default</flux:label>
+                        <flux:label>Warna Modul (Foreground)</flux:label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" wire:model.live.debounce.300ms="foregroundColor"
+                                class="h-9 w-12 shrink-0 cursor-pointer rounded-lg border border-zinc-200 bg-transparent p-0.5 dark:border-primary-dark-700" />
+                            <flux:input wire:model.live.debounce.300ms="foregroundColor" class="font-mono text-sm" />
+                        </div>
+                        @error('foregroundColor')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Warna Latar Belakang</flux:label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" wire:model.live.debounce.300ms="backgroundColor"
+                                class="h-9 w-12 shrink-0 cursor-pointer rounded-lg border border-zinc-200 bg-transparent p-0.5 dark:border-primary-dark-700" />
+                            <flux:input wire:model.live.debounce.300ms="backgroundColor" class="font-mono text-sm" />
+                        </div>
+                        @error('backgroundColor')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                    </flux:field>
+                </div>
+            </x-ui.section-card>
+
+            {{-- Dimensi & Kualitas --}}
+            <x-ui.section-card>
+                <x-slot:title>
+                    <div class="flex items-center gap-2">
+                        <flux:icon name="squares-2x2" class="h-4 w-4 text-zinc-400" />
+                        <span>Dimensi & Kualitas</span>
+                    </div>
+                </x-slot:title>
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                    <flux:field>
+                        <flux:label>Ukuran (px)</flux:label>
+                        <flux:input type="number" wire:model.live.debounce.500ms="size" min="50"
+                            max="2000" />
+                        @error('size')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Margin (px)</flux:label>
+                        <flux:input type="number" wire:model.live.debounce.500ms="margin" min="0"
+                            max="100" />
+                        @error('margin')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Koreksi Error</flux:label>
                         <flux:select wire:model.live="errorCorrection">
                             <flux:select.option value="L">L — Low (7%)</flux:select.option>
                             <flux:select.option value="M">M — Medium (15%)</flux:select.option>
@@ -185,89 +197,200 @@ new #[Layout('layouts::app')] #[Title('Pengaturan QR Code')] class extends Compo
                             <flux:error>{{ $message }}</flux:error>
                         @enderror
                     </flux:field>
-
-                    <hr class="border-zinc-200 dark:border-primary-dark-700">
-
-                    {{-- Logo --}}
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm font-medium text-zinc-700 dark:text-primary-dark-300">Logo di Tengah
-                                QR</p>
-                            <flux:switch wire:model.live="logoEnabled" />
-                        </div>
-
-                        @if ($logoEnabled)
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <flux:field>
-                                    <flux:label>Ukuran Logo (px)</flux:label>
-                                    <flux:input type="number" wire:model.live.debounce.300ms="logoSize" min="20"
-                                        max="200" />
-                                    @error('logoSize')
-                                        <flux:error>{{ $message }}</flux:error>
-                                    @enderror
-                                </flux:field>
-
-                                <div>
-                                    <flux:field>
-                                        <flux:label>Ganti Logo</flux:label>
-                                        <flux:input type="file" wire:model="logoFile" accept=".png,.jpg,.jpeg" />
-                                        @error('logoFile')
-                                            <flux:error>{{ $message }}</flux:error>
-                                        @enderror
-                                    </flux:field>
-                                    <p class="mt-1 text-[11px] text-zinc-400 dark:text-primary-dark-500">PNG atau
-                                        JPG, maks.
-                                        2 MB</p>
-                                </div>
-                            </div>
-
-                            @if ($currentLogoPath)
-                                <div
-                                    class="flex items-center gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-primary-dark-900/50">
-                                    <img src="{{ Storage::disk('public')->url($currentLogoPath) }}" alt="Logo"
-                                        class="h-10 w-10 rounded object-contain border border-zinc-200 dark:border-primary-dark-700" />
-                                    <div class="flex-1 min-w-0">
-                                        <p
-                                            class="text-xs font-medium text-zinc-700 dark:text-primary-dark-300 truncate">
-                                            {{ basename($currentLogoPath) }}
-                                        </p>
-                                        <p class="text-[11px] text-zinc-400 dark:text-primary-dark-500">Logo aktif
-                                            saat ini
-                                        </p>
-                                    </div>
-                                    <x-atoms.button variant="ghost" size="sm" icon="trash"
-                                        wire:click="removeLogo" wire:confirm="Hapus logo ini?"
-                                        class="text-red-500 hover:text-red-600" />
-                                </div>
-                            @endif
-                        @endif
-                    </div>
                 </div>
             </x-ui.section-card>
+
+            {{-- Logo --}}
+            <x-ui.section-card>
+                <x-slot:title>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <flux:icon name="photo" class="h-4 w-4 text-zinc-400" />
+                            <span>Logo di Tengah QR</span>
+                        </div>
+                        <flux:switch wire:model.live="logoEnabled" />
+                    </div>
+                </x-slot:title>
+
+                @if ($logoEnabled)
+                    <div class="space-y-4"
+                        x-data="{
+                            dragging: false,
+                            localPreview: null,
+                            localName: null,
+                            handleDrop(e) {
+                                this.dragging = false;
+                                const file = e.dataTransfer.files[0];
+                                if (!file) return;
+                                const dt = new DataTransfer();
+                                dt.items.add(file);
+                                this.$refs.fileInput.files = dt.files;
+                                this.$refs.fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                this.localPreview = URL.createObjectURL(file);
+                                this.localName = file.name;
+                            },
+                            handleChange(e) {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                this.localPreview = URL.createObjectURL(file);
+                                this.localName = file.name;
+                            }
+                        }">
+
+                        {{-- Ukuran logo --}}
+                        <flux:field class="max-w-xs">
+                            <flux:label>Ukuran Logo (px)</flux:label>
+                            <flux:input type="number" wire:model.live.debounce.500ms="logoSize" min="20" max="200" />
+                            @error('logoSize')
+                                <flux:error>{{ $message }}</flux:error>
+                            @enderror
+                        </flux:field>
+
+                        {{-- Drop zone --}}
+                        <div
+                            @dragover.prevent="dragging = true"
+                            @dragleave.prevent="dragging = false"
+                            @drop.prevent="handleDrop($event)"
+                            @click="$refs.fileInput.click()"
+                            :class="dragging
+                                ? 'border-primary-400 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/20'
+                                : 'border-zinc-300 bg-zinc-50 dark:border-primary-dark-600 dark:bg-primary-dark-900/40 hover:border-zinc-400 dark:hover:border-primary-dark-500'"
+                            class="relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 transition-colors select-none">
+
+                            <template x-if="localPreview">
+                                <img :src="localPreview" class="mb-2 h-16 w-16 rounded-lg object-contain" />
+                            </template>
+                            <template x-if="!localPreview">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-primary-dark-700">
+                                    <flux:icon name="arrow-up-tray" class="h-6 w-6 text-zinc-400 dark:text-primary-dark-400" />
+                                </div>
+                            </template>
+
+                            <div class="text-center">
+                                <p class="text-sm font-medium text-zinc-700 dark:text-primary-dark-200"
+                                    x-text="localName ?? 'Drag & drop atau klik untuk pilih file'"></p>
+                                <p class="mt-0.5 text-xs text-zinc-400 dark:text-primary-dark-500">PNG atau JPG, maks. 2 MB</p>
+                            </div>
+
+                            <input type="file" x-ref="fileInput" wire:model="logoFile"
+                                @change="handleChange($event)"
+                                accept=".png,.jpg,.jpeg" class="hidden" />
+                        </div>
+                        @error('logoFile')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+
+                        {{-- Logo aktif --}}
+                        @if ($currentLogoPath)
+                            <div class="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-primary-dark-700 dark:bg-primary-dark-900/50">
+                                <img src="{{ asset("storage/{$currentLogoPath}") }}"
+                                    alt="Logo aktif"
+                                    class="h-12 w-12 shrink-0 rounded-lg border border-zinc-200 object-contain dark:border-primary-dark-700" />
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-xs font-medium text-zinc-700 dark:text-primary-dark-300">{{ basename($currentLogoPath) }}</p>
+                                    <p class="text-[11px] text-zinc-400 dark:text-primary-dark-500">Logo aktif saat ini</p>
+                                </div>
+                                <x-atoms.button variant="ghost" size="sm" icon="trash" wire:click="removeLogo"
+                                    wire:confirm="Hapus logo ini?" class="text-red-500 hover:text-red-600" />
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <p class="text-xs text-zinc-400 dark:text-primary-dark-500">Aktifkan toggle di atas untuk menyisipkan logo di tengah QR Code.</p>
+                @endif
+            </x-ui.section-card>
+
         </div>
 
-        {{-- Preview --}}
-        <div>
-            <x-ui.section-card title="Preview">
+        {{-- Live Preview (sticky) --}}
+        <div class="lg:sticky lg:top-6 lg:self-start">
+            <x-ui.section-card title="Live Preview">
                 <div class="flex flex-col items-center gap-4">
-                    @if ($qrPreview)
-                        <img src="{{ $qrPreview }}" alt="QR Preview"
-                            class="max-w-full rounded-xl border border-zinc-200 dark:border-primary-dark-700 shadow" />
-                        <p class="text-xs text-zinc-400 dark:text-primary-dark-500 text-center">
-                            {{ $size }}×{{ $size }}px · Margin {{ $margin }}px · Error
-                            {{ $errorCorrection }}
-                        </p>
-                    @else
-                        <div class="flex flex-col items-center gap-3 py-10">
+
+                    {{-- QR image dengan loading overlay --}}
+                    <div class="relative flex items-center justify-center">
+                        @if ($qrPreview)
+                            <img src="{{ $qrPreview }}" alt="QR Preview"
+                                class="max-w-full rounded-2xl border border-zinc-200 shadow-sm dark:border-primary-dark-700"
+                                wire:loading.class="opacity-30"
+                                wire:target="foregroundColor,backgroundColor,size,margin,errorCorrection,logoEnabled,logoSize,generatePreview" />
+                        @else
                             <div
-                                class="flex items-center justify-center w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-primary-dark-700">
-                                <flux:icon name="qr-code" class="w-8 h-8 text-zinc-300 dark:text-primary-dark-500" />
+                                class="flex h-48 w-48 flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 dark:border-primary-dark-600 dark:bg-primary-dark-900/50">
+                                <flux:icon name="qr-code" class="h-12 w-12 text-zinc-200 dark:text-primary-dark-600" />
+                                <p class="mt-2 text-xs text-zinc-400 dark:text-primary-dark-500">Preview tidak
+                                    tersedia</p>
                             </div>
-                            <p class="text-sm text-zinc-400 dark:text-primary-dark-500">Preview tidak tersedia</p>
+                        @endif
+
+                        {{-- Loading spinner overlay --}}
+                        <div wire:loading
+                            wire:target="foregroundColor,backgroundColor,size,margin,errorCorrection,logoEnabled,logoSize,generatePreview"
+                            class="absolute inset-0 flex items-center justify-center">
+                            <div
+                                class="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 shadow dark:bg-primary-dark-800/80">
+                                <flux:icon name="arrow-path"
+                                    class="h-6 w-6 animate-spin text-zinc-500 dark:text-primary-dark-300" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Metadata --}}
+                    @if ($qrPreview)
+                        <div class="w-full space-y-1.5 rounded-xl bg-zinc-50 p-3 dark:bg-primary-dark-900/50">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-zinc-400 dark:text-primary-dark-500">Ukuran</span>
+                                <span
+                                    class="font-mono font-medium text-zinc-700 dark:text-primary-dark-300">{{ $size }}×{{ $size }}
+                                    px</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-zinc-400 dark:text-primary-dark-500">Margin</span>
+                                <span
+                                    class="font-mono font-medium text-zinc-700 dark:text-primary-dark-300">{{ $margin }}
+                                    px</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-zinc-400 dark:text-primary-dark-500">Koreksi Error</span>
+                                <span
+                                    class="font-medium text-zinc-700 dark:text-primary-dark-300">{{ $errorCorrection }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-zinc-400 dark:text-primary-dark-500">Logo</span>
+                                @if ($logoEnabled && $currentLogoPath)
+                                    <flux:badge color="emerald" size="sm">Aktif · {{ $logoSize }}px
+                                    </flux:badge>
+                                @elseif ($logoEnabled)
+                                    <flux:badge color="amber" size="sm">Belum ada logo</flux:badge>
+                                @else
+                                    <flux:badge color="zinc" size="sm">Nonaktif</flux:badge>
+                                @endif
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-zinc-400 dark:text-primary-dark-500">Foreground</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="inline-block h-3 w-3 rounded-full border border-zinc-300 dark:border-primary-dark-600"
+                                        style="background: {{ $foregroundColor }}"></span>
+                                    <span
+                                        class="font-mono font-medium text-zinc-700 dark:text-primary-dark-300">{{ strtoupper($foregroundColor) }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-zinc-400 dark:text-primary-dark-500">Background</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span
+                                        class="inline-block h-3 w-3 rounded-full border border-zinc-300 dark:border-primary-dark-600"
+                                        style="background: {{ $backgroundColor }}"></span>
+                                    <span
+                                        class="font-mono font-medium text-zinc-700 dark:text-primary-dark-300">{{ strtoupper($backgroundColor) }}</span>
+                                </div>
+                            </div>
                         </div>
                     @endif
-                    <p class="text-[11px] text-zinc-400 dark:text-primary-dark-500 text-center">
-                        Preview menggunakan data contoh <span class="font-mono">https://example.com</span>
+
+                    <p class="text-center text-[11px] text-zinc-400 dark:text-primary-dark-500">
+                        Contoh data: <span class="font-mono">https://example.com</span>
                     </p>
                 </div>
             </x-ui.section-card>

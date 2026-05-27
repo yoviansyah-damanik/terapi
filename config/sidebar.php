@@ -49,6 +49,7 @@ return [
             ['title' => 'Ringkasan', 'route' => 'local.summary', 'icon' => 'chart-pie'],
             ['title' => 'Organization', 'route' => 'local.organization', 'icon' => 'building-library', 'active_match' => ['local.organization', 'bpjs.fhir-resource.organization', 'satusehat.fhir-resource.organizations']],
             ['title' => 'Patient', 'route' => 'local.patient', 'icon' => 'users', 'active_match' => ['local.patient', 'bpjs.fhir-resource.patient', 'satusehat.fhir-resource.patients']],
+            ['title' => 'Practitioner', 'route' => 'local.practitioner', 'icon' => 'user-group'],
             [
                 'title' => 'Source',
                 'icon' => 'document-text',
@@ -69,18 +70,6 @@ return [
                 'children' => [
                     ['title' => 'Tindakan', 'route' => 'local.clinical.procedure', 'icon' => 'scissors', 'active_match' => ['local.clinical.procedure', 'bpjs.fhir-resource.procedure']],
                     ['title' => 'Operasi', 'route' => 'local.clinical.surgery', 'icon' => 'scissors'],
-                ]
-            ],
-            [
-                'title' => 'Practitioner',
-                'icon' => 'user-group',
-                'expanded' => 'local.practitioner*',
-                'children' => [
-                    ['title' => 'Dokter', 'route' => 'local.practitioner.doctor', 'icon' => 'user'],
-                    ['title' => 'Tenaga Medis', 'route' => 'local.practitioner.medical', 'icon' => 'user-plus'],
-                    ['title' => 'Keperawatan/Kebidanan', 'route' => 'local.practitioner.nursing', 'icon' => 'heart'],
-                    ['title' => 'Penunjang Medis', 'route' => 'local.practitioner.support', 'icon' => 'wrench-screwdriver'],
-                    ['title' => 'Non Medis', 'route' => 'local.practitioner.non-medical', 'icon' => 'briefcase'],
                 ]
             ],
             [
@@ -291,6 +280,7 @@ return [
         'children' => [
             ['title' => 'Ringkasan', 'route' => 'api-portal.summary', 'icon' => 'chart-bar'],
             ['title' => 'Manajemen API', 'route' => 'api-portal.management', 'icon' => 'key'],
+            ['title' => 'Versi Modul', 'route' => 'api-portal.api-version', 'icon' => 'code-bracket-square'],
             ['title' => 'Log API', 'route' => 'api-portal.logs', 'icon' => 'queue-list'],
             ['title' => 'Dokumentasi API', 'route' => 'api-portal.documentation', 'icon' => 'book-open'],
             ['title' => 'Integrasi API', 'route' => 'api-portal.integration', 'icon' => 'code-bracket'],

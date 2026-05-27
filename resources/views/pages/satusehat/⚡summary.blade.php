@@ -25,6 +25,7 @@ use App\Models\SatuSehat\SatuSehatImagingStudy;
 use App\Models\SatuSehat\SatuSehatMedicationAdministration;
 use App\Models\SatuSehat\SatuSehatMedicationStatement;
 use App\Models\SatuSehat\SatuSehatQuestionnaireResponse;
+use App\Models\SatuSehat\SatuSehatDocumentReference;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -123,7 +124,16 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Satu Sehat')] class extends Com
                 ],
             ],
 
-            ['label' => 'Procedure', 'count' => $this->countResource(SatuSehatProcedure::class), 'supported' => true],
+            [
+                'label' => 'Procedure',
+                'count' => $this->countResource(SatuSehatProcedure::class),
+                'supported' => true,
+                'sub' => [
+                    ['label' => 'Prosedur ICD-9', 'count' => $this->countResource(SatuSehatProcedure::class, fn($q) => $q->where('category', 'icd-9'))],
+                    ['label' => 'Tindakan Rawat Jalan', 'count' => $this->countResource(SatuSehatProcedure::class, fn($q) => $q->where('category', 'tindakan-rj'))],
+                    ['label' => 'Tindakan Rawat Inap', 'count' => $this->countResource(SatuSehatProcedure::class, fn($q) => $q->where('category', 'tindakan-rl'))],
+                ],
+            ],
             [
                 'label'     => 'Composition',
                 'count'     => $this->countResource(SatuSehatComposition::class),
@@ -240,6 +250,15 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Satu Sehat')] class extends Com
                     ['label' => 'Q0007 – Telaah Resep', 'count' => $this->countResource(SatuSehatQuestionnaireResponse::class, fn($q) => $q->where('questionnaire', 'like', '%Q0007%'))],
                     ['label' => 'Q0008 – Rekonsiliasi Obat', 'count' => $this->countResource(SatuSehatQuestionnaireResponse::class, fn($q) => $q->where('questionnaire', 'like', '%Q0008%'))],
                     ['label' => 'Lainnya', 'count' => $this->countResource(SatuSehatQuestionnaireResponse::class, fn($q) => $q->where(fn($sq) => $sq->where('questionnaire', 'not like', '%Q0001%')->where('questionnaire', 'not like', '%Q0002%')->where('questionnaire', 'not like', '%Q0007%')->where('questionnaire', 'not like', '%Q0008%')))],
+                ],
+            ],
+
+            [
+                'label' => 'DocumentReference',
+                'count' => $this->countResource(SatuSehatDocumentReference::class),
+                'supported' => true,
+                'sub' => [
+                    ['label' => 'Resep Farmasi (prescription)', 'count' => $this->countResource(SatuSehatDocumentReference::class, fn($q) => $q->where('doc_type', SatuSehatDocumentReference::TYPE_PRESCRIPTION))],
                 ],
             ],
         ];

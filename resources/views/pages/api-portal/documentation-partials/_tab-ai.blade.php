@@ -15,7 +15,7 @@
             <div class="p-4 border rounded-lg border-zinc-200 dark:border-primary-dark-700">
                 <div class="flex items-center gap-3">
                     <span class="px-2 py-1 text-xs font-bold text-white bg-green-600 rounded">POST</span>
-                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/ai/prompt</code>
+                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['ai'] }}/ai/prompt</code>
                 </div>
             </div>
 
@@ -54,7 +54,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/ai/prompt \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['ai'] }}/ai/prompt \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{

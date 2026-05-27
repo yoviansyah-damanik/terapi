@@ -45,3 +45,103 @@ immunization-reason,IM-Khusus,Imunisasi Program Khusus,"Imunisasi untuk kondisi 
 immunization-reason,IM-Pilihan,Imunisasi Pilihan,"Imunisasi yang bersifat opsional di luar program pemerintah.",http://terminology.kemkes.go.id/CodeSystem/immunization-reason
 immunization-routine-timing,IM-Ideal,Imunisasi Ideal,"Pemberian imunisasi sesuai jadwal yang direkomendasikan.",http://terminology.kemkes.go.id/CodeSystem/immunization-routine-timing
 immunization-routine-timing,IM-Kejar,Imunisasi Kejar,"Pemberian imunisasi untuk mengejar ketertinggalan jadwal.",http://terminology.kemkes.go.id/CodeSystem/immunization-routine-timing
+practitioner-speciality,102010101,Psikologi Klinis,Tenaga kesehatan atau profesi dengan spesialisasi psikologi klinis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103,Keperawatan,Tenaga kesehatan atau profesi dengan spesialisasi keperawatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,10301,Perawat Kesehatan Masyarakat,Tenaga kesehatan atau profesi dengan spesialisasi perawat kesehatan masyarakat.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103010101,Perawat (Non Ners),Tenaga kesehatan atau profesi dengan spesialisasi perawat (non ners).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103010102,Ners,Tenaga kesehatan atau profesi dengan spesialisasi ners.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1030103,Jenis Perawat Lainnya yang belum tercantum,Tenaga kesehatan atau profesi dengan spesialisasi jenis perawat lainnya yang belum tercantum.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103020101,Perawat Kesehatan Anak,Tenaga kesehatan atau profesi dengan spesialisasi perawat kesehatan anak.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103030101,Perawat Maternitas,Tenaga kesehatan atau profesi dengan spesialisasi perawat maternitas.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103040101,Perawat Medikal Bedah,Tenaga kesehatan atau profesi dengan spesialisasi perawat medikal bedah.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103050101,Perawat Geriatri - Lansia,Tenaga kesehatan atau profesi dengan spesialisasi perawat geriatri - lansia.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103060101,Perawat Kesehatan Jiwa,Tenaga kesehatan atau profesi dengan spesialisasi perawat kesehatan jiwa.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,103070101,Perawat Komunitas,Tenaga kesehatan atau profesi dengan spesialisasi perawat komunitas.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,104,Kebidanan,Tenaga kesehatan atau profesi dengan spesialisasi kebidanan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,10401,Bidan,Tenaga kesehatan atau profesi dengan spesialisasi bidan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,104010101,Bidan Klinis,Tenaga kesehatan atau profesi dengan spesialisasi bidan klinis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,104010102,Bidan Desa,Tenaga kesehatan atau profesi dengan spesialisasi bidan desa.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,104010103,Jenis Bidan Lainnya yang belum tercantum,Tenaga kesehatan atau profesi dengan spesialisasi jenis bidan lainnya yang belum tercantum.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,104020101,Bidan Pendidik,Tenaga kesehatan atau profesi dengan spesialisasi bidan pendidik.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,105,Kefarmasian,Tenaga kesehatan atau profesi dengan spesialisasi kefarmasian.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,105010101,Apoteker,Tenaga kesehatan atau profesi dengan spesialisasi apoteker.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,10502,Tenaga Teknik Kefarmasian,Tenaga kesehatan atau profesi dengan spesialisasi tenaga teknik kefarmasian.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,105020201,"Sarjana, Magister Farmasi (Non Apoteker)","Tenaga kesehatan atau profesi dengan spesialisasi sarjana, magister farmasi (non apoteker).",http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,105020202,Ahli Madya Farmasi (Asisten Apoteker),Tenaga kesehatan atau profesi dengan spesialisasi ahli madya farmasi (asisten apoteker).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,105020203,Analis Farmasi,Tenaga kesehatan atau profesi dengan spesialisasi analis farmasi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106,Kesehatan Masyarakat,Tenaga kesehatan atau profesi dengan spesialisasi kesehatan masyarakat.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106010101,Kesehatan Masyarakat (Lainnya),Tenaga kesehatan atau profesi dengan spesialisasi kesehatan masyarakat (lainnya).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106020101,Epidemiolog Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi epidemiolog kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106030101,Promosi Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi promosi kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106040101,Ilmu Perilaku,Tenaga kesehatan atau profesi dengan spesialisasi ilmu perilaku.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106050101,Kesehatan Kerja,Tenaga kesehatan atau profesi dengan spesialisasi kesehatan kerja.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106060101,Administrasi dan Kebijakan Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi administrasi dan kebijakan kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106070101,Biostatistik dan Kependudukan,Tenaga kesehatan atau profesi dengan spesialisasi biostatistik dan kependudukan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106080101,Reproduksi dan Keluarga,Tenaga kesehatan atau profesi dengan spesialisasi reproduksi dan keluarga.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,106090101,Informatika Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi informatika kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,107010101,Sanitasi Lingkungan,Tenaga kesehatan atau profesi dengan spesialisasi sanitasi lingkungan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,107020101,Entomolog Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi entomolog kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,107030101,Mikrobiolog Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi mikrobiolog kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,108010101,Nutrisionis,Tenaga kesehatan atau profesi dengan spesialisasi nutrisionis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,108020101,Dietisien,Tenaga kesehatan atau profesi dengan spesialisasi dietisien.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,109,Keterapian Fisik,Tenaga kesehatan atau profesi dengan spesialisasi keterapian fisik.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,109010101,Fisioterapis,Tenaga kesehatan atau profesi dengan spesialisasi fisioterapis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,109020101,Okupasi Terapis,Tenaga kesehatan atau profesi dengan spesialisasi okupasi terapis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,109030101,Terapis Wicara,Tenaga kesehatan atau profesi dengan spesialisasi terapis wicara.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,109040101,Akupunktur,Tenaga kesehatan atau profesi dengan spesialisasi akupunktur.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110,Keteknisian Medis,Tenaga kesehatan atau profesi dengan spesialisasi keteknisian medis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110010101,Perekam Medis dan Informasi Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi perekam medis dan informasi kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110020101,Teknisi Kardiovaskular,Tenaga kesehatan atau profesi dengan spesialisasi teknisi kardiovaskular.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110030101,Teknisis Pelayanan Darah,Tenaga kesehatan atau profesi dengan spesialisasi teknisis pelayanan darah.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110040101,Refraksionis Optisien/Optometris,Tenaga kesehatan atau profesi dengan spesialisasi refraksionis optisien/optometris.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110050101,Teknisi Gigi,Tenaga kesehatan atau profesi dengan spesialisasi teknisi gigi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110060101,Penata Anestesi,Tenaga kesehatan atau profesi dengan spesialisasi penata anestesi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110070101,Terapis Gigi dan Mulut,Tenaga kesehatan atau profesi dengan spesialisasi terapis gigi dan mulut.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,110080101,Audiologis,Tenaga kesehatan atau profesi dengan spesialisasi audiologis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,111,Teknik Biomedika,Tenaga kesehatan atau profesi dengan spesialisasi teknik biomedika.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,111010101,Radiografer,Tenaga kesehatan atau profesi dengan spesialisasi radiografer.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,111020101,Elektromedis,Tenaga kesehatan atau profesi dengan spesialisasi elektromedis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,111030101,Ahli Teknologi Laboratorium Medik (Analis Kesehatan),Tenaga kesehatan atau profesi dengan spesialisasi ahli teknologi laboratorium medik (analis kesehatan).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,111040101,Fisikawan Medik,Tenaga kesehatan atau profesi dengan spesialisasi fisikawan medik.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,111050101,Radioterapis,Tenaga kesehatan atau profesi dengan spesialisasi radioterapis.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,111060101,Ortotik Prostetik,Tenaga kesehatan atau profesi dengan spesialisasi ortotik prostetik.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,112,Kesehatan Tradisional,Tenaga kesehatan atau profesi dengan spesialisasi kesehatan tradisional.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,112010101,Tenaga Kesehatan Tradisional Ramuan,Tenaga kesehatan atau profesi dengan spesialisasi tenaga kesehatan tradisional ramuan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,112020101,Tenaga Kesehatan Tradisional Ketrampilan,Tenaga kesehatan atau profesi dengan spesialisasi tenaga kesehatan tradisional ketrampilan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1130101,Pengelola Program Upaya Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi pengelola program upaya kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1130102,Pengelola Program Gizi dan KIA,Tenaga kesehatan atau profesi dengan spesialisasi pengelola program gizi dan kia.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1130103,Pengelola Program Pengendalian Penyakit dan Penyehatan Lingkungan,Tenaga kesehatan atau profesi dengan spesialisasi pengelola program pengendalian penyakit dan penyehatan lingkungan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1130104,Pengelola Program Kefarmasian dan Alat Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi pengelola program kefarmasian dan alat kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1130105,Pengelola Program Penelitian dan Pengembangan Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi pengelola program penelitian dan pengembangan kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1130106,Pengelola Program Pengembangan dan Pemberdayaan SDM Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi pengelola program pengembangan dan pemberdayaan sdm kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,1130199,Pengelola Program Kesehatan Lainnya (yang belum tercantum),Tenaga kesehatan atau profesi dengan spesialisasi pengelola program kesehatan lainnya (yang belum tercantum).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,203010101,Perawat (Asisten),Tenaga kesehatan atau profesi dengan spesialisasi perawat (asisten).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,204010101,Bidan (Asisten),Tenaga kesehatan atau profesi dengan spesialisasi bidan (asisten).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,20501,Farmasi,Tenaga kesehatan atau profesi dengan spesialisasi farmasi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,205010101,Farmasi (Asisten),Tenaga kesehatan atau profesi dengan spesialisasi farmasi (asisten).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,20601,Analis Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi analis kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,206010101,Analis Kesehatan (Asisten),Tenaga kesehatan atau profesi dengan spesialisasi analis kesehatan (asisten).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,20701,Kesehatan Lingkungan,Tenaga kesehatan atau profesi dengan spesialisasi kesehatan lingkungan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,207010101,Kesehatan Lingkungan (Asisten),Tenaga kesehatan atau profesi dengan spesialisasi kesehatan lingkungan (asisten).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,20801,Gizi,Tenaga kesehatan atau profesi dengan spesialisasi gizi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,208010101,Gizi (Asisten),Tenaga kesehatan atau profesi dengan spesialisasi gizi (asisten).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,210010101,Terapis Gigi dan Mulut (Asisten),Tenaga kesehatan atau profesi dengan spesialisasi terapis gigi dan mulut (asisten).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302020101,Keuangan,Tenaga kesehatan atau profesi dengan spesialisasi keuangan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302020102,Aset,Tenaga kesehatan atau profesi dengan spesialisasi aset.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302020105,Jaminan Kesehatan,Tenaga kesehatan atau profesi dengan spesialisasi jaminan kesehatan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,30205,Teknologi Informasi,Tenaga kesehatan atau profesi dengan spesialisasi teknologi informasi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302050101,Pengelola Jaringan Komputer,Tenaga kesehatan atau profesi dengan spesialisasi pengelola jaringan komputer.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302050102,Pengelola Website,Tenaga kesehatan atau profesi dengan spesialisasi pengelola website.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302050103,Pengelola Data,Tenaga kesehatan atau profesi dengan spesialisasi pengelola data.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302050104,Pengelola Sistem Informasi dan Basis Data (Database),Tenaga kesehatan atau profesi dengan spesialisasi pengelola sistem informasi dan basis data (database).,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,30206,Kepustakaan dan Dokumentasi,Tenaga kesehatan atau profesi dengan spesialisasi kepustakaan dan dokumentasi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302060201,Pengarsipan,Tenaga kesehatan atau profesi dengan spesialisasi pengarsipan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302070202,Juru Mudi,Tenaga kesehatan atau profesi dengan spesialisasi juru mudi.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302070303,Keamanan,Tenaga kesehatan atau profesi dengan spesialisasi keamanan.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302079999,Tenaga Umum Lainnya yang belum tercantum,Tenaga kesehatan atau profesi dengan spesialisasi tenaga umum lainnya yang belum tercantum.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,30208,Lainnya,Tenaga kesehatan atau profesi dengan spesialisasi lainnya.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302080102,Petugas IPSRS / Teknisi pemeliharaan fasilitas,Tenaga kesehatan atau profesi dengan spesialisasi petugas ipsrs / teknisi pemeliharaan fasilitas.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302080103,Petugas Pengelola Limbah,Tenaga kesehatan atau profesi dengan spesialisasi petugas pengelola limbah.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,302080104,Petugas Kamar Jenazah / Pemulasaran Jenazah,Tenaga kesehatan atau profesi dengan spesialisasi petugas kamar jenazah / pemulasaran jenazah.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,303010101,Asisten Ahli,Tenaga kesehatan atau profesi dengan spesialisasi asisten ahli.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality
+practitioner-speciality,303030101,Instruktur,Tenaga kesehatan atau profesi dengan spesialisasi instruktur.,http://terminology.kemkes.go.id/CodeSystem/practitioner-speciality

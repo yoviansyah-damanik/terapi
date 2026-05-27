@@ -484,6 +484,29 @@ new #[Layout('layouts::app')] #[Title('Healthcare Service — Bangsal')] class e
         $this->showHsPullModal = true;
     }
 
+    /** Update HealthcareService langsung dari tabel tanpa buka modal detail */
+    public function quickUpdateHs(string $kdBangsal): void
+    {
+        $this->selectedHsService = SatuSehatHealthcareService::findByIdentifier($kdBangsal);
+        $this->updateHsService();
+    }
+
+    /** Update Location langsung dari tabel — load data dan buka modal posisi dalam mode update */
+    public function openUpdateLocDirect(string $kdBangsal): void
+    {
+        $this->selectedLocation = SatuSehatLocation::where('identifier', $kdBangsal)
+            ->whereIn('type', ['ranap', 'apotek', 'lab', 'rad'])
+            ->with('organization')
+            ->first();
+
+        if (!$this->selectedLocation) {
+            $this->toastError('Data Location tidak ditemukan.');
+            return;
+        }
+
+        $this->openUpdateModal();
+    }
+
     #[On('satusehat-resource-selected')]
     public function onResourceSelected(array $resource): void
     {
@@ -825,6 +848,9 @@ new #[Layout('layouts::app')] #[Title('Healthcare Service — Bangsal')] class e
                             @if ($hsIhs)
                                 <x-atoms.button size="sm" variant="ghost" icon="eye" tooltip="Detail HS SS"
                                     wire:click="viewHsDetail('{{ $item->kd_bangsal }}')" />
+                                <x-atoms.button size="sm" variant="ghost" icon="arrow-path" tooltip="Update HS SS"
+                                    wire:click="quickUpdateHs('{{ $item->kd_bangsal }}')"
+                                    wire:loading.attr="disabled" wire:target="quickUpdateHs('{{ $item->kd_bangsal }}')" />
                                 <x-atoms.button size="sm" variant="ghost" icon="trash" class="text-red-500"
                                     tooltip="Hapus HS SS"
                                     wire:click="confirmHsDelete('{{ $item->kd_bangsal }}', '{{ addslashes($item->nm_bangsal) }}')" />
@@ -844,9 +870,9 @@ new #[Layout('layouts::app')] #[Title('Healthcare Service — Bangsal')] class e
                                 <x-atoms.button size="sm" icon="eye" variant="ghost"
                                     tooltip="Detail SS Location"
                                     wire:click="viewDetail('{{ $item->kd_bangsal }}')" />
-                                <x-atoms.button size="sm" icon="arrow-down-tray" variant="ghost"
-                                    tooltip="Tarik dari SS"
-                                    wire:click="openPullModal('{{ $item->kd_bangsal }}', '{{ addslashes($item->nm_bangsal) }}')" />
+                                <x-atoms.button size="sm" icon="arrow-path" variant="ghost"
+                                    tooltip="Update Location SS"
+                                    wire:click="openUpdateLocDirect('{{ $item->kd_bangsal }}')" />
                                 <x-atoms.button size="sm" icon="trash" variant="ghost"
                                     tooltip="Hapus SS Location"
                                     wire:click="confirmDelete('{{ $item->kd_bangsal }}', '{{ addslashes($item->nm_bangsal) }}')"

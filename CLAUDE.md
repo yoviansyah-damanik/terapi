@@ -129,3 +129,42 @@ PHPUnit 11 dengan SQLite in-memory. Konfigurasi di `phpunit.xml`.
 php artisan test --filter=NamaTest   # jalankan satu test
 php artisan test tests/Feature/      # jalankan satu suite
 ```
+
+### Reusable Livewire Search Components
+
+Komponen di `resources/views/livewire/components/` yang sering dipakai dalam modal pencarian:
+
+| Komponen | Event Dispatch | Payload |
+|----------|----------------|---------|
+| `components.snomed-search` | `snomed-selected` | `system_code, system_term, system_display, category` |
+| `components.fhir-codesystem-search` | `fhir-codesystem-selected` | `{ system_code, system_term, system_display, type }` |
+| `components.fhir-dictionaries-search` | `fhir-dictionary-selected` | `{ id, source, type, system_code, system_term, system_display }` |
+| `components.satusehat-resource-search` | `satusehat-resource-selected` | `resource` array FHIR |
+| `components.loinc-search` | `loinc-search-selected` | `item` array |
+
+Props umum: `:limitTypes="['my-type']"`, `:limitSources="['kemkes']"`, `:initialSearch="$var"`, `:key="'unique-key'"`.
+
+Tangkap event dengan `#[On('event-name')]` di Volt component parent.
+
+### Terminology: Dua Tabel Berbeda
+
+- **`hl7_code_systems`** (`Hl7CodeSystem`) — diisi via import CSV; digunakan oleh `fhir-codesystem-search`. Types: `service-category`, `service-type`, `location-physical-type`, dll.
+- **`fhir_dictionaries`** (`FhirDictionary`) — kolom tambahan `source` (`kemkes`, `hl7`, `internal`, dll.) dan `system_defenition`; digunakan oleh `fhir-dictionaries-search`. Types: `practitioner-speciality`, `diagnostic-category`, dll.
+
+### Toast Notifications
+
+```php
+$this->toastSuccess('Pesan', 'Judul opsional');
+$this->toastError('Pesan');
+$this->toastWarning('Pesan');
+```
+
+### Volt Page Partials
+
+Saat template terlalu panjang, pecah ke `partials/` di folder yang sama:
+
+```php
+@include('pages::local.healthcare-service.partials._mapping-section', ['var' => $val])
+```
+
+Penamaan file partial: prefix `_` (underscore). Variabel parent tersedia otomatis di `@include`.

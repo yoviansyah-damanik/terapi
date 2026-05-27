@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\ConfigurationHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -127,11 +128,32 @@ new #[Layout('layouts::app')] #[Title('Dokumentasi API')] class extends Componen
         $this->activeSection = array_key_first($this->sidebarSections) ?: '';
     }
 
+    // Mapping tab dokumentasi → module key di ConfigurationHelper
+    private const TAB_MODULE_MAP = [
+        'umum'         => 'auth',
+        'hospital'     => 'hospital',
+        'whatsapp'     => 'whatsapp',
+        'gowa'         => 'whatsapp',
+        'tte'          => 'tte',
+        'simrs-log'    => 'simrs',
+        'simrs-update' => 'simrs',
+        'qrcode'       => 'qrcode',
+        'dicom'        => 'dicom',
+        'ai'           => 'ai',
+    ];
+
     public function with(): array
     {
+        $activeVersions = [];
+        foreach (['auth', 'hospital', 'simrs', 'whatsapp', 'tte', 'qrcode', 'ai', 'dicom'] as $m) {
+            $activeVersions[$m] = ConfigurationHelper::get("api.modules.{$m}.active_version", 'v1');
+        }
+
         return [
-            'appUrl' => rtrim(config('app.url', 'https://your-app.example.com'), '/'),
-            'modules' => self::MODULES,
+            'appUrl'         => rtrim(config('app.url', 'https://your-app.example.com'), '/'),
+            'modules'        => self::MODULES,
+            'activeVersions' => $activeVersions,
+            'tabVersion'     => $activeVersions[self::TAB_MODULE_MAP[$this->tab] ?? 'auth'] ?? 'v1',
         ];
     }
 };
@@ -153,6 +175,14 @@ new #[Layout('layouts::app')] #[Title('Dokumentasi API')] class extends Componen
 
         {{-- Konten --}}
         <div class="flex-1 min-w-0 space-y-6">
+            {{-- Badge versi aktif untuk tab ini --}}
+            <div class="flex items-center gap-2 text-xs text-zinc-500 dark:text-primary-dark-400">
+                <flux:icon name="code-bracket-square" class="w-3.5 h-3.5" />
+                <span>Versi aktif modul ini:</span>
+                <flux:badge color="green" size="sm" class="font-mono">{{ $tabVersion }}</flux:badge>
+                <a wire:navigate href="{{ route('api-portal.api-version') }}"
+                    class="text-primary-500 hover:underline ml-1">Ubah →</a>
+            </div>
             @if ($tab === 'umum')
                 @include('api-portal.documentation-partials._tab-umum')
             @endif

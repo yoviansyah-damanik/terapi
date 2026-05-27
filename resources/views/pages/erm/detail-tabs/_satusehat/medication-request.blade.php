@@ -10,21 +10,27 @@
     </x-atoms.button>
 </div>
 @if (!$prereq_location_apotek && $medList->isNotEmpty())
-    <div class="flex items-center gap-2.5 px-4 py-3 bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-800/30">
+    <div
+        class="flex items-center gap-2.5 px-4 py-3 bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-800/30">
         <flux:icon name="lock-closed" class="w-4 h-4 text-amber-500 shrink-0" />
         <p class="text-xs text-amber-700 dark:text-amber-400">
-            <strong>Location Apotek belum dikonfigurasi:</strong> Daftarkan Location dengan type <span class="font-semibold">apotek</span> di menu Satu Sehat → FHIR Resource → Location sebelum dapat mengirim Medication Request.
+            <strong>Location Apotek belum dikonfigurasi:</strong> Daftarkan Location dengan type <span
+                class="font-semibold">apotek</span> di menu Satu Sehat → FHIR Resource → Location sebelum dapat mengirim
+            Medication Request.
         </p>
     </div>
 @endif
 
 @if ($medList->isNotEmpty())
     @php
-        $medKfaMap  = \App\Models\Mapping\MedicationMap::whereIn('local_code', $medList->pluck('kode_brng'))
-            ->get()->keyBy('local_code');
-        $kfaCodes   = $medKfaMap->pluck('kfa_code')->filter()->unique()->values()->toArray();
-        $ssIhsMap   = \App\Models\SatuSehat\SatuSehatMedication::whereIn('kfa_code', $kfaCodes)
-            ->pluck('ihs_number', 'kfa_code');
+        $medKfaMap = \App\Models\Mapping\MedicationMap::whereIn('local_code', $medList->pluck('kode_brng'))
+            ->get()
+            ->keyBy('local_code');
+        $kfaCodes = $medKfaMap->pluck('kfa_code')->filter()->unique()->values()->toArray();
+        $ssIhsMap = \App\Models\SatuSehat\SatuSehatMedication::whereIn('kfa_code', $kfaCodes)->pluck(
+            'ihs_number',
+            'kfa_code',
+        );
     @endphp
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-zinc-100 dark:divide-primary-dark-700">
@@ -47,11 +53,11 @@
                 @foreach ($medList as $med)
                     @php
                         $syncedData = $ssMedications->where('local_id', $med->idStr)->first();
-                        $kfaMap     = $medKfaMap->get($med->kode_brng);
-                        $isMapped   = $kfaMap && $kfaMap->kfa_code;
-                        $ihsNumber  = $isMapped ? ($ssIhsMap->get($kfaMap->kfa_code) ?? null) : null;
-                        $hasIhs     = (bool) $ihsNumber;
-                        $isReady    = $isMapped && $hasIhs;
+                        $kfaMap = $medKfaMap->get($med->kode_brng);
+                        $isMapped = $kfaMap && $kfaMap->kfa_code;
+                        $ihsNumber = $isMapped ? $ssIhsMap->get($kfaMap->kfa_code) ?? null : null;
+                        $hasIhs = (bool) $ihsNumber;
+                        $isReady = $isMapped && $hasIhs;
                     @endphp
                     <tr class="hover:bg-zinc-50 dark:hover:bg-primary-dark-700/50">
                         <td class="px-4 py-2 text-center">
@@ -77,12 +83,14 @@
                                 <flux:badge color="red" size="sm" icon="x-circle">Belum di-mapping</flux:badge>
                             @elseif (!$hasIhs)
                                 <div class="flex flex-col gap-0.5">
-                                    <flux:badge color="amber" size="sm" icon="clock">IHS belum terbit</flux:badge>
+                                    <flux:badge color="amber" size="sm" icon="clock">IHS belum terbit
+                                    </flux:badge>
                                     <span class="text-[10px] font-mono text-zinc-400">{{ $kfaMap->kfa_code }}</span>
                                 </div>
                             @else
                                 <div class="flex flex-col gap-0.5">
-                                    <flux:badge color="emerald" size="sm" icon="check-circle">Siap Kirim</flux:badge>
+                                    <flux:badge color="emerald" size="sm" icon="check-circle">Siap Kirim
+                                    </flux:badge>
                                     <span class="text-[10px] font-mono text-zinc-400">{{ $ihsNumber }}</span>
                                 </div>
                             @endif

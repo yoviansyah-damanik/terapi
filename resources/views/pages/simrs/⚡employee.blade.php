@@ -130,11 +130,11 @@ new #[Layout('layouts::app')] #[Title('Master Data — Pegawai')] class extends 
         {{-- Tab navigation --}}
         <x-molecules.tabs>
             @foreach ([
-                'dokter' => 'Dokter',
-                'keperawatan' => 'Keperawatan / Kebidanan',
-                'penunjang' => 'Penunjang Medis',
-                'non-medis' => 'Non Medis',
-            ] as $key => $label)
+        'dokter' => 'Dokter',
+        'keperawatan' => 'Keperawatan / Kebidanan',
+        'penunjang' => 'Penunjang Medis',
+        'non-medis' => 'Non Medis',
+    ] as $key => $label)
                 <x-atoms.tab-item wire:click="switchTab('{{ $key }}')" :active="$tab === $key">
                     {{ $label }}
                 </x-atoms.tab-item>
@@ -143,31 +143,31 @@ new #[Layout('layouts::app')] #[Title('Master Data — Pegawai')] class extends 
 
         <x-organisms.data-panel>
             <x-slot:filter>
-                <div class="flex-1 min-w-48">
-                    <flux:input wire:model.live.debounce.300ms="search"
+                <div class="flex gap-3">
+                    <flux:input class='flex-1' wire:model.live.debounce.300ms="search"
                         placeholder="{{ $tab === 'dokter' ? 'Cari kode atau nama dokter...' : 'Cari ID, NIK, atau nama...' }}"
                         icon="magnifying-glass" />
+                    @if ($tab !== 'dokter')
+                        <flux:select wire:model.live="filterStatus" class="!w-40">
+                            <flux:select.option value="">Semua Status</flux:select.option>
+                            <flux:select.option value="AKTIF">Aktif</flux:select.option>
+                            <flux:select.option value="CUTI">Cuti</flux:select.option>
+                            <flux:select.option value="KELUAR">Keluar</flux:select.option>
+                            <flux:select.option value="PENSIUN">Pensiun</flux:select.option>
+                        </flux:select>
+                    @else
+                        <flux:select wire:model.live="filterStatus" class="!w-40">
+                            <flux:select.option value="">Semua Status</flux:select.option>
+                            <flux:select.option value="1">Aktif</flux:select.option>
+                            <flux:select.option value="0">Non-Aktif</flux:select.option>
+                        </flux:select>
+                    @endif
+                    <flux:select wire:model.live="perPage" class="!w-36">
+                        <flux:select.option value="25">25 / halaman</flux:select.option>
+                        <flux:select.option value="50">50 / halaman</flux:select.option>
+                        <flux:select.option value="100">100 / halaman</flux:select.option>
+                    </flux:select>
                 </div>
-                @if ($tab !== 'dokter')
-                    <flux:select wire:model.live="filterStatus" class="w-40">
-                        <flux:select.option value="">Semua Status</flux:select.option>
-                        <flux:select.option value="AKTIF">Aktif</flux:select.option>
-                        <flux:select.option value="CUTI">Cuti</flux:select.option>
-                        <flux:select.option value="KELUAR">Keluar</flux:select.option>
-                        <flux:select.option value="PENSIUN">Pensiun</flux:select.option>
-                    </flux:select>
-                @else
-                    <flux:select wire:model.live="filterStatus" class="w-40">
-                        <flux:select.option value="">Semua Status</flux:select.option>
-                        <flux:select.option value="1">Aktif</flux:select.option>
-                        <flux:select.option value="0">Non-Aktif</flux:select.option>
-                    </flux:select>
-                @endif
-                <flux:select wire:model.live="perPage" class="w-36">
-                    <flux:select.option value="25">25 / halaman</flux:select.option>
-                    <flux:select.option value="50">50 / halaman</flux:select.option>
-                    <flux:select.option value="100">100 / halaman</flux:select.option>
-                </flux:select>
             </x-slot:filter>
 
             <x-organisms.table>

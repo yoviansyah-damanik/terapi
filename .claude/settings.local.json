@@ -117,7 +117,24 @@
       "Bash(Select-Object Name)",
       "Bash(for f *)",
       "Read(//d/WebApps/terapi/app/**)",
-      "Bash(Get-ChildItem -Path \"d:\\\\WebApps\\\\terapi\\\\app\\\\Models\" -Filter \"*[Ss]ep*\" -Recurse)"
+      "Bash(Get-ChildItem -Path \"d:\\\\WebApps\\\\terapi\\\\app\\\\Models\" -Filter \"*[Ss]ep*\" -Recurse)",
+      "Bash(Get-ChildItem -Path \"d:\\\\WebApps\\\\terapi\" -Directory)",
+      "Bash(cd /d \"d:\\\\WebApps\\\\terapi\")",
+      "Bash(tail -50 storage/logs/laravel.log)",
+      "Bash(New-Item -ItemType Directory -Path \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\V1\" -Force)",
+      "Bash(Out-Null)",
+      "Bash(Copy-Item \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\ApiAuthController.php\" \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\V1\\\\ApiAuthController.php\")",
+      "Bash(Copy-Item \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\ApiHospitalController.php\" \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\V1\\\\ApiHospitalController.php\")",
+      "Bash(Copy-Item \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\ApiSimrsVersionController.php\" \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\V1\\\\ApiSimrsVersionController.php\")",
+      "Bash(Copy-Item \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\ApiSimrsSlideController.php\" \"d:\\\\WebApps\\\\terapi\\\\app\\\\Http\\\\Controllers\\\\Api\\\\V1\\\\ApiSimrsSlideController.php\")",
+      "Bash(/c/Users/it_rs/.config/herd/bin/php -r ' *)",
+      "Bash(/c/Users/it_rs/.config/herd/bin/php82/php.exe -r ' *)",
+      "Bash(/c/Users/it_rs/.config/herd/bin/php82/php.exe artisan *)",
+      "Bash(/c/Users/it_rs/.config/herd/bin/php84/php.exe artisan *)",
+      "Bash(\"/c/Users/it_rs/.config/herd/bin/php82/php.exe\" fix_api_docs.php)",
+      "Bash(Get-ChildItem -Path \"d:\\\\WebApps\\\\terapi\\\\app\\\\Models\\\\Simrs\" -Filter \"*.php\")",
+      "Bash(Sort-Object Name)",
+      "Bash(Select-Object -Last 5 -ExpandProperty Name)"
     ]
   }
 }

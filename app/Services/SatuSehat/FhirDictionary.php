@@ -35,6 +35,9 @@ final class FhirDictionary
     const KEMKES_SYS_EPISODE = 'http://sys-ids.kemkes.go.id/episode-of-care';
     const KEMKES_SYS_DIAGNOSTIC_LAB = 'http://sys-ids.kemkes.go.id/diagnostic';
     const KEMKES_SYS_COMPOSITION = 'http://sys-ids.kemkes.go.id/composition';
+    const KEMKES_SYS_CLAIM_NUMBER   = 'http://sys-ids.kemkes.go.id/claim-number';
+    const KEMKES_CS_COVERAGE_TYPE   = 'http://terminology.kemkes.go.id/CodeSystem/coverage-type';
+    const KEMKES_CS_DOCUMENT_FORMAT = 'http://terminology.kemkes.go.id/CodeSystem/documentformat';
     const KEMKES_SYS_CLINICAL_IMP = 'http://sys-ids.kemkes.go.id/clinicalimpression';
     const KEMKES_SYS_CAREPLAN = 'http://sys-ids.kemkes.go.id/careplan';
     const KEMKES_SYS_HEALTHCARE_SVC = 'http://sys-ids.kemkes.go.id/healthcareservice';
@@ -108,6 +111,11 @@ final class FhirDictionary
     public static function prescriptionSystem(string $orgId): string
     {
         return self::KEMKES_SYS_PRESCRIPTION . '/' . $orgId;
+    }
+
+    public static function claimNumberSystem(string $orgId): string
+    {
+        return self::KEMKES_SYS_CLAIM_NUMBER . '/' . $orgId;
     }
 
     public static function prescriptionItemSystem(string $orgId): string

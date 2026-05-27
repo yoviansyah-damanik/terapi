@@ -86,5 +86,8 @@ class ConfigurationHelper
 
         Cache::forget(self::CACHE_KEY);
         static::$requestCache = null;
+
+        // Re-warm cache segera agar request berikutnya tidak perlu query DB
+        static::load();
     }
 }

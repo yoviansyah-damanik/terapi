@@ -3,7 +3,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/qrcode/generate</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['qrcode'] }}/qrcode/generate</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Generate QR Code</h3>
 
@@ -89,7 +89,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request — Minimal</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/qrcode/generate \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['qrcode'] }}/qrcode/generate \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"content": "https://example.com"}'</span></x-atoms.code-block>
@@ -100,7 +100,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request — Lengkap</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/qrcode/generate \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['qrcode'] }}/qrcode/generate \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{

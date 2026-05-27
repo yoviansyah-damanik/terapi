@@ -81,20 +81,16 @@ new #[Layout('layouts::app')] #[Title('Master Data — Tindakan')] class extends
     @else
         @php
             $primaryTab = str_starts_with($activeTab, 'inap') ? 'inap' : 'jalan';
-            $tabSuffix  = str_contains($activeTab, '_') ? '_' . Str::after($activeTab, '_') : '';
+            $tabSuffix = str_contains($activeTab, '_') ? '_' . Str::after($activeTab, '_') : '';
         @endphp
 
         {{-- Level 1: Rawat Jalan / Rawat Inap --}}
         <x-molecules.tabs class="mb-0">
-            <x-atoms.tab-item
-                wire:click="$set('activeTab', '{{ 'jalan' . $tabSuffix }}')"
-                :active="$primaryTab === 'jalan'"
+            <x-atoms.tab-item wire:click="$set('activeTab', '{{ 'jalan' . $tabSuffix }}')" :active="$primaryTab === 'jalan'"
                 icon="building-office">
                 Rawat Jalan
             </x-atoms.tab-item>
-            <x-atoms.tab-item
-                wire:click="$set('activeTab', '{{ 'inap' . $tabSuffix }}')"
-                :active="$primaryTab === 'inap'"
+            <x-atoms.tab-item wire:click="$set('activeTab', '{{ 'inap' . $tabSuffix }}')" :active="$primaryTab === 'inap'"
                 icon="building-office-2">
                 Rawat Inap
             </x-atoms.tab-item>
@@ -102,9 +98,9 @@ new #[Layout('layouts::app')] #[Title('Master Data — Tindakan')] class extends
 
         @php
             $subTabs = [
-                ''      => 'Semua',
-                '_dr'   => 'Dokter',
-                '_pr'   => 'Perawat',
+                '' => 'Semua',
+                '_dr' => 'Dokter',
+                '_pr' => 'Perawat',
                 '_drpr' => 'Dokter & Perawat',
             ];
         @endphp
@@ -116,22 +112,21 @@ new #[Layout('layouts::app')] #[Title('Master Data — Tindakan')] class extends
                     <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
                         placeholder="Cari kode atau nama tindakan..." clearable class="flex-1 min-w-48" />
                     <flux:badge color="zinc" size="sm" class="hidden sm:flex whitespace-nowrap shrink-0">
-                        {{ $items instanceof \Illuminate\Pagination\LengthAwarePaginator ? number_format($items->total()) : 0 }} tindakan
+                        {{ $items instanceof \Illuminate\Pagination\LengthAwarePaginator ? number_format($items->total()) : 0 }}
+                        tindakan
                     </flux:badge>
-                    <flux:select wire:model.live="perPage" class="w-32 shrink-0">
+                    <flux:select wire:model.live="perPage" class="!w-32 shrink-0">
                         <flux:select.option value="25">25 / hal</flux:select.option>
                         <flux:select.option value="50">50 / hal</flux:select.option>
                         <flux:select.option value="100">100 / hal</flux:select.option>
                     </flux:select>
                 </div>
                 {{-- Baris 2: sub-filter pelaksana (w-full memaksa baris baru) --}}
-                <div class="flex w-full flex-wrap items-center gap-1.5">
+                <div class="flex w-full flex-wrap items-center gap-1.5 mt-3">
                     @foreach ($subTabs as $suffix => $label)
                         @php $tabValue = "{$primaryTab}{$suffix}"; @endphp
-                        <x-atoms.button
-                            wire:click="$set('activeTab', '{{ $tabValue }}')"
-                            variant="{{ $activeTab === $tabValue ? 'primary' : 'outline' }}"
-                            size="sm">
+                        <x-atoms.button wire:click="$set('activeTab', '{{ $tabValue }}')"
+                            variant="{{ $activeTab === $tabValue ? 'primary' : 'outline' }}" size="sm">
                             {{ $label }}
                         </x-atoms.button>
                     @endforeach

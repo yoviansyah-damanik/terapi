@@ -9,11 +9,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (str_starts_with(config('app.url', ), 'https://')) {
+            URL::forceScheme('https');
+        }
+
         $this->configureDefaults();
         $this->overrideCorsFromDb();
         $this->overrideConfigFromDb();
@@ -50,18 +55,18 @@ class AppServiceProvider extends ServiceProvider
         try {
             // Hospital
             $hospitalMap = [
-                'hospital.name'        => 'hospital.name',
-                'hospital.alias'       => 'hospital.alias',
-                'hospital.phone'       => 'hospital.phone',
-                'hospital.email'       => 'hospital.email',
-                'hospital.website'     => 'hospital.website',
-                'hospital.address'     => 'hospital.address',
-                'hospital.city'        => 'hospital.city',
-                'hospital.province'    => 'hospital.province',
+                'hospital.name' => 'hospital.name',
+                'hospital.alias' => 'hospital.alias',
+                'hospital.phone' => 'hospital.phone',
+                'hospital.email' => 'hospital.email',
+                'hospital.website' => 'hospital.website',
+                'hospital.address' => 'hospital.address',
+                'hospital.city' => 'hospital.city',
+                'hospital.province' => 'hospital.province',
                 'hospital.postal_code' => 'hospital.postal_code',
-                'hospital.country'     => 'hospital.country',
+                'hospital.country' => 'hospital.country',
                 // kode wilayah: DB key berbeda dari config key
-                'hospital.propinsi_code'  => 'hospital.propinsi',
+                'hospital.propinsi_code' => 'hospital.propinsi',
                 'hospital.kabupaten_code' => 'hospital.kabupaten',
                 'hospital.kecamatan_code' => 'hospital.kecamatan',
                 'hospital.kelurahan_code' => 'hospital.kelurahan',
@@ -73,16 +78,25 @@ class AppServiceProvider extends ServiceProvider
             }
 
             // Satu Sehat
-            foreach (['auth_url', 'base_url', 'fhir_url', 'consent_url', 'client_id', 'client_secret',
-                      'organization_id', 'kode_ppk_kemenkes', 'nama_ppk_kemenkes'] as $key) {
+            foreach ([
+                'auth_url',
+                'base_url',
+                'fhir_url',
+                'consent_url',
+                'client_id',
+                'client_secret',
+                'organization_id',
+                'kode_ppk_kemenkes',
+                'nama_ppk_kemenkes'
+            ] as $key) {
                 if (($val = ConfigurationHelper::get("satusehat.{$key}")) !== null) {
                     Config::set("satusehat.{$key}", $val);
                 }
             }
 
             // BPJS — per modul
-            $bpjsModules  = ['vclaim', 'antrian_online', 'apotek_online', 'erm', 'icare', 'aplicare'];
-            $hmacKeys     = ['base_url', 'cons_id', 'secret_key', 'user_key'];
+            $bpjsModules = ['vclaim', 'antrian_online', 'apotek_online', 'erm', 'icare', 'aplicare'];
+            $hmacKeys = ['base_url', 'cons_id', 'secret_key', 'user_key'];
             foreach ($bpjsModules as $module) {
                 foreach ($hmacKeys as $key) {
                     if (($val = ConfigurationHelper::get("bpjs.{$module}.{$key}")) !== null) {

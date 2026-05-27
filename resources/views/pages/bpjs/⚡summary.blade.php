@@ -44,29 +44,23 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
         }
 
         // --- Practitioner (SIMRS — pakai try/catch karena beda koneksi DB) ---
-        $medisTotal = $kepTotal = $penTotal = $nonMedisTotal = 0;
-        $medisRegistered = $kepRegistered = $penRegistered = $nonMedisRegistered = 0;
+        $allPegawai = collect();
         try {
-            $medisNiks = Pegawai::where('stts_aktif', 'AKTIF')->where('bidang', 'Medis')->pluck('nik');
-            $kepNiks = Pegawai::where('stts_aktif', 'AKTIF')
-                ->whereIn('bidang', ['Keperawatan', 'Kebidanan'])
-                ->pluck('nik');
-            $penNiks = Pegawai::where('stts_aktif', 'AKTIF')->where('bidang', 'Penunjang Medis')->pluck('nik');
-            $nonMedisNiks = Pegawai::where('stts_aktif', 'AKTIF')
-                ->whereNotIn('bidang', ['Medis', 'Keperawatan', 'Kebidanan', 'Penunjang Medis'])
-                ->pluck('nik');
-
-            $medisTotal = $medisNiks->count();
-            $kepTotal = $kepNiks->count();
-            $penTotal = $penNiks->count();
-            $nonMedisTotal = $nonMedisNiks->count();
-
-            $medisRegistered = BpjsPractitioner::whereIn('identifier', $medisNiks)->count();
-            $kepRegistered = BpjsPractitioner::whereIn('identifier', $kepNiks)->count();
-            $penRegistered = BpjsPractitioner::whereIn('identifier', $penNiks)->count();
-            $nonMedisRegistered = BpjsPractitioner::whereIn('identifier', $nonMedisNiks)->count();
+            $allPegawai = Pegawai::where('stts_aktif', 'AKTIF')->select('nik', 'bidang')->get();
         } catch (\Exception) {
         }
+        $bpjsNiks = BpjsPractitioner::whereIn('identifier', $allPegawai->pluck('nik')->filter())
+            ->pluck('identifier')->flip();
+        $practitioner = $allPegawai
+            ->groupBy('bidang')
+            ->sortKeys()
+            ->map(fn($group, $bidang) => [
+                'label'  => $bidang ?: '(Tidak ada bidang)',
+                'total'  => $group->count(),
+                'mapped' => $group->filter(fn($p) => $p->nik && isset($bpjsNiks[$p->nik]))->count(),
+                'route'  => 'bpjs.fhir-resource.practitioner',
+            ])
+            ->values()->all();
 
         // --- Healthcare Service (SIMRS) ---
         $poliRegistered = BpjsHealthcareService::where('type', 'poliklinik')->count();
@@ -127,7 +121,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
             'ermBulanIni' => $ermBulanIni,
             'ermCounts' => $ermCounts,
             'patient' => [['label' => 'Pasien', 'total' => $patientTotal, 'mapped' => $patientRegistered, 'route' => 'bpjs.fhir-resource.patient']],
-            'practitioner' => [['label' => 'Tenaga Medis', 'total' => $medisTotal, 'mapped' => $medisRegistered, 'route' => 'bpjs.fhir-resource.practitioner'], ['label' => 'Keperawatan', 'total' => $kepTotal, 'mapped' => $kepRegistered, 'route' => 'bpjs.fhir-resource.practitioner'], ['label' => 'Penunjang Medis', 'total' => $penTotal, 'mapped' => $penRegistered, 'route' => 'bpjs.fhir-resource.practitioner'], ['label' => 'Non Medis', 'total' => $nonMedisTotal, 'mapped' => $nonMedisRegistered, 'route' => 'bpjs.fhir-resource.practitioner']],
+            'practitioner' => $practitioner,
             'healthcare_service' => [['label' => 'Poliklinik', 'total' => $poliTotal, 'mapped' => $poliRegistered, 'route' => 'bpjs.fhir-resource.healthcare-service'], ['label' => 'Bangsal/Ruang', 'total' => $bangsalTotal, 'mapped' => $bangsalRegistered, 'route' => 'bpjs.fhir-resource.healthcare-service']],
             'procedure' => [['label' => 'Rawat Jalan', 'total' => $ralanTotal, 'mapped' => $procCounts['ralan'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Rawat Inap', 'total' => $ranapTotal, 'mapped' => $procCounts['ranap'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Lab Jenis', 'total' => $labTotal, 'mapped' => $procCounts['lab'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Lab Item', 'total' => $itemLabTotal, 'mapped' => $procCounts['item_lab'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure'], ['label' => 'Radiologi', 'total' => $radTotal, 'mapped' => $procCounts['rad'] ?? 0, 'route' => 'bpjs.fhir-resource.procedure']],
             'clinical' => [['label' => 'ICD-10', 'total' => $icd10Total, 'mapped' => $icd10Registered, 'route' => 'bpjs.fhir-resource.icd10'], ['label' => 'ICD-9CM', 'total' => $icd9Total, 'mapped' => $icd9Registered, 'route' => 'bpjs.fhir-resource.icd9']],

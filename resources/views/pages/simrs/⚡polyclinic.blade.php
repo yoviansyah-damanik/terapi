@@ -63,20 +63,20 @@ new #[Layout('layouts::app')] #[Title('Master Data — Poliklinik / Unit')] clas
     @else
         <x-organisms.data-panel>
             <x-slot:filter>
-                <div class="flex-1 min-w-48">
-                    <flux:input wire:model.live.debounce.300ms="search" placeholder="Cari kode atau nama poli..."
-                        icon="magnifying-glass" />
+                <div class="flex gap-3">
+                    <flux:input class="flex-1" wire:model.live.debounce.300ms="search"
+                        placeholder="Cari kode atau nama poli..." icon="magnifying-glass" />
+                    <flux:select wire:model.live="filterStatus" class="!w-40">
+                        <flux:select.option value="">Semua Status</flux:select.option>
+                        <flux:select.option value="1">Aktif</flux:select.option>
+                        <flux:select.option value="0">Non-Aktif</flux:select.option>
+                    </flux:select>
+                    <flux:select wire:model.live="perPage" class="!w-36">
+                        <flux:select.option value="25">25 / halaman</flux:select.option>
+                        <flux:select.option value="50">50 / halaman</flux:select.option>
+                        <flux:select.option value="100">100 / halaman</flux:select.option>
+                    </flux:select>
                 </div>
-                <flux:select wire:model.live="filterStatus" class="w-40">
-                    <flux:select.option value="">Semua Status</flux:select.option>
-                    <flux:select.option value="1">Aktif</flux:select.option>
-                    <flux:select.option value="0">Non-Aktif</flux:select.option>
-                </flux:select>
-                <flux:select wire:model.live="perPage" class="w-36">
-                    <flux:select.option value="25">25 / halaman</flux:select.option>
-                    <flux:select.option value="50">50 / halaman</flux:select.option>
-                    <flux:select.option value="100">100 / halaman</flux:select.option>
-                </flux:select>
             </x-slot:filter>
 
             <x-organisms.table>

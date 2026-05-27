@@ -24,7 +24,7 @@ Route::middleware('auth')
             abort_unless($response->successful(), 404);
 
             return response($response->body(), 200, [
-                'Content-Type'  => $response->header('Content-Type') ?? 'image/jpeg',
+                'Content-Type' => $response->header('Content-Type') ?? 'image/jpeg',
                 'Cache-Control' => 'private, max-age=86400',
             ]);
         })->name('proxy.simrs-image');
@@ -45,6 +45,7 @@ Route::middleware('auth')
         Route::prefix('api-portal')->name('api-portal.')->group(function () {
             Route::livewire('/summary', 'pages::api-portal.summary')->name('summary');
             Route::livewire('/management', 'pages::api-portal.management')->name('management');
+            Route::livewire('/api-version', 'pages::api-portal.api-version')->name('api-version');
             Route::livewire('/logs', 'pages::api-portal.logs')->name('logs');
             Route::livewire('/documentation', 'pages::api-portal.documentation')->name('documentation');
             Route::livewire('/integration', 'pages::api-portal.integration')->name('integration');
@@ -217,7 +218,7 @@ Route::middleware('auth')
             Route::get('/erm-scheduler', fn() => redirect()->route('bpjs.erm', ['tab' => 'scheduler']))->name('erm-scheduler');
             Route::prefix('fhir-resource')->name('fhir-resource.')->group(function () {
                 Route::get('/patient', fn() => redirect()->route('local.patient'))->name('patient');
-                Route::get('/practitioner', fn() => redirect()->route('local.practitioner.doctor'))->name('practitioner');
+                Route::get('/practitioner', fn() => redirect()->route('local.practitioner'))->name('practitioner');
                 Route::get('/organization', fn() => redirect()->route('local.organization'))->name('organization');
                 Route::get('/healthcare-service', fn() => redirect()->route('local.healthcare-service.polyclinic'))->name('healthcare-service');
                 Route::get('/procedure', fn() => redirect()->route('local.clinical.procedure'))->name('procedure');
@@ -276,13 +277,7 @@ Route::middleware('auth')
                 Route::livewire('/surgery', 'pages::local.clinical.surgery')->name('surgery');
                 Route::livewire('/surgery-report', 'pages::local.clinical.surgery-report')->name('surgery-report');
             });
-            Route::prefix('practitioner')->name('practitioner.')->group(function () {
-                Route::livewire('/doctor', 'pages::local.practitioner.doctor')->name('doctor');
-                Route::livewire('/medical', 'pages::local.practitioner.medical')->name('medical');
-                Route::livewire('/nursing', 'pages::local.practitioner.nursing')->name('nursing');
-                Route::livewire('/support', 'pages::local.practitioner.support')->name('support');
-                Route::livewire('/non-medical', 'pages::local.practitioner.non-medical')->name('non-medical');
-            });
+            Route::livewire('/practitioner', 'pages::local.practitioner')->name('practitioner');
             Route::prefix('observation')->name('observation.')->group(function () {
                 Route::livewire('/lab', 'pages::local.observation.laboratory')->name('laboratory');
                 Route::livewire('/radiology', 'pages::local.observation.radiology')->name('radiology');
@@ -310,9 +305,6 @@ Route::middleware('auth')
                 Route::livewire('/', 'pages::local.episode-of-care.index')->name('index');
             });
 
-            Route::livewire('/icd9', 'pages::local.icd9')->name('icd9');
-            Route::livewire('/icd10', 'pages::local.icd10')->name('icd10');
-            Route::livewire('/procedure', 'pages::local.procedure')->name('procedure');
             Route::livewire('/general', 'pages::local.general')->name('general');
         });
 

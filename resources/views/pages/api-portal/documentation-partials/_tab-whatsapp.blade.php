@@ -3,7 +3,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/whatsapp/send/text</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/whatsapp/send/text</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Kirim Pesan Teks</h3>
 
@@ -44,7 +44,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/whatsapp/send/text \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/whatsapp/send/text \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{
@@ -91,7 +91,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/whatsapp/send/image</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/whatsapp/send/image</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Kirim Gambar</h3>
 
@@ -145,7 +145,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/whatsapp/send/image \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/whatsapp/send/image \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{
@@ -180,7 +180,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/whatsapp/send/file</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/whatsapp/send/file</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Kirim File / Dokumen
         </h3>
@@ -229,7 +229,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/whatsapp/send/file \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/whatsapp/send/file \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{
@@ -263,7 +263,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/whatsapp/status</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/whatsapp/status</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Cek Status Koneksi</h3>
 
@@ -278,7 +278,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/whatsapp/status \
+                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/whatsapp/status \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 
@@ -327,7 +327,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/whatsapp/message/{id}</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/whatsapp/message/{id}</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Cek Status Pesan</h3>
 
@@ -341,7 +341,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/whatsapp/message/9e1a2b3c-... \
+                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/whatsapp/message/9e1a2b3c-... \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 

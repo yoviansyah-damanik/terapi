@@ -3,7 +3,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/status</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/status</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Cek Koneksi Server TTE</h3>
         <p class="mb-4 text-sm text-zinc-600 dark:text-primary-dark-300">
@@ -15,7 +15,7 @@
                 <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh
                     Request</h4>
-                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/tte/status \
+                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/status \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
             <div>
@@ -136,7 +136,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/hits</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/hits</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Statistik Hit TTE</h3>
         <p class="mb-4 text-sm text-zinc-600 dark:text-primary-dark-300">
@@ -185,7 +185,7 @@
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh
                     Request</h4>
-                <x-atoms.code-block language="bash">curl -X GET <span class="text-emerald-400">"{{ $appUrl }}/api/tte/hits?mode=this_month&nik=3201234567890001"</span> \
+                <x-atoms.code-block language="bash">curl -X GET <span class="text-emerald-400">"{{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/hits?mode=this_month&nik=3201234567890001"</span> \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
             {{-- Response: mode spesifik --}}
@@ -265,7 +265,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/sign/pdf</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/sign/pdf</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Tanda Tangan PDF</h3>
 
@@ -406,7 +406,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/sign/pdf \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/sign/pdf \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{
@@ -433,7 +433,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/sign/totp</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/sign/totp</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Request Sign TOTP</h3>
 
@@ -480,7 +480,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/sign/totp \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/sign/totp \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"nik": "3201234567890001", "data": 2}'</span></x-atoms.code-block>
@@ -494,7 +494,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/verify/pdf</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/verify/pdf</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Verifikasi Tanda Tangan PDF
         </h3>
@@ -535,7 +535,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/verify/pdf \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/verify/pdf \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"file": "JVBERi0xLjQKMSAw..."}'</span></x-atoms.code-block>
@@ -549,7 +549,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/user/status</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/user/status</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Cek Status User</h3>
 
@@ -589,7 +589,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/user/status \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/user/status \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"nik": "3201234567890001"}'</span></x-atoms.code-block>
@@ -600,7 +600,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/user/register</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/user/register</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Registrasi User</h3>
 
@@ -640,7 +640,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/user/register \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/user/register \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"nama": "Dr. Budi Santoso", "email": "budi@rs-example.go.id"}'</span></x-atoms.code-block>
@@ -679,7 +679,7 @@
                     <p class="font-medium text-zinc-900 dark:text-primary-dark-100">Aktivasi TOTP Seal</p>
                     <p class="text-sm text-zinc-500 dark:text-primary-dark-400"><code
                             class="px-1 py-0.5 rounded bg-zinc-100 dark:bg-primary-dark-700 text-xs">POST
-                            /api/tte/seal/activation</code></p>
+                            /api/{{ $activeVersions['tte'] }}/tte/seal/activation</code></p>
                 </div>
             </div>
             <div class="flex items-start gap-3">
@@ -690,7 +690,7 @@
                     <p class="font-medium text-zinc-900 dark:text-primary-dark-100">Request OTP Seal</p>
                     <p class="text-sm text-zinc-500 dark:text-primary-dark-400"><code
                             class="px-1 py-0.5 rounded bg-zinc-100 dark:bg-primary-dark-700 text-xs">POST
-                            /api/tte/seal/totp</code></p>
+                            /api/{{ $activeVersions['tte'] }}/tte/seal/totp</code></p>
                 </div>
             </div>
             <div class="flex items-start gap-3">
@@ -701,7 +701,7 @@
                     <p class="font-medium text-zinc-900 dark:text-primary-dark-100">Seal PDF</p>
                     <p class="text-sm text-zinc-500 dark:text-primary-dark-400"><code
                             class="px-1 py-0.5 rounded bg-zinc-100 dark:bg-primary-dark-700 text-xs">POST
-                            /api/tte/seal/pdf</code></p>
+                            /api/{{ $activeVersions['tte'] }}/tte/seal/pdf</code></p>
                 </div>
             </div>
         </div>
@@ -711,13 +711,13 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/seal/activation</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/seal/activation</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Aktivasi TOTP Seal</h3>
         <div>
             <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                 Contoh Request</h4>
-            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/seal/activation \
+            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/seal/activation \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"idSubscriber": "SUB-001"}'</span></x-atoms.code-block>
@@ -728,13 +728,13 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/seal/refresh</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/seal/refresh</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Refresh Aktivasi Seal</h3>
         <div>
             <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                 Contoh Request</h4>
-            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/seal/refresh \
+            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/seal/refresh \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"idSubscriber": "SUB-001", "totp": "123456"}'</span></x-atoms.code-block>
@@ -745,13 +745,13 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/seal/revoke</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/seal/revoke</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Revoke Aktivasi Seal</h3>
         <div>
             <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                 Contoh Request</h4>
-            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/seal/revoke \
+            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/seal/revoke \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"idSubscriber": "SUB-001", "totp": "123456"}'</span></x-atoms.code-block>
@@ -762,7 +762,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/seal/totp</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/seal/totp</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Request OTP Seal</h3>
         <div class="space-y-4">
@@ -799,7 +799,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/seal/totp \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/seal/totp \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"idSubscriber": "SUB-001", "data": 2, "totp": "123456"}'</span></x-atoms.code-block>
@@ -811,7 +811,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/tte/seal/pdf</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['tte'] }}/tte/seal/pdf</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Seal Dokumen PDF</h3>
 
@@ -823,7 +823,7 @@
         <div>
             <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                 Contoh Request</h4>
-            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/tte/seal/pdf \
+            <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['tte'] }}/tte/seal/pdf \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{

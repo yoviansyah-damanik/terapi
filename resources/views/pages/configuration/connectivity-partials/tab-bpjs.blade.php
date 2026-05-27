@@ -2,6 +2,7 @@
 
 use App\Helpers\ConfigurationHelper;
 use App\Services\Bpjs\Erm\ErmModuleRegistry;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 new class extends Component {
@@ -68,6 +69,9 @@ new class extends Component {
         ConfigurationHelper::set('bpjs.nama_ppk', $this->bpjsNamaPpk);
         ConfigurationHelper::set('bpjs.kode_ppk_apotek', $this->bpjsKodePpkApotek);
         ConfigurationHelper::set('bpjs.nama_ppk_apotek', $this->bpjsNamaPpkApotek);
+
+        // Invalidasi token Antrian RS agar re-auth dengan credential baru
+        Cache::forget('bpjs_antrian_rs_token');
 
         $this->dispatch('toast', type: 'success', message: 'Konfigurasi BPJS berhasil disimpan.');
     }

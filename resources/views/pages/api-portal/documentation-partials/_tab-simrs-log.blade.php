@@ -3,7 +3,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/simrs/log</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['simrs'] }}/simrs/log</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Kirim Log SIMRS</h3>
 
@@ -123,7 +123,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/simrs/log \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/log \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{
@@ -169,7 +169,7 @@ payload.put(<span class="text-emerald-400">"simrs_user"</span>, getCurrentUserna
 payload.put(<span class="text-emerald-400">"app_version"</span>, AppConfig.VERSION);
 payload.put(<span class="text-emerald-400">"db_connected"</span>, dbPool.isConnected());
 
-terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/simrs/log</span>
+terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/{{ $activeVersions['simrs'] }}/simrs/log</span>
 }</x-atoms.code-block>
             </div>
 
@@ -206,7 +206,7 @@ terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/simrs/lo
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/simrs/log/batch</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['simrs'] }}/simrs/log/batch</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Kirim Log Batch</h3>
 
@@ -234,7 +234,7 @@ terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/simrs/lo
                         <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">logs</x-atoms.table-cell>
                         <x-atoms.table-cell class="text-zinc-600 dark:text-primary-dark-400">array</x-atoms.table-cell>
                         <x-atoms.table-cell><flux:badge color="red" size="sm">Ya</flux:badge></x-atoms.table-cell>
-                        <x-atoms.table-cell class="text-zinc-700 dark:text-primary-dark-300">Array berisi 1–100 objek log. Setiap objek memiliki field yang sama seperti endpoint <code class="text-xs bg-zinc-100 dark:bg-primary-dark-700 px-1 rounded">POST /api/simrs/log</code>.</x-atoms.table-cell>
+                        <x-atoms.table-cell class="text-zinc-700 dark:text-primary-dark-300">Array berisi 1–100 objek log. Setiap objek memiliki field yang sama seperti endpoint <code class="text-xs bg-zinc-100 dark:bg-primary-dark-700 px-1 rounded">POST /api/{{ $activeVersions['simrs'] }}/simrs/log</code>.</x-atoms.table-cell>
                     </x-molecules.table-row>
                     <x-molecules.table-row>
                         <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">logs[].message</x-atoms.table-cell>
@@ -256,7 +256,7 @@ terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/simrs/lo
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/simrs/log/batch \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/log/batch \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{
@@ -317,12 +317,12 @@ terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/simrs/lo
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/simrs/logs</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['simrs'] }}/simrs/logs</code>
         </div>
         <h3 class="mb-1 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Ambil Daftar Log</h3>
         <p class="mb-4 text-sm text-zinc-400 dark:text-primary-dark-500">
             Juga tersedia: <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono">/api/simrs/logs/{id}</code> — untuk mengambil detail satu
+            <code class="text-sm font-mono">/api/{{ $activeVersions['simrs'] }}/simrs/logs/{id}</code> — untuk mengambil detail satu
             log.
         </p>
 
@@ -396,7 +396,7 @@ terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/simrs/lo
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/simrs/logs?level=error&module=farmasi&per_page=10" \
+                <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/logs?level=error&module=farmasi&per_page=10" \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 
@@ -405,7 +405,7 @@ terapiLogClient.send(payload); <span class="text-zinc-500">// POST /api/simrs/lo
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request (Detail)</h4>
-                <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/simrs/logs/01956b2a-c1d2-7e3f-a4b5-c6d7e8f9a0b1" \
+                <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/logs/01956b2a-c1d2-7e3f-a4b5-c6d7e8f9a0b1" \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 

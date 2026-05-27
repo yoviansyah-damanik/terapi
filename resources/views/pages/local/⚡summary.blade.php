@@ -8,12 +8,10 @@ use App\Models\Terminology\IcdOTopography;
 use App\Models\Terminology\IcdOMorphology;
 use App\Models\Mapping\AllergyMap;
 use App\Models\Mapping\AllergyReactionMap;
-use App\Models\Mapping\DoctorMap;
 use App\Models\Mapping\HealthcareServiceMap;
 use App\Models\Mapping\HsServiceItem;
 use App\Models\Simrs\Bangsal;
 use App\Models\Simrs\Departemen;
-use App\Models\Simrs\Dokter;
 use App\Models\Simrs\Poliklinik;
 use App\Models\Mapping\EmployeeMap;
 use App\Models\Mapping\Icd10Map;
@@ -125,7 +123,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
 
     public function with(): array
     {
-        // --- Patient (SIMRS — try/catch karena beda koneksi) ---
+        // --- Patient ---
         try {
             $patientTotal = Pasien::count();
         } catch (\Exception) {
@@ -134,7 +132,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
         $patientBpjs = BpjsPatient::count();
         $patientSs   = SatuSehatPatient::count();
 
-        // --- Organization (SIMRS — try/catch karena beda koneksi) ---
+        // --- Organization ---
         try {
             $deptTotal = Departemen::count();
         } catch (\Exception) {
@@ -143,7 +141,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
         $deptSs   = SatuSehatOrganization::count();
         $deptBpjs = BpjsOrganization::count();
 
-        // --- Clinical ---
+        // --- Source (ICD) ---
         $icd10Total    = Icd10::count();
         $icd10Mapped   = Icd10Map::count();
         $icd9Total     = Icd9::count();
@@ -157,49 +155,54 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
         $icdMmTotal    = IcdMm::count();
         $icdMmMapped   = IcdMmMap::count();
 
-        // --- Practitioner (SIMRS — try/catch karena beda koneksi) ---
+        // --- Practitioner (1 SIMRS query → group by bidang di PHP) ---
+        // EmployeeMap.employee_id = pegawai.id | BpjsPractitioner.identifier = nik | SatuSehatPractitioner.nik = no_ktp
         try {
-            $dokterTotal   = Dokter::where('status', '1')->count();
-            $medisTotal    = Pegawai::where('stts_aktif', 'AKTIF')->where('bidang', 'Medis')->count();
-            $kepTotal      = Pegawai::where('stts_aktif', 'AKTIF')->whereIn('bidang', ['Keperawatan', 'Kebidanan'])->count();
-            $penTotal      = Pegawai::where('stts_aktif', 'AKTIF')->where('bidang', 'Penunjang Medis')->count();
-            $nonMedisTotal = Pegawai::where('stts_aktif', 'AKTIF')->whereNotIn('bidang', ['Medis', 'Keperawatan', 'Kebidanan', 'Penunjang Medis'])->count();
-
-            $medisNiks    = Pegawai::where('stts_aktif', 'AKTIF')->where('bidang', 'Medis')->pluck('nik')->toArray();
-            $kepNiks      = Pegawai::where('stts_aktif', 'AKTIF')->whereIn('bidang', ['Keperawatan', 'Kebidanan'])->pluck('nik')->toArray();
-            $penNiks      = Pegawai::where('stts_aktif', 'AKTIF')->where('bidang', 'Penunjang Medis')->pluck('nik')->toArray();
-            $nonMedisNiks = Pegawai::where('stts_aktif', 'AKTIF')->whereNotIn('bidang', ['Medis', 'Keperawatan', 'Kebidanan', 'Penunjang Medis'])->pluck('nik')->toArray();
+            $allPegawai = Pegawai::where('stts_aktif', 'AKTIF')
+                ->select('id', 'nik', 'no_ktp', 'bidang')
+                ->get();
         } catch (\Exception) {
-            $dokterTotal = $medisTotal = $kepTotal = $penTotal = $nonMedisTotal = 0;
-            $medisNiks   = $kepNiks = $penNiks = $nonMedisNiks = [];
+            $allPegawai = collect();
         }
 
-        $dokterMapped  = DoctorMap::count();
-        $medisMapped   = EmployeeMap::whereIn('employee_id', $medisNiks)->count();
-        $kepMapped     = EmployeeMap::whereIn('employee_id', $kepNiks)->count();
-        $penMapped     = EmployeeMap::whereIn('employee_id', $penNiks)->count();
-        $nonMedisMapped = EmployeeMap::whereIn('employee_id', $nonMedisNiks)->count();
+        // Query lokal sekali untuk semua pegawai aktif
+        $mappedEmpIds = EmployeeMap::whereIn('employee_id', $allPegawai->pluck('id'))
+            ->pluck('employee_id')->flip();
+        $bpjsNiks = BpjsPractitioner::whereIn('identifier', $allPegawai->pluck('nik')->filter())
+            ->pluck('identifier')->flip();
+        $ssKtps = SatuSehatPractitioner::whereIn('nik', $allPegawai->pluck('no_ktp')->filter())
+            ->pluck('nik')->flip();
 
-        $medisBpjs    = BpjsPractitioner::whereIn('identifier', $medisNiks)->count();
-        $kepBpjs      = BpjsPractitioner::whereIn('identifier', $kepNiks)->count();
-        $penBpjs      = BpjsPractitioner::whereIn('identifier', $penNiks)->count();
-        $nonMedisBpjs = BpjsPractitioner::whereIn('identifier', $nonMedisNiks)->count();
+        // Build per-bidang secara dinamis, urut abjad
+        $practitionerRows = $allPegawai
+            ->groupBy('bidang')
+            ->sortKeys()
+            ->map(fn($group, $bidang) => [
+                'label'     => $bidang ?: '(Tidak ada bidang)',
+                'total'     => $group->count(),
+                'mapped'    => $group->filter(fn($p) => isset($mappedEmpIds[$p->id]))->count(),
+                'bpjs'      => $group->filter(fn($p) => $p->nik && isset($bpjsNiks[$p->nik]))->count(),
+                'satusehat' => $group->filter(fn($p) => $p->no_ktp && isset($ssKtps[$p->no_ktp]))->count(),
+                'route'     => 'local.practitioner',
+            ])
+            ->values()
+            ->all();
 
-        $medisSs    = SatuSehatPractitioner::whereIn('nik', $medisNiks)->count();
-        $kepSs      = SatuSehatPractitioner::whereIn('nik', $kepNiks)->count();
-        $penSs      = SatuSehatPractitioner::whereIn('nik', $penNiks)->count();
-        $nonMedisSs = SatuSehatPractitioner::whereIn('nik', $nonMedisNiks)->count();
-
-        // --- Tindakan (Procedure) ---
+        // --- Clinical (1 query BpjsProcedure, 1 variabel PaketOperasi) ---
         try {
             $procJalanTotal = JnsPerawatan::count();
             $procInapTotal  = JnsPerawatanInap::count();
+            $paketOperasiTotal = PaketOperasi::count();
         } catch (\Exception) {
-            $procJalanTotal = $procInapTotal = 0;
+            $procJalanTotal = $procInapTotal = $paketOperasiTotal = 0;
         }
-        $procTotal   = $procJalanTotal + $procInapTotal;
-        $procMapped  = ProcedureMap::where('source_table', 'jalan')->count() + ProcedureMap::where('source_table', 'inap')->count();
-        $procBpjs    = BpjsProcedure::whereIn('type', ['jalan', 'ranap'])->count();
+        $procTotal  = $procJalanTotal + $procInapTotal;
+        $procMapped = ProcedureMap::whereIn('source_table', ['jalan', 'inap'])->count();
+
+        // Semua hitungan BpjsProcedure dalam 1 query GROUP BY
+        $bpjsProcCounts = BpjsProcedure::selectRaw('type, COUNT(*) as cnt')
+            ->groupBy('type')
+            ->pluck('cnt', 'type');
 
         // --- Observation ---
         try {
@@ -213,18 +216,14 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
         $labItemMapped = LabItemMap::count();
         $radMapped     = RadMap::count();
         $labBpjs       = BpjsObservationLab::count();
-        $labItemBpjs   = BpjsProcedure::where('type', 'item_lab')->count();
         $radBpjs       = BpjsObservationRadiology::count();
 
-        // --- Medication ---
+        // --- Medication (2 SIMRS query, count dari collection) ---
         try {
-            $obatTotal   = DataBarang::whereDoesntHave('kategoriBarang', fn($q) => $q->where('nama', 'like', '%vaksin%'))->count();
-            $vaksinTotal = DataBarang::whereHas('kategoriBarang', fn($q) => $q->where('nama', 'like', '%vaksin%'))->count();
-            $obatKode    = DataBarang::whereDoesntHave('kategoriBarang', fn($q) => $q->where('nama', 'like', '%vaksin%'))->pluck('kode_brng')->toArray();
-            $vaksinKode  = DataBarang::whereHas('kategoriBarang', fn($q) => $q->where('nama', 'like', '%vaksin%'))->pluck('kode_brng')->toArray();
+            $obatKode   = DataBarang::whereDoesntHave('kategoriBarang', fn($q) => $q->where('nama', 'like', '%vaksin%'))->pluck('kode_brng');
+            $vaksinKode = DataBarang::whereHas('kategoriBarang', fn($q) => $q->where('nama', 'like', '%vaksin%'))->pluck('kode_brng');
         } catch (\Exception) {
-            $obatTotal = $vaksinTotal = 0;
-            $obatKode  = $vaksinKode = [];
+            $obatKode = $vaksinKode = collect();
         }
         $obatMapped   = MedicationMap::whereIn('local_code', $obatKode)->count();
         $vaksinMapped = MedicationMap::whereIn('local_code', $vaksinKode)->count();
@@ -270,52 +269,44 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
 
         return [
             'patient' => [
-                // "mapped" = terdaftar di Satu Sehat (IHS Number)
                 ['label' => 'Pasien', 'total' => $patientTotal, 'mapped' => $patientSs, 'bpjs' => $patientBpjs, 'satusehat' => $patientSs, 'route' => 'local.patient'],
             ],
             'organization' => [
-                // "mapped" = terdaftar di Satu Sehat (tujuan utama halaman ini)
                 ['label' => 'Departemen', 'total' => $deptTotal, 'mapped' => $deptSs, 'bpjs' => $deptBpjs, 'satusehat' => $deptSs, 'route' => 'local.organization'],
             ],
             'source' => [
-                ['label' => 'ICD-10', 'total' => $icd10Total, 'mapped' => $icd10Mapped, 'bpjs' => BpjsIcd10::count(), 'route' => 'local.source.icd10'],
-                ['label' => 'ICD-9-CM', 'total' => $icd9Total, 'mapped' => $icd9Mapped, 'bpjs' => BpjsIcd9::count(), 'route' => 'local.source.icd9'],
+                ['label' => 'ICD-10',         'total' => $icd10Total,   'mapped' => $icd10Mapped,   'bpjs' => BpjsIcd10::count(), 'route' => 'local.source.icd10'],
+                ['label' => 'ICD-9-CM',        'total' => $icd9Total,    'mapped' => $icd9Mapped,    'bpjs' => BpjsIcd9::count(),  'route' => 'local.source.icd9'],
                 ['label' => 'ICD-O Topografi', 'total' => $icdOTopTotal, 'mapped' => $icdOTopMapped, 'route' => 'local.source.icd-o-topography'],
                 ['label' => 'ICD-O Morfologi', 'total' => $icdOMorTotal, 'mapped' => $icdOMorMapped, 'route' => 'local.source.icd-o-morphology'],
-                ['label' => 'ICD-PM', 'total' => $icdPmTotal, 'mapped' => $icdPmMapped, 'route' => 'local.source.icd-pm'],
-                ['label' => 'ICD-MM', 'total' => $icdMmTotal, 'mapped' => $icdMmMapped, 'route' => 'local.source.icd-mm'],
+                ['label' => 'ICD-PM',          'total' => $icdPmTotal,   'mapped' => $icdPmMapped,   'route' => 'local.source.icd-pm'],
+                ['label' => 'ICD-MM',          'total' => $icdMmTotal,   'mapped' => $icdMmMapped,   'route' => 'local.source.icd-mm'],
             ],
             'clinical' => [
-                ['label' => 'Tindakan', 'total' => $procTotal, 'mapped' => $procMapped, 'bpjs' => $procBpjs, 'route' => 'local.clinical.procedure'],
-                ['label' => 'Operasi (SNOMED)', 'total' => PaketOperasi::count(), 'mapped' => ProcedureMap::where('source_table', 'operasi')->count(), 'bpjs' => BpjsProcedure::where('type', 'operasi')->count(), 'route' => 'local.clinical.surgery'],
-                ['label' => 'Operasi (LOINC)', 'total' => PaketOperasi::count(), 'mapped' => SurgeryNoteMap::count(), 'route' => 'local.clinical.surgery'],
+                ['label' => 'Tindakan',        'total' => $procTotal,         'mapped' => $procMapped,                                        'bpjs' => ($bpjsProcCounts['jalan'] ?? 0) + ($bpjsProcCounts['ranap'] ?? 0), 'route' => 'local.clinical.procedure'],
+                ['label' => 'Operasi (SNOMED)','total' => $paketOperasiTotal, 'mapped' => ProcedureMap::where('source_table', 'operasi')->count(), 'bpjs' => $bpjsProcCounts['operasi'] ?? 0, 'route' => 'local.clinical.surgery'],
+                ['label' => 'Operasi (LOINC)', 'total' => $paketOperasiTotal, 'mapped' => SurgeryNoteMap::count(),                             'route' => 'local.clinical.surgery'],
             ],
-            'practitioner' => [
-                ['label' => 'Dokter', 'total' => $dokterTotal, 'mapped' => $dokterMapped, 'route' => 'local.practitioner.doctor'],
-                ['label' => 'Tenaga Medis', 'total' => $medisTotal, 'mapped' => $medisMapped, 'bpjs' => $medisBpjs, 'satusehat' => $medisSs, 'route' => 'local.practitioner.medical'],
-                ['label' => 'Keperawatan', 'total' => $kepTotal, 'mapped' => $kepMapped, 'bpjs' => $kepBpjs, 'satusehat' => $kepSs, 'route' => 'local.practitioner.nursing'],
-                ['label' => 'Penunjang Medis', 'total' => $penTotal, 'mapped' => $penMapped, 'bpjs' => $penBpjs, 'satusehat' => $penSs, 'route' => 'local.practitioner.support'],
-                ['label' => 'Non Medis', 'total' => $nonMedisTotal, 'mapped' => $nonMedisMapped, 'bpjs' => $nonMedisBpjs, 'satusehat' => $nonMedisSs, 'route' => 'local.practitioner.non-medical'],
-            ],
+            'practitioner' => $practitionerRows,
             'observation' => [
-                ['label' => 'Lab Jenis', 'total' => $labTotal, 'mapped' => $labMapped, 'bpjs' => $labBpjs, 'route' => 'local.observation.laboratory'],
-                ['label' => 'Lab Item', 'total' => $labItemTotal, 'mapped' => $labItemMapped, 'bpjs' => $labItemBpjs, 'route' => 'local.observation.laboratory'],
-                ['label' => 'Radiologi', 'total' => $radTotal, 'mapped' => $radMapped, 'bpjs' => $radBpjs, 'route' => 'local.observation.radiology'],
+                ['label' => 'Lab Jenis', 'total' => $labTotal,     'mapped' => $labMapped,     'bpjs' => $labBpjs,                             'route' => 'local.observation.laboratory'],
+                ['label' => 'Lab Item',  'total' => $labItemTotal,  'mapped' => $labItemMapped, 'bpjs' => $bpjsProcCounts['item_lab'] ?? 0,     'route' => 'local.observation.laboratory'],
+                ['label' => 'Radiologi', 'total' => $radTotal,      'mapped' => $radMapped,     'bpjs' => $radBpjs,                             'route' => 'local.observation.radiology'],
             ],
             'medication' => [
-                ['label' => 'Obat', 'total' => $obatTotal, 'mapped' => $obatMapped, 'bpjs' => $obatBpjs, 'route' => 'local.medication.medicine'],
-                ['label' => 'Vaksin', 'total' => $vaksinTotal, 'mapped' => $vaksinMapped, 'bpjs' => $vaksinBpjs, 'route' => 'local.medication.vaccine'],
+                ['label' => 'Obat',   'total' => $obatKode->count(),   'mapped' => $obatMapped,   'bpjs' => $obatBpjs,   'route' => 'local.medication.medicine'],
+                ['label' => 'Vaksin', 'total' => $vaksinKode->count(), 'mapped' => $vaksinMapped, 'bpjs' => $vaksinBpjs, 'route' => 'local.medication.vaccine'],
             ],
             'device' => [
                 ['label' => 'Alat Kesehatan', 'total' => $alkesTotal, 'mapped' => $alkesMapped, 'bpjs' => $alkesBpjs, 'route' => 'local.device.equipment'],
             ],
             'allergy' => [
-                ['label' => 'Alergi', 'total' => $allergyTotal, 'mapped' => $allergyMapped, 'bpjs' => $allergyBpjs, 'route' => 'local.allergy.allergy'],
-                ['label' => 'Reaksi Alergi', 'total' => $reactionTotal, 'mapped' => $reactionMapped, 'bpjs' => $reactionBpjs, 'route' => 'local.allergy.reaction'],
+                ['label' => 'Alergi',       'total' => $allergyTotal,  'mapped' => $allergyMapped,  'bpjs' => $allergyBpjs,  'route' => 'local.allergy.allergy'],
+                ['label' => 'Reaksi Alergi','total' => $reactionTotal, 'mapped' => $reactionMapped, 'bpjs' => $reactionBpjs, 'route' => 'local.allergy.reaction'],
             ],
             'healthcare_service' => [
-                ['label' => 'Poliklinik', 'total' => $poliTotal, 'mapped' => $poliMapped, 'bpjs' => $poliBpjs, 'satusehat' => $poliSs, 'route' => 'local.healthcare-service.polyclinic'],
-                ['label' => 'Bangsal', 'total' => $bangsalTotal, 'mapped' => $bangsalMapped, 'bpjs' => $bangsalBpjs, 'route' => 'local.healthcare-service.ward'],
+                ['label' => 'Poliklinik', 'total' => $poliTotal,    'mapped' => $poliMapped,    'bpjs' => $poliBpjs,    'satusehat' => $poliSs, 'route' => 'local.healthcare-service.polyclinic'],
+                ['label' => 'Bangsal',    'total' => $bangsalTotal, 'mapped' => $bangsalMapped, 'bpjs' => $bangsalBpjs,                         'route' => 'local.healthcare-service.ward'],
             ],
         ];
     }

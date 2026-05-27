@@ -10,7 +10,7 @@
             <div class="p-4 rounded-lg bg-zinc-50 dark:bg-primary-dark-900">
                 <div class="flex items-center gap-3">
                     <span class="px-2 py-1 text-xs font-bold text-white bg-green-600 rounded">POST</span>
-                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/gowa/send/message</code>
+                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/message</code>
                 </div>
             </div>
 
@@ -44,7 +44,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/gowa/send/message \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/gowa/send/message \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"phone": "08123456789", "message": "Halo dari GOWA!"}'</span></x-atoms.code-block>
@@ -72,22 +72,22 @@
 
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded">POST</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/send/image</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/image</x-atoms.table-cell>
                     <x-atoms.table-cell>Kirim gambar (base64)</x-atoms.table-cell>
                 </x-molecules.table-row>
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded">POST</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/send/file</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/file</x-atoms.table-cell>
                     <x-atoms.table-cell>Kirim file/dokumen (base64)</x-atoms.table-cell>
                 </x-molecules.table-row>
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded">POST</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/send/video</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/video</x-atoms.table-cell>
                     <x-atoms.table-cell>Kirim video (base64)</x-atoms.table-cell>
                 </x-molecules.table-row>
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded">POST</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/send/audio</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/audio</x-atoms.table-cell>
                     <x-atoms.table-cell>Kirim audio (base64)</x-atoms.table-cell>
                 </x-molecules.table-row>
             </x-organisms.table>
@@ -135,7 +135,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request (Image)</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/gowa/send/image \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/gowa/send/image \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"phone": "08123456789", "image": "iVBORw0KGgo...", "filename": "foto.jpg", "caption": "Foto pasien"}'</span></x-atoms.code-block>
@@ -157,7 +157,7 @@
             <div class="p-4 border rounded-lg border-zinc-200 dark:border-primary-dark-700">
                 <div class="flex items-center gap-3 mb-3">
                     <span class="px-2 py-1 text-xs font-bold text-white bg-green-600 rounded">POST</span>
-                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/gowa/send/location</code>
+                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/location</code>
                 </div>
                 <p class="mb-2 text-sm text-zinc-600 dark:text-primary-dark-400">Body: <code
                         class="text-xs bg-zinc-100 dark:bg-primary-dark-900 px-1 py-0.5 rounded">{"phone",
@@ -168,7 +168,7 @@
             <div class="p-4 border rounded-lg border-zinc-200 dark:border-primary-dark-700">
                 <div class="flex items-center gap-3 mb-3">
                     <span class="px-2 py-1 text-xs font-bold text-white bg-green-600 rounded">POST</span>
-                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/gowa/send/contact</code>
+                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/contact</code>
                 </div>
                 <p class="mb-2 text-sm text-zinc-600 dark:text-primary-dark-400">Body: <code
                         class="text-xs bg-zinc-100 dark:bg-primary-dark-900 px-1 py-0.5 rounded">{"phone",
@@ -179,7 +179,7 @@
             <div class="p-4 border rounded-lg border-zinc-200 dark:border-primary-dark-700">
                 <div class="flex items-center gap-3 mb-3">
                     <span class="px-2 py-1 text-xs font-bold text-white bg-green-600 rounded">POST</span>
-                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/gowa/send/link</code>
+                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/link</code>
                 </div>
                 <p class="mb-2 text-sm text-zinc-600 dark:text-primary-dark-400">Body: <code
                         class="text-xs bg-zinc-100 dark:bg-primary-dark-900 px-1 py-0.5 rounded">{"phone",
@@ -191,7 +191,7 @@
             <div class="p-4 border rounded-lg border-zinc-200 dark:border-primary-dark-700">
                 <div class="flex items-center gap-3 mb-3">
                     <span class="px-2 py-1 text-xs font-bold text-white bg-green-600 rounded">POST</span>
-                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/gowa/send/poll</code>
+                    <code class="text-sm text-zinc-700 dark:text-primary-dark-300">/api/{{ $activeVersions['whatsapp'] }}/gowa/send/poll</code>
                 </div>
                 <p class="mb-2 text-sm text-zinc-600 dark:text-primary-dark-400">Body: <code
                         class="text-xs bg-zinc-100 dark:bg-primary-dark-900 px-1 py-0.5 rounded">{"phone",
@@ -202,7 +202,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request (Poll)</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/gowa/send/poll \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/gowa/send/poll \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"phone": "08123456789", "question": "Pilih waktu konsultasi", "options": ["Pagi", "Siang", "Sore"], "max_answer": 1}'</span></x-atoms.code-block>
@@ -229,27 +229,27 @@
 
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-blue-600 rounded">GET</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/status</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/status</x-atoms.table-cell>
                     <x-atoms.table-cell>Cek status koneksi GOWA</x-atoms.table-cell>
                 </x-molecules.table-row>
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-blue-600 rounded">GET</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/user/check?phone={phone}</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/user/check?phone={phone}</x-atoms.table-cell>
                     <x-atoms.table-cell>Cek nomor terdaftar di WhatsApp</x-atoms.table-cell>
                 </x-molecules.table-row>
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-blue-600 rounded">GET</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/message/{id}</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/message/{id}</x-atoms.table-cell>
                     <x-atoms.table-cell>Cek status pesan</x-atoms.table-cell>
                 </x-molecules.table-row>
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded">POST</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/message/{id}/revoke</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/message/{id}/revoke</x-atoms.table-cell>
                     <x-atoms.table-cell>Tarik pesan</x-atoms.table-cell>
                 </x-molecules.table-row>
                 <x-molecules.table-row>
                     <x-atoms.table-cell><span class="px-2 py-0.5 text-xs font-bold text-white bg-green-600 rounded">POST</span></x-atoms.table-cell>
-                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/gowa/message/{id}/react</x-atoms.table-cell>
+                    <x-atoms.table-cell class="font-mono text-xs text-primary-600 dark:text-primary-400">/api/{{ $activeVersions['whatsapp'] }}/gowa/message/{id}/react</x-atoms.table-cell>
                     <x-atoms.table-cell>Kirim reaksi emoji</x-atoms.table-cell>
                 </x-molecules.table-row>
             </x-organisms.table>
@@ -258,7 +258,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request (Cek Status)</h4>
-                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/gowa/status \
+                <x-atoms.code-block language="bash">curl -X GET {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/gowa/status \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 
@@ -266,7 +266,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request (Cek Nomor)</h4>
-                <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/gowa/user/check?phone=08123456789" \
+                <x-atoms.code-block language="bash">curl -X GET "{{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/gowa/user/check?phone=08123456789" \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 
@@ -274,7 +274,7 @@
                 <h4
                     class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request (React)</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/gowa/message/{id}/react \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['whatsapp'] }}/gowa/message/{id}/react \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{"emoji": "👍"}'</span></x-atoms.code-block>

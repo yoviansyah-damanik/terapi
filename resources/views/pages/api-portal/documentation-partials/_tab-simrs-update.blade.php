@@ -20,21 +20,21 @@
                         class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/40 text-[10px] font-bold text-primary-700 dark:text-primary-300 mt-0.5">1</span>
                     <p>SIMRS mengirim request <code
                             class="bg-zinc-100 dark:bg-primary-dark-700 px-1 rounded text-xs">GET
-                            /api/simrs/version</code> untuk mengecek apakah ada versi baru.</p>
+                            /api/{{ $activeVersions['simrs'] }}/simrs/version</code> untuk mengecek apakah ada versi baru.</p>
                 </div>
                 <div class="flex items-start gap-3">
                     <span
                         class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/40 text-[10px] font-bold text-primary-700 dark:text-primary-300 mt-0.5">2</span>
                     <p>Jika versi berbeda, SIMRS mengunduh file dengan <code
                             class="bg-zinc-100 dark:bg-primary-dark-700 px-1 rounded text-xs">GET
-                            /api/simrs/download/{version}</code>.</p>
+                            /api/{{ $activeVersions['simrs'] }}/simrs/download/{version}</code>.</p>
                 </div>
                 <div class="flex items-start gap-3">
                     <span
                         class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/40 text-[10px] font-bold text-primary-700 dark:text-primary-300 mt-0.5">3</span>
                     <p>SIMRS memverifikasi checksum SHA-256, menjalankan update, lalu melaporkan hasil
                         ke <code class="bg-zinc-100 dark:bg-primary-dark-700 px-1 rounded text-xs">POST
-                            /api/simrs/update/report</code>.</p>
+                            /api/{{ $activeVersions['simrs'] }}/simrs/update/report</code>.</p>
                 </div>
             </div>
         </div>
@@ -61,7 +61,7 @@
                 class="flex items-center gap-3 bg-zinc-50 dark:bg-primary-dark-700/50 px-4 py-3 border-b border-zinc-200 dark:border-primary-dark-700">
                 <flux:badge color="emerald" size="sm">GET</flux:badge>
                 <code
-                    class="text-xs text-zinc-700 dark:text-primary-dark-200 break-all">{{ $appUrl }}/api/simrs/version</code>
+                    class="text-xs text-zinc-700 dark:text-primary-dark-200 break-all">{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/version</code>
             </div>
             <div class="p-4 space-y-4">
                 <div>
@@ -103,7 +103,7 @@
                 class="flex items-center gap-3 bg-zinc-50 dark:bg-primary-dark-700/50 px-4 py-3 border-b border-zinc-200 dark:border-primary-dark-700">
                 <flux:badge color="emerald" size="sm">GET</flux:badge>
                 <code
-                    class="text-xs text-zinc-700 dark:text-primary-dark-200 break-all">{{ $appUrl }}/api/simrs/download/{version}</code>
+                    class="text-xs text-zinc-700 dark:text-primary-dark-200 break-all">{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/download/{version}</code>
             </div>
             <div class="p-4 space-y-4">
                 <div>
@@ -143,7 +143,7 @@ Content-Disposition: attachment; filename="simrs-2.5.1.zip"</x-atoms.code-block>
                 class="flex items-center gap-3 bg-zinc-50 dark:bg-primary-dark-700/50 px-4 py-3 border-b border-zinc-200 dark:border-primary-dark-700">
                 <flux:badge color="blue" size="sm">POST</flux:badge>
                 <code
-                    class="text-xs text-zinc-700 dark:text-primary-dark-200 break-all">{{ $appUrl }}/api/simrs/update/report</code>
+                    class="text-xs text-zinc-700 dark:text-primary-dark-200 break-all">{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/update/report</code>
             </div>
             <div class="p-4 space-y-4">
                 <div>
@@ -201,7 +201,7 @@ Content-Type: application/json</x-atoms.code-block>
                 <span
                     class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">GET</span>
                 <code
-                    class="text-sm font-mono text-zinc-800 dark:text-primary-dark-100">{{ $appUrl }}/api/simrs/launcher/slides</code>
+                    class="text-sm font-mono text-zinc-800 dark:text-primary-dark-100">{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/launcher/slides</code>
             </div>
             <div class="px-4 py-4 space-y-4">
                 <p class="text-sm text-zinc-600 dark:text-primary-dark-400">
@@ -221,14 +221,14 @@ Content-Type: application/json</x-atoms.code-block>
 "title": "Promo Kesehatan Maret",
 "href": "https://example.com/promo",
 "sort_order": 0,
-"image_url": "{{ $appUrl }}/api/simrs/launcher/slides/018e1a2b-.../image"
+"image_url": "{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/launcher/slides/018e1a2b-.../image"
 },
 {
 "id": "018e1a2c-...",
 "title": "Jadwal Dokter",
 "href": null,
 "sort_order": 10,
-"image_url": "{{ $appUrl }}/api/simrs/launcher/slides/018e1a2c-.../image"
+"image_url": "{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/launcher/slides/018e1a2c-.../image"
 }
 ]
 }</x-atoms.code-block>
@@ -252,7 +252,7 @@ Content-Type: application/json</x-atoms.code-block>
                 <span
                     class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">GET</span>
                 <code
-                    class="text-sm font-mono text-zinc-800 dark:text-primary-dark-100">{{ $appUrl }}/api/simrs/launcher/slides/{id}/image</code>
+                    class="text-sm font-mono text-zinc-800 dark:text-primary-dark-100">{{ $appUrl }}/api/{{ $activeVersions['simrs'] }}/simrs/launcher/slides/{id}/image</code>
             </div>
             <div class="px-4 py-4 space-y-4">
                 <p class="text-sm text-zinc-600 dark:text-primary-dark-400">

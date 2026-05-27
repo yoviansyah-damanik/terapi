@@ -3,7 +3,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/v1/worklists/batch</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists/batch</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Kirim Worklist (Batch)</h3>
 
@@ -48,7 +48,7 @@
             <div>
                 <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/v1/worklists/batch \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists/batch \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'[
@@ -83,7 +83,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="green" size="sm">POST</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/v1/worklists</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Kirim Worklist (Single)</h3>
 
@@ -95,7 +95,7 @@
             <div>
                 <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/v1/worklists \
+                <x-atoms.code-block language="bash">curl -X POST {{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span> \
 -H <span class="text-emerald-400">"Content-Type: application/json"</span> \
 -d <span class="text-emerald-400">'{
@@ -128,7 +128,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="blue" size="sm">GET</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/v1/worklists/{noorder}</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists/{noorder}</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Status Worklist</h3>
 
@@ -158,7 +158,7 @@
             <div>
                 <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl {{ $appUrl }}/api/v1/worklists/PR202602220001 \
+                <x-atoms.code-block language="bash">curl {{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists/PR202602220001 \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 
@@ -190,7 +190,7 @@
     <div class="p-6 bg-white dark:bg-primary-dark-800 rounded-2xl border border-zinc-200/80 dark:border-primary-dark-700/60 shadow-sm">
         <div class="flex items-center gap-2 mb-1">
             <flux:badge color="red" size="sm">DELETE</flux:badge>
-            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/v1/worklists/{noorder}</code>
+            <code class="text-sm font-mono text-zinc-700 dark:text-primary-dark-300">{{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists/{noorder}</code>
         </div>
         <h3 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-primary-dark-100">Hapus Worklist</h3>
 
@@ -203,7 +203,7 @@
             <div>
                 <h4 class="mb-2 text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-primary-dark-400">
                     Contoh Request</h4>
-                <x-atoms.code-block language="bash">curl -X DELETE {{ $appUrl }}/api/v1/worklists/PR202602220001 \
+                <x-atoms.code-block language="bash">curl -X DELETE {{ $appUrl }}/api/{{ $activeVersions['dicom'] }}/worklists/PR202602220001 \
 -H <span class="text-emerald-400">"Authorization: Bearer {token}"</span></x-atoms.code-block>
             </div>
 

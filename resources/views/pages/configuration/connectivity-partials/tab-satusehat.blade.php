@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\ConfigurationHelper;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 new class extends Component {
@@ -38,6 +39,9 @@ new class extends Component {
         ConfigurationHelper::set('satusehat.nama_ppk_kemenkes', $this->ssNamaPpk);
         ConfigurationHelper::set('satusehat.client_id', $this->ssClientId, encrypted: true);
         ConfigurationHelper::set('satusehat.client_secret', $this->ssClientSecret, encrypted: true);
+
+        // Invalidasi token lama agar re-auth dengan credential baru
+        Cache::forget(config('satusehat.cache.key', 'satusehat_access_token'));
 
         $this->dispatch('toast', type: 'success', message: 'Konfigurasi Satu Sehat berhasil disimpan.');
     }
