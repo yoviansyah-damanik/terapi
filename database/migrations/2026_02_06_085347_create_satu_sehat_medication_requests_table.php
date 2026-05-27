@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->json('dispense_request')->nullable();
             $table->string('reason_code')->nullable()->comment('ICD-10 code');
             $table->text('note')->nullable();
+            $table->boolean('is_vaccine')->default(false)->index();
             $table->json('raw_response')->nullable();
             $table->foreign('patient_ihs')
                 ->references('ihs_number')

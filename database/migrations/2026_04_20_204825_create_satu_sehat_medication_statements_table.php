@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->string('category')->nullable();
             $table->string('dosage_text')->nullable();
             $table->string('effective_datetime')->nullable();
+            $table->boolean('is_vaccine')->default(false)->index();
             $table->json('raw_response')->nullable();
             $table->timestamp('synced_at')->nullable();
             $table->timestamps();

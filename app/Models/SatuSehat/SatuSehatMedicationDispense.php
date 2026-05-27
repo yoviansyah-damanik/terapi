@@ -24,6 +24,7 @@ class SatuSehatMedicationDispense extends BaseModel
         'when_prepared',
         'when_handed_over',
         'dosage_instruction',
+        'is_vaccine',
         'raw_response',
         'synced_at',
     ];
@@ -35,6 +36,7 @@ class SatuSehatMedicationDispense extends BaseModel
             'when_prepared' => 'datetime',
             'when_handed_over' => 'datetime',
             'dosage_instruction' => 'array',
+            'is_vaccine' => 'boolean',
             'raw_response' => 'array',
             'synced_at' => 'datetime',
         ];

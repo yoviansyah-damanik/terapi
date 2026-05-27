@@ -25,6 +25,7 @@ class SatuSehatMedicationRequest extends BaseModel
         'dispense_request',
         'reason_code',
         'note',
+        'is_vaccine',
         'raw_response',
         'synced_at',
     ];
@@ -35,6 +36,7 @@ class SatuSehatMedicationRequest extends BaseModel
             'authored_on' => 'datetime',
             'dosage_instruction' => 'array',
             'dispense_request' => 'array',
+            'is_vaccine' => 'boolean',
             'raw_response' => 'array',
             'synced_at' => 'datetime',
         ];

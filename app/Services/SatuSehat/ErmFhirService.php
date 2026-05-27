@@ -813,7 +813,7 @@ class ErmFhirService
 
         $bundle = $this->ensureBundleLog($reg->no_rawat, $bundle);
         $obats = DetailPemberianObat::where('no_rawat', $reg->no_rawat)
-            ->with(['aturanPakai'])
+            ->with(['aturanPakai', 'dataBarang'])
             ->orderBy('tgl_perawatan')
             ->orderBy('jam')
             ->get();
@@ -837,7 +837,7 @@ class ErmFhirService
         $sent = 0;
         $items = [];
 
-        $processObat = function ($localCode, $tgl, $jam, $jml, $aturan) use ($reg, $encounter, $serviceMed, $serviceReq, &$sent, &$errors, &$warnings, &$items, $selectedIds, $bundle) {
+        $processObat = function ($localCode, $tgl, $jam, $jml, $aturan, $isVaccine = false) use ($reg, $encounter, $serviceMed, $serviceReq, &$sent, &$errors, &$warnings, &$items, $selectedIds, $bundle) {
             if (!$localCode)
                 return;
 
@@ -948,6 +948,7 @@ class ErmFhirService
                     'status' => 'active',
                     'intent' => 'order',
                     'authored_on' => now(),
+                    'is_vaccine' => $isVaccine,
                     'raw_response' => $reqResp->data,
                     'synced_at' => now(),
                 ]);
@@ -969,6 +970,7 @@ class ErmFhirService
                             'status' => 'active',
                             'intent' => 'order',
                             'authored_on' => now(),
+                            'is_vaccine' => $isVaccine,
                             'raw_response' => $found,
                             'synced_at' => now(),
                         ]);
@@ -984,11 +986,13 @@ class ErmFhirService
         };
 
         foreach ($obats as $obat) {
-            $processObat($obat->kode_brng, $obat->tgl_perawatan, $obat->jam, $obat->jml, $obat->aturanPakai?->aturan);
+            $isVaccine = str_starts_with($obat->dataBarang?->nama_brng ?? '', 'Vaksin');
+            $processObat($obat->kode_brng, $obat->tgl_perawatan, $obat->jam, $obat->jml, $obat->aturanPakai?->aturan, $isVaccine);
         }
 
         foreach ($resepPulangs as $resep) {
-            $processObat($resep->kode_brng, $resep->tanggal, $resep->jam, $resep->jml_barang, $resep->dosis);
+            $isVaccine = str_starts_with($resep->dataBarang?->nama_brng ?? '', 'Vaksin');
+            $processObat($resep->kode_brng, $resep->tanggal, $resep->jam, $resep->jml_barang, $resep->dosis, $isVaccine);
         }
 
         $msg = $sent > 0
@@ -1009,10 +1013,10 @@ class ErmFhirService
         if ($err = $this->validateEncounter($encounter))
             return $err;
 
-        $obats = DetailPemberianObat::where('no_rawat', $reg->no_rawat)->get();
+        $obats = DetailPemberianObat::where('no_rawat', $reg->no_rawat)->with(['dataBarang'])->get();
         $resepPulangs = collect();
         if ($reg->status_lanjut === 'Ranap') {
-            $resepPulangs = ResepPulang::where('no_rawat', $reg->no_rawat)->get();
+            $resepPulangs = ResepPulang::where('no_rawat', $reg->no_rawat)->with(['dataBarang'])->get();
         }
 
         if ($obats->isEmpty() && $resepPulangs->isEmpty()) {
@@ -1031,7 +1035,7 @@ class ErmFhirService
         $errors = [];
         $items = [];
 
-        $processDispense = function ($localCode, $tgl, $jam, $jml) use ($reg, $encounter, $serviceDisp, &$sent, &$errors, &$warnings, &$items, $selectedIds, $bundle) {
+        $processDispense = function ($localCode, $tgl, $jam, $jml, $isVaccine = false) use ($reg, $encounter, $serviceDisp, &$sent, &$errors, &$warnings, &$items, $selectedIds, $bundle) {
             if (!$localCode)
                 return;
 
@@ -1109,6 +1113,7 @@ class ErmFhirService
                     'quantity_unit' => $unitCode,
                     'when_prepared' => now(),
                     'when_handed_over' => now(),
+                    'is_vaccine' => $isVaccine,
                     'raw_response' => $dispResp->data,
                     'synced_at' => now(),
                 ]);
@@ -1136,6 +1141,7 @@ class ErmFhirService
                             'quantity_unit' => $unitCode,
                             'when_prepared' => now(),
                             'when_handed_over' => now(),
+                            'is_vaccine' => $isVaccine,
                             'raw_response' => $found,
                             'synced_at' => now(),
                         ]);
@@ -1152,10 +1158,12 @@ class ErmFhirService
         };
 
         foreach ($obats as $obat) {
-            $processDispense($obat->kode_brng, $obat->tgl_perawatan, $obat->jam, $obat->jml);
+            $isVaccine = str_starts_with($obat->dataBarang?->nama_brng ?? '', 'Vaksin');
+            $processDispense($obat->kode_brng, $obat->tgl_perawatan, $obat->jam, $obat->jml, $isVaccine);
         }
         foreach ($resepPulangs as $resep) {
-            $processDispense($resep->kode_brng, $resep->tanggal, $resep->jam, $resep->jml_barang);
+            $isVaccine = str_starts_with($resep->dataBarang?->nama_brng ?? '', 'Vaksin');
+            $processDispense($resep->kode_brng, $resep->tanggal, $resep->jam, $resep->jml_barang, $isVaccine);
         }
 
         $msg = $sent > 0
@@ -4719,6 +4727,7 @@ class ErmFhirService
                 }
                 $this->logBundleItem(bundle: $bundle, type: 'MedicationStatement', localId: $idStr, status: 'success', payload: $service->getLastPayload(), response: $resp->data, ihsId: $resp->resourceId);
 
+                $isVaccine = str_starts_with($namaObat ?? '', 'Vaksin');
                 SatuSehatMedicationStatement::create([
                     'ihs_number' => $resp->resourceId,
                     'local_id' => $idStr,
@@ -4727,6 +4736,7 @@ class ErmFhirService
                     'medication_ihs' => $medication->ihs_number,
                     'status' => 'completed',
                     'category' => $category,
+                    'is_vaccine' => $isVaccine,
                     'dosage_text' => is_string($aturan) ? Str::limit($aturan, 100) : Str::limit($aturan->aturan ?? '-', 100),
                     'effective_datetime' => $tglCarbon->format('Y-m-d H:i:s'),
                     'raw_response' => $resp->data,
@@ -4739,6 +4749,7 @@ class ErmFhirService
                     $searchResp = $service->searchBySubject($encounter->patient_ihs);
                     $found = $this->findByIdentifier($searchResp, $idStr);
                     if ($found) {
+                        $isVaccine = str_starts_with($namaObat ?? '', 'Vaksin');
                         SatuSehatMedicationStatement::create([
                             'ihs_number' => $found['id'],
                             'local_id' => $idStr,
@@ -4747,6 +4758,7 @@ class ErmFhirService
                             'medication_ihs' => $medication->ihs_number,
                             'status' => 'completed',
                             'category' => $category,
+                            'is_vaccine' => $isVaccine,
                             'dosage_text' => is_string($aturan) ? Str::limit($aturan, 100) : Str::limit($aturan->aturan ?? '-', 100),
                             'effective_datetime' => $tglCarbon->format('Y-m-d H:i:s'),
                             'raw_response' => $found,

@@ -149,9 +149,33 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Satu Sehat')] class extends Com
             ],
 
             ['label' => 'Medication', 'count' => $this->countResource(SatuSehatMedication::class), 'supported' => true],
-            ['label' => 'MedicationRequest', 'count' => $this->countResource(SatuSehatMedicationRequest::class), 'supported' => true],
-            ['label' => 'MedicationDispense', 'count' => $this->countResource(SatuSehatMedicationDispense::class), 'supported' => true],
-            ['label' => 'MedicationStatement', 'count' => $this->countResource(SatuSehatMedicationStatement::class), 'supported' => true],
+            [
+                'label' => 'MedicationRequest',
+                'count' => $this->countResource(SatuSehatMedicationRequest::class),
+                'supported' => true,
+                'sub' => [
+                    ['label' => 'Non Vaksin', 'count' => $this->countResource(SatuSehatMedicationRequest::class, fn($q) => $q->where('is_vaccine', false))],
+                    ['label' => 'Vaksin', 'count' => $this->countResource(SatuSehatMedicationRequest::class, fn($q) => $q->where('is_vaccine', true))],
+                ],
+            ],
+            [
+                'label' => 'MedicationDispense',
+                'count' => $this->countResource(SatuSehatMedicationDispense::class),
+                'supported' => true,
+                'sub' => [
+                    ['label' => 'Non Vaksin', 'count' => $this->countResource(SatuSehatMedicationDispense::class, fn($q) => $q->where('is_vaccine', false))],
+                    ['label' => 'Vaksin', 'count' => $this->countResource(SatuSehatMedicationDispense::class, fn($q) => $q->where('is_vaccine', true))],
+                ],
+            ],
+            [
+                'label' => 'MedicationStatement',
+                'count' => $this->countResource(SatuSehatMedicationStatement::class),
+                'supported' => true,
+                'sub' => [
+                    ['label' => 'Non Vaksin', 'count' => $this->countResource(SatuSehatMedicationStatement::class, fn($q) => $q->where('is_vaccine', false))],
+                    ['label' => 'Vaksin', 'count' => $this->countResource(SatuSehatMedicationStatement::class, fn($q) => $q->where('is_vaccine', true))],
+                ],
+            ],
             [
                 'label' => 'MedicationAdministration',
                 'count' => $this->countResource(SatuSehatMedicationAdministration::class),
@@ -177,12 +201,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Satu Sehat')] class extends Com
             ['label' => 'Immunization', 'count' => $this->countResource(SatuSehatImmunization::class), 'supported' => true],
             ['label' => 'CarePlan', 'count' => $this->countResource(SatuSehatCarePlan::class), 'supported' => true],
 
-            [
-                'label' => 'Specimen',
-                'count' => $this->countResource(SatuSehatSpecimen::class),
-                'supported' => true,
-                'sub' => [['label' => 'Laboratorium', 'count' => $this->countResource(SatuSehatSpecimen::class, fn($q) => $q->whereHas('serviceRequest', fn($sq) => $sq->where(fn($r) => $r->where('category', 'laboratory')->orWhere('category', 'like', '%lab%')->orWhere('category', '108252007'))))], ['label' => 'Radiologi', 'count' => $this->countResource(SatuSehatSpecimen::class, fn($q) => $q->whereHas('serviceRequest', fn($sq) => $sq->where(fn($r) => $r->where('category', 'imaging')->orWhere('category', 'like', '%rad%')->orWhere('category', '363679005'))))]],
-            ],
+            ['label' => 'Specimen', 'count' => $this->countResource(SatuSehatSpecimen::class), 'supported' => true],
 
             [
                 'label' => 'DiagnosticReport',

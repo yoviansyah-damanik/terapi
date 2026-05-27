@@ -19,6 +19,7 @@ class SatuSehatMedicationStatement extends BaseModel
         'performer_ihs',
         'status',
         'category',
+        'is_vaccine',
         'effective_start',
         'effective_end',
         'dosage_route_code',
@@ -30,6 +31,7 @@ class SatuSehatMedicationStatement extends BaseModel
     ];
 
     protected $casts = [
+        'is_vaccine' => 'boolean',
         'raw_response' => 'array',
         'synced_at' => 'datetime',
     ];

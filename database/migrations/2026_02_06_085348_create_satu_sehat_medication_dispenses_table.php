@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->timestamp('when_prepared')->nullable();
             $table->timestamp('when_handed_over')->nullable();
             $table->json('dosage_instruction')->nullable();
+            $table->boolean('is_vaccine')->default(false)->index();
             $table->json('raw_response')->nullable();
             $table->timestamp('synced_at')->nullable();
             $table->foreign('patient_ihs')
