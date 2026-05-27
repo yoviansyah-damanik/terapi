@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('layouts::app', SidebarComposer::class);
 
-        Gate::define('viewPulse', fn($user) => $user->isAdmin());
+        Gate::define('viewPulse', fn($user) => $user?->isAdmin());
     }
 
     /**

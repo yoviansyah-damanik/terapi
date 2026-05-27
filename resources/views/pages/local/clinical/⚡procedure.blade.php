@@ -25,6 +25,7 @@ new #[Layout('layouts::app')] #[Title('Tindakan — Mapping & UUID')] class exte
     #[Url(as: 'tab')]
     public string $activeTab = 'jalan';
 
+    #[Url(as: 'search')]
     public string $search = '';
 
     // BPJS UUID

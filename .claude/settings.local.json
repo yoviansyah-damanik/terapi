@@ -134,7 +134,11 @@
       "Bash(\"/c/Users/it_rs/.config/herd/bin/php82/php.exe\" fix_api_docs.php)",
       "Bash(Get-ChildItem -Path \"d:\\\\WebApps\\\\terapi\\\\app\\\\Models\\\\Simrs\" -Filter \"*.php\")",
       "Bash(Sort-Object Name)",
-      "Bash(Select-Object -Last 5 -ExpandProperty Name)"
+      "Bash(Select-Object -Last 5 -ExpandProperty Name)",
+      "Bash(Remove-Item -Force \"d:\\\\WebApps\\\\terapi\\\\resources\\\\views\\\\livewire\\\\logs\\\\satusehat\\\\tab-api.blade.php\" -ErrorAction SilentlyContinue)",
+      "Bash(Remove-Item -Force \"d:\\\\WebApps\\\\terapi\\\\resources\\\\views\\\\livewire\\\\logs\\\\satusehat\\\\tab-bundle.blade.php\" -ErrorAction SilentlyContinue)",
+      "Bash(Remove-Item -Recurse -Force \"d:\\\\WebApps\\\\terapi\\\\resources\\\\views\\\\livewire\\\\logs\\\\satusehat\" -ErrorAction SilentlyContinue)",
+      "Bash(Remove-Item -Recurse -Force \"d:\\\\WebApps\\\\terapi\\\\resources\\\\views\\\\livewire\\\\logs\" -ErrorAction SilentlyContinue)"
     ]
   }
 }
