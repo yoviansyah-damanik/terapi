@@ -17,11 +17,12 @@ use App\Models\Simrs\PermintaanRadiologi;
 use App\Models\Simrs\ProsedurPasien;
 use App\Models\Simrs\ResepPulang;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new #[Layout('layouts::app')] #[Title('Detail eRM')] class extends Component {
+new #[Layout('layouts::app')] #[Title('Detail eRM')] #[Lazy] class extends Component {
     public string $activeTab = 'admission';
 
     public string $noRawat;
@@ -41,6 +42,11 @@ new #[Layout('layouts::app')] #[Title('Detail eRM')] class extends Component {
     public function getUsgTypeConfigs(): array
     {
         return \App\Services\UsgService::getUsgTypeConfigs();
+    }
+
+    public function placeholder(): \Illuminate\Contracts\View\View
+    {
+        return view('placeholders._erm-detail');
     }
 
     public function with(): array

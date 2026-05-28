@@ -15,11 +15,12 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
     use WithPagination;
 
     #[Url]
-    public string $tab = 'versions';
+    public string $tab = 'main';
 
     // ── Form modal (tambah / edit) ─────────────────────────────────────────
     public bool $showFormModal = false;
     public ?int $editVersionId = null;
+    public string $newVersionType = 'main'; // di-set saat openForm berdasarkan tab aktif
     public string $version = '';
     public string $notes = '';
     public string $released_at = '';
@@ -58,6 +59,7 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
     public function openForm(): void
     {
         $this->reset(['editVersionId', 'version', 'notes', 'released_at', 'uploadedPath', 'uploadedName', 'uploadedSize']);
+        $this->newVersionType = $this->tab === 'launcher' ? 'launcher' : 'main';
         $this->resetValidation();
         $this->showFormModal = true;
         $this->dispatch('reset-uploader');
@@ -111,9 +113,14 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
             $this->dispatch('toast', type: 'success', message: "Versi {$ver} berhasil diperbarui.");
         } else {
             // ── Mode tambah: semua field wajib ────────────────────────────
-            $uploadedPath = $this->uploadedPath;
+            $uploadedPath     = $this->uploadedPath;
+            $newVersionType   = $this->newVersionType;
             $this->validate([
-                'version' => 'required|regex:/^\d+\.\d+\.\d+$/|unique:simrs_versions,version',
+                'version' => [
+                    'required',
+                    'regex:/^\d+\.\d+\.\d+$/',
+                    \Illuminate\Validation\Rule::unique('simrs_versions', 'version')->where('type', $newVersionType),
+                ],
                 'notes' => 'nullable|string|max:2000',
                 'released_at' => 'required|date',
                 'uploadedPath' => [
@@ -128,8 +135,9 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
 
             $service->create(
                 [
-                    'version' => $this->version,
-                    'notes' => $this->notes,
+                    'type'        => $this->newVersionType,
+                    'version'     => $this->version,
+                    'notes'       => $this->notes,
                     'released_at' => $this->released_at,
                 ],
                 $uploadedPath,
@@ -200,8 +208,8 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
 
         abort_unless($record->file_path && file_exists($fullPath), 404, 'File tidak tersedia di server.');
 
-        return response()->download($fullPath, "simrs-{$record->version}.zip", [
-            'Content-Type' => 'application/zip',
+        return response()->download($fullPath, "simrs-{$record->type}-{$record->version}.zip", [
+            'Content-Type'      => 'application/zip',
             'X-Checksum-SHA256' => $record->checksum ?? '',
         ]);
     }
@@ -362,17 +370,22 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
 
     public function with(): array
     {
-        $versions = SimrsVersion::orderByDesc('released_at')->paginate(15);
-        $detail = $this->detailId ? SimrsVersion::find($this->detailId) : null;
+        $versionType = in_array($this->tab, ['main', 'launcher']) ? $this->tab : 'main';
+        $versions    = SimrsVersion::ofType($versionType)->orderByDesc('released_at')->paginate(15);
+        $detail      = $this->detailId ? SimrsVersion::find($this->detailId) : null;
+
+        $reportBase = \App\Models\SimrsUpdateReport::where('created_at', '>=', now()->subDays(30));
+        if (in_array($this->tab, ['main', 'launcher'])) {
+            $reportBase->where(fn($q) => $q->where('type', $this->tab)->orWhereNull('type'));
+        }
         $reportStats = [
-            'total' => \App\Models\SimrsUpdateReport::where('created_at', '>=', now()->subDays(30))->count(),
-            'success' => \App\Models\SimrsUpdateReport::success()
-                ->where('created_at', '>=', now()->subDays(30))
-                ->count(),
-            'failed' => \App\Models\SimrsUpdateReport::failed()
-                ->where('created_at', '>=', now()->subDays(30))
-                ->count(),
-            'recent' => \App\Models\SimrsUpdateReport::orderByDesc('created_at')->limit(5)->get(),
+            'total'   => (clone $reportBase)->count(),
+            'success' => (clone $reportBase)->success()->count(),
+            'failed'  => (clone $reportBase)->failed()->count(),
+            'recent'  => \App\Models\SimrsUpdateReport::when(
+                in_array($this->tab, ['main', 'launcher']),
+                fn($q) => $q->where(fn($q2) => $q2->where('type', $this->tab)->orWhereNull('type'))
+            )->orderByDesc('created_at')->limit(5)->get(),
         ];
         $slides = SimrsSlide::ordered()->get();
 
@@ -385,9 +398,13 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
     <x-ui.page-header title="Manajemen Versi SIMRS"
         subtitle="Kelola file update SIMRS — unggah, aktifkan, dan distribusikan ke klien melalui API">
         <x-slot:actions>
-            @if ($tab === 'versions')
+            @if ($tab === 'main')
                 <x-atoms.button wire:click="openForm" variant="primary" icon="arrow-up-tray">
-                    Unggah Versi
+                    Unggah Versi Main
+                </x-atoms.button>
+            @elseif ($tab === 'launcher')
+                <x-atoms.button wire:click="openForm" variant="primary" icon="arrow-up-tray">
+                    Unggah Versi Launcher
                 </x-atoms.button>
             @elseif ($tab === 'slides')
                 <x-atoms.button wire:click="openSlideCreate" variant="primary" icon="plus">
@@ -400,7 +417,8 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
     {{-- Tabs ──────────────────────────────────────────────────────────────── --}}
     <x-molecules.tabs>
 
-        <x-atoms.tab-item wire:click="$set('tab', 'versions')" :active="$tab === 'versions'">Versi SIMRS</x-atoms.tab-item>
+        <x-atoms.tab-item wire:click="$set('tab', 'main')" :active="$tab === 'main'">Main SIMRS</x-atoms.tab-item>
+        <x-atoms.tab-item wire:click="$set('tab', 'launcher')" :active="$tab === 'launcher'">Launcher</x-atoms.tab-item>
         <x-atoms.tab-item wire:click="$set('tab', 'slides')" :active="$tab === 'slides'">Slide
             @if ($slides->count())
                 <span
@@ -413,14 +431,16 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
 
     </x-molecules.tabs>
 
-    @if ($tab === 'versions')
+    @if (in_array($tab, ['main', 'launcher']))
         {{-- Tabel Versi ───────────────────────────────────────────────────────── --}}
         <div
             class="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-sm dark:border-primary-dark-700/60 dark:bg-primary-dark-800">
             <div
                 class="flex items-center justify-between border-b border-zinc-100 px-5 py-3.5 dark:border-primary-dark-700/60">
                 <div class="flex items-center gap-2">
-                    <h3 class="text-sm font-semibold text-zinc-700 dark:text-primary-dark-300">Daftar Versi</h3>
+                    <h3 class="text-sm font-semibold text-zinc-700 dark:text-primary-dark-300">
+                        Daftar Versi {{ $tab === 'launcher' ? 'Launcher' : 'Main SIMRS' }}
+                    </h3>
                     @if ($versions->total() > 0)
                         <flux:badge color="zinc" size="sm">{{ $versions->total() }}</flux:badge>
                     @endif
@@ -649,7 +669,7 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
             </div>
         @endif
 
-    @endif {{-- end $tab === 'versions' --}}
+    @endif {{-- end in_array($tab, ['main', 'launcher']) --}}
 
     {{-- Tab Slide ────────────────────────────────────────────────────────── --}}
     @if ($tab === 'slides')
@@ -1037,7 +1057,11 @@ new #[Layout('layouts::app')] #[Title('Manajemen Versi SIMRS')] class extends Co
                 </div>
                 <div>
                     <flux:heading size="sm">
-                        {{ $editVersionId ? 'Edit Versi ' . $version : 'Unggah Versi Baru' }}
+                        @if ($editVersionId)
+                            Edit Versi {{ $version }}
+                        @else
+                            Unggah Versi {{ $newVersionType === 'launcher' ? 'Launcher' : 'Main SIMRS' }} Baru
+                        @endif
                     </flux:heading>
                     <flux:text size="sm" class="text-zinc-400">
                         {{ $editVersionId ? 'Perbarui catatan rilis atau tanggal rilis' : 'Upload file ZIP dan isi informasi versi' }}

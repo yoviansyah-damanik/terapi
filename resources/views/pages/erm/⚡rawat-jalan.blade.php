@@ -7,10 +7,11 @@ use App\Models\SatuSehat\SatuSehatEncounter;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 
-new #[Layout('layouts::app')] #[Title('eRM — Rawat Jalan')] class extends Component {
+new #[Layout('layouts::app')] #[Title('eRM — Rawat Jalan')] #[Lazy] class extends Component {
     use WithPagination;
 
     #[Url]
@@ -55,6 +56,11 @@ new #[Layout('layouts::app')] #[Title('eRM — Rawat Jalan')] class extends Comp
     public function updatedPerPage(): void
     {
         $this->resetPage();
+    }
+
+    public function placeholder(): \Illuminate\Contracts\View\View
+    {
+        return view('placeholders._erm-list');
     }
 
     public function with(): array
@@ -248,8 +254,8 @@ new #[Layout('layouts::app')] #[Title('eRM — Rawat Jalan')] class extends Comp
                             </td>
                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                 <x-atoms.button variant="ghost" size="sm" icon="eye" :navigate="true"
-                                    href="{{ route('erm.detail', ['noRawat' => $reg->no_rawat]) }}"
-                                    wire:navigate title="Detail eRM" />
+                                    href="{{ route('erm.detail', ['noRawat' => $reg->no_rawat]) }}" wire:navigate
+                                    title="Detail eRM" />
                             </td>
                         </tr>
                     @empty

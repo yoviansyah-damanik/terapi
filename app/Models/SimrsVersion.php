@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class SimrsVersion extends Model
 {
     protected $fillable = [
+        'type',
         'version',
         'notes',
         'file_path',
@@ -31,14 +32,21 @@ class SimrsVersion extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopeOfType(Builder $query, string $type): Builder
+    {
+        return $query->where('type', $type);
+    }
+
     protected static function boot(): void
     {
         parent::boot();
 
-        // Pastikan hanya satu versi yang aktif pada satu waktu
+        // Pastikan hanya satu versi aktif per tipe pada satu waktu
         static::saving(function (SimrsVersion $model) {
             if ($model->is_active) {
-                static::where('id', '!=', $model->id ?? 0)->update(['is_active' => false]);
+                static::where('type', $model->type)
+                    ->where('id', '!=', $model->id ?? 0)
+                    ->update(['is_active' => false]);
             }
         });
     }

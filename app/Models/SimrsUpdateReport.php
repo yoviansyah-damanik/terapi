@@ -13,6 +13,7 @@ class SimrsUpdateReport extends BaseModel
         'ip_address',
         'host_name',
         'app_name',
+        'type',
         'from_version',
         'to_version',
         'status',

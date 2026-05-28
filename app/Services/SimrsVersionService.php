@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Storage;
 
 class SimrsVersionService
 {
-    public function getActive(): ?SimrsVersion
+    public function getActive(string $type = 'main'): ?SimrsVersion
     {
-        return SimrsVersion::active()->first();
+        return SimrsVersion::ofType($type)->active()->first();
     }
 
     /**
@@ -18,8 +18,9 @@ class SimrsVersionService
      */
     public function create(array $data, string $tempPath): SimrsVersion
     {
+        $type     = $data['type'] ?? 'main';
         $version  = $data['version'];
-        $destPath = "{$version}/update.zip";
+        $destPath = "{$type}/{$version}/update.zip";
 
         $disk     = Storage::disk('simrs_updates');
         $destFull = $disk->path($destPath);
@@ -34,6 +35,7 @@ class SimrsVersionService
         $fileSize = filesize($destFull);
 
         return SimrsVersion::create([
+            'type'        => $type,
             'version'     => $version,
             'notes'       => $data['notes'] ?? null,
             'released_at' => $data['released_at'],
@@ -44,7 +46,7 @@ class SimrsVersionService
         ]);
     }
 
-    /** Tandai versi ini sebagai aktif (model boot menangani reset baris lain) */
+    /** Tandai versi ini sebagai aktif (model boot menangani reset baris sesama tipe) */
     public function setActive(SimrsVersion $version): void
     {
         $version->update(['is_active' => true]);

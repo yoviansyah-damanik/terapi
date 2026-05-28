@@ -18,6 +18,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'permissions',
         'is_active',
         'last_login_at',
     ];
@@ -31,9 +32,10 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'last_login_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active' => 'boolean',
+            'last_login_at'     => 'datetime',
+            'password'          => 'hashed',
+            'is_active'         => 'boolean',
+            'permissions'       => 'array',
         ];
     }
 
@@ -49,6 +51,26 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function hasPermission(string $key): bool
+    {
+        if ($this->isAdmin()) return true;
+
+        $perms = $this->permissions ?? [];
+
+        if (in_array($key, $perms)) return true;
+
+        // Punya child → parent group terlihat (misal: punya 'bpjs.erm' → 'bpjs' true)
+        foreach ($perms as $p) {
+            if (str_starts_with($p, $key . '.')) return true;
+        }
+
+        // Punya parent → semua child accessible (misal: punya 'bpjs' → 'bpjs.erm' true)
+        $prefix = explode('.', $key)[0];
+        if ($prefix !== $key && in_array($prefix, $perms)) return true;
+
+        return false;
     }
 
     public function isActive(): bool

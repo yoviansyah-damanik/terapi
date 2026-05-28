@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.version'  => \App\Http\Middleware\ApiModuleVersionGate::class,
             'sec.headers'  => \App\Http\Middleware\SecurityHeaders::class,
             'ip.blacklist' => \App\Http\Middleware\CheckIpBlacklist::class,
+            'module'       => \App\Http\Middleware\CheckModulePermission::class,
         ]);
 
         // $middleware->appendToGroup('api', \Illuminate\Http\Middleware\HandleCors::class);

@@ -139,7 +139,13 @@
       "Bash(Remove-Item -Force \"d:\\\\WebApps\\\\terapi\\\\resources\\\\views\\\\livewire\\\\logs\\\\satusehat\\\\tab-bundle.blade.php\" -ErrorAction SilentlyContinue)",
       "Bash(Remove-Item -Recurse -Force \"d:\\\\WebApps\\\\terapi\\\\resources\\\\views\\\\livewire\\\\logs\\\\satusehat\" -ErrorAction SilentlyContinue)",
       "Bash(Remove-Item -Recurse -Force \"d:\\\\WebApps\\\\terapi\\\\resources\\\\views\\\\livewire\\\\logs\" -ErrorAction SilentlyContinue)",
-      "Bash(Get-Content \"d:\\\\WebApps\\\\terapi\\\\storage\\\\logs\\\\laravel.log\" -Tail 30)"
+      "Bash(Get-Content \"d:\\\\WebApps\\\\terapi\\\\storage\\\\logs\\\\laravel.log\" -Tail 30)",
+      "Bash(composer update *)",
+      "Bash(icacls \"D:\\\\WebApps\\\\terapi\\\\bootstrap\\\\cache\" /grant \"%USERNAME%:\\(OI\\)\\(CI\\)F\" /T)",
+      "PowerShell(icacls \"D:\\\\WebApps\\\\terapi\\\\bootstrap\\\\cache\" /grant \"${env:USERNAME}:\\(OI\\)\\(CI\\)F\" /T)",
+      "Bash(Get-ChildItem \"d:/WebApps/terapi/resources/views/livewire/configuration/\" -Name)",
+      "Bash(Write-Host \"---\")",
+      "Bash(Get-ChildItem \"d:/WebApps/terapi/resources/views/pages/configuration/\" -Name)"
     ]
   }
 }

@@ -7,10 +7,11 @@ use App\Models\SatuSehat\SatuSehatEncounter;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 
-new #[Layout('layouts::app')] #[Title('eRM — IGD')] class extends Component {
+new #[Layout('layouts::app')] #[Title('eRM — IGD')] #[Lazy] class extends Component {
     use WithPagination;
 
     #[Url]
@@ -49,6 +50,11 @@ new #[Layout('layouts::app')] #[Title('eRM — IGD')] class extends Component {
     public function updatedPerPage(): void
     {
         $this->resetPage();
+    }
+
+    public function placeholder(): \Illuminate\Contracts\View\View
+    {
+        return view('placeholders._erm-list');
     }
 
     public function with(): array

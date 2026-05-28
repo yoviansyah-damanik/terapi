@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('simrs_versions', function (Blueprint $table) {
             $table->id();
-            $table->string('version', 20)->unique();
+            $table->enum('type', ['main', 'launcher'])->default('main');
+            $table->string('version', 20);
             $table->text('notes')->nullable();
             $table->string('file_path')->nullable();
             $table->string('checksum', 64)->nullable();
@@ -19,7 +20,8 @@ return new class extends Migration
             $table->timestamp('released_at');
             $table->timestamps();
 
-            $table->index('is_active');
+            $table->unique(['type', 'version']);
+            $table->index(['type', 'is_active']);
         });
     }
 

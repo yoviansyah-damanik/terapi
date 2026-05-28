@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('ip_address', 45);
             $table->string('host_name', 100)->nullable();
             $table->string('app_name', 100)->nullable();
+            $table->enum('type', ['main', 'launcher'])->nullable();
             $table->string('from_version', 20)->nullable();
             $table->string('to_version', 20)->nullable();
             $table->enum('status', ['success', 'failed', 'rollback'])->default('success');

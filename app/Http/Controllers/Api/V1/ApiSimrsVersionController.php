@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\SimrsUpdateReport;
 use App\Models\SimrsVersion;
+use App\Services\SimrsVersionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,19 +13,24 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ApiSimrsVersionController extends Controller
 {
+    public function __construct(private SimrsVersionService $service) {}
+
     /**
-     * Kembalikan info versi SIMRS yang sedang aktif.
+     * Kembalikan info versi yang sedang aktif.
+     * Query param ?type=main (default) atau ?type=launcher.
      * Endpoint publik — tidak memerlukan api.token.
      */
-    public function version(): JsonResponse
+    public function version(Request $request): JsonResponse
     {
-        $record = SimrsVersion::active()->first();
+        $type   = in_array($request->query('type'), ['launcher', 'main']) ? $request->query('type') : 'main';
+        $record = $this->service->getActive($type);
 
         if (!$record) {
             return response()->json(['message' => 'Tidak ada versi aktif'], 404);
         }
 
         return response()->json([
+            'type'        => $record->type,
             'version'     => $record->version,
             'notes'       => $record->notes,
             'checksum'    => $record->checksum,
@@ -39,6 +45,7 @@ class ApiSimrsVersionController extends Controller
     public function reportUpdate(Request $request): JsonResponse
     {
         $data = $request->validate([
+            'type'             => 'nullable|in:main,launcher',
             'status'           => 'required|in:success,failed,rollback',
             'from_version'     => 'nullable|string|max:20',
             'to_version'       => 'nullable|string|max:20',
@@ -64,12 +71,14 @@ class ApiSimrsVersionController extends Controller
     }
 
     /**
-     * Stream file update SIMRS ke klien.
+     * Stream file update ke klien.
+     * Query param ?type=main (default) atau ?type=launcher.
      * Throttle 5 request/menit untuk mencegah penyalahgunaan.
      */
-    public function download(string $version): BinaryFileResponse|JsonResponse
+    public function download(Request $request, string $version): BinaryFileResponse|JsonResponse
     {
-        $record = SimrsVersion::where('version', $version)->first();
+        $type   = in_array($request->query('type'), ['launcher', 'main']) ? $request->query('type') : 'main';
+        $record = SimrsVersion::where('version', $version)->where('type', $type)->first();
 
         if (!$record || !$record->file_path) {
             return response()->json(['message' => 'Versi tidak ditemukan'], 404);
@@ -81,9 +90,9 @@ class ApiSimrsVersionController extends Controller
             return response()->json(['message' => 'File tidak tersedia di server'], 500);
         }
 
-        return response()->download($fullPath, "simrs-{$version}.zip", [
-            'Content-Type'        => 'application/zip',
-            'X-Checksum-SHA256'   => $record->checksum ?? '',
+        return response()->download($fullPath, "simrs-{$type}-{$version}.zip", [
+            'Content-Type'      => 'application/zip',
+            'X-Checksum-SHA256' => $record->checksum ?? '',
         ]);
     }
 }
