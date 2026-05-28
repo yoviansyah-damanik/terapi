@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "Terapi",
+    "name": "rumkittnipsp/terapi",
     "type": "project",
     "description": "Teknologi Integrasi & Pertukaran Informasi Kesehatan",
     "keywords": [
