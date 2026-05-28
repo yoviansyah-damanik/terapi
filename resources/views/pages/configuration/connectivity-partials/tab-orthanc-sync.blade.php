@@ -4,19 +4,25 @@ use App\Helpers\ConfigurationHelper;
 use Livewire\Component;
 
 new class extends Component {
-    public string $syncUrl = '';
+    public string $syncUrl    = '';
     public string $syncApiKey = '';
+    public string $webhookUser     = '';
+    public string $webhookPassword = '';
 
     public function mount(): void
     {
-        $this->syncUrl = ConfigurationHelper::get('orthanc.sync_url', 'http://127.0.0.1:9123');
+        $this->syncUrl    = ConfigurationHelper::get('orthanc.sync_url', 'http://127.0.0.1:9123');
         $this->syncApiKey = ConfigurationHelper::get('orthanc.sync_api_key', '');
+        $this->webhookUser     = ConfigurationHelper::get('dicom.orthanc_sync_webhook_user', '');
+        $this->webhookPassword = ConfigurationHelper::get('dicom.orthanc_sync_webhook_password', '');
     }
 
     public function save(): void
     {
         ConfigurationHelper::set('orthanc.sync_url', rtrim($this->syncUrl, '/'));
-        ConfigurationHelper::set('orthanc.sync_api_key', $this->syncApiKey, true);
+        ConfigurationHelper::set('orthanc.sync_api_key', $this->syncApiKey, encrypted: true);
+        ConfigurationHelper::set('dicom.orthanc_sync_webhook_user', $this->webhookUser, encrypted: true);
+        ConfigurationHelper::set('dicom.orthanc_sync_webhook_password', $this->webhookPassword, encrypted: true);
 
         $this->dispatch('toast', type: 'success', message: 'Konfigurasi Orthanc Sync berhasil disimpan.');
     }
@@ -67,6 +73,25 @@ new class extends Component {
                     <livewire:components.connection-result size="sm" icon="signal" variant="outline"
                         :url="rtrim($this->syncUrl, '/') . '/api/status'" method="GET" name="connection-sync" title="Tes Koneksi Orthanc Sync"
                         :headers="['X-API-Key' => $this->syncApiKey]" />
+                </div>
+
+                <div class="pt-4 border-t border-zinc-200 dark:border-primary-dark-700">
+                    <flux:label class="mb-1">Kredensial Webhook</flux:label>
+                    <p class="text-xs text-zinc-400 dark:text-primary-dark-500 mb-3">
+                        Kredensial <strong>Basic Authentication</strong> (header <code class="font-mono text-xs">Authorization: Basic ...</code>)
+                        yang harus disertakan Orthanc-Sync saat memanggil webhook di atas.
+                        Jika dikosongkan, endpoint menerima request tanpa autentikasi.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <flux:label>Username <span class="text-xs text-zinc-400 font-normal">(terenkripsi)</span></flux:label>
+                            <flux:input wire:model="webhookUser" placeholder="webhook_user" autocomplete="off" />
+                        </div>
+                        <div>
+                            <flux:label>Password <span class="text-xs text-zinc-400 font-normal">(terenkripsi)</span></flux:label>
+                            <flux:input type="password" wire:model="webhookPassword" placeholder="••••••••" autocomplete="new-password" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

@@ -257,10 +257,8 @@ return [
         'children' => [
             ['title' => 'Ringkasan', 'route' => 'dicom.summary', 'icon' => 'chart-bar'],
             ['title' => 'Worklist', 'route' => 'dicom.worklist', 'icon' => 'queue-list'],
-            ['title' => 'Viewer PACS', 'route' => 'dicom.viewer', 'icon' => 'eye'],
-            ['title' => 'Modality', 'route' => 'dicom.modality', 'icon' => 'computer-desktop'],
+            ['title' => 'Router & Modality', 'route' => 'dicom.modality', 'icon' => 'computer-desktop'],
             ['title' => 'Convert Image', 'route' => 'dicom.convert', 'icon' => 'arrow-path'],
-            ['title' => 'DICOM Router', 'route' => 'dicom.router', 'icon' => 'arrows-right-left'],
         ]
     ],
     [

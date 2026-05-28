@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ConfigurationHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Dicom\DicomStudy;
 use App\Models\Dicom\Worklist;
@@ -16,6 +17,10 @@ class OrthancWebhookController extends Controller
      */
     public function handle(Request $request)
     {
+        if (!$this->isAuthorized($request)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
         $startTime = microtime(true);
         $accessionNumber = $request->input('accession_number');
         $status = $request->input('status'); // "Berhasil" / "Gagal"
@@ -47,6 +52,19 @@ class OrthancWebhookController extends Controller
 
         $response = response()->json(['success' => true, 'message' => 'Status updated']);
         return $this->logAndReturn($request, $response, $startTime);
+    }
+
+    private function isAuthorized(Request $request): bool
+    {
+        $configUser = ConfigurationHelper::get('dicom.orthanc_sync_webhook_user', '');
+        $configPass = ConfigurationHelper::get('dicom.orthanc_sync_webhook_password', '');
+
+        if ($configUser === '' && $configPass === '') {
+            return true;
+        }
+
+        return $request->getUser() === $configUser
+            && $request->getPassword() === $configPass;
     }
 
     private function logAndReturn(Request $request, $response, $startTime)

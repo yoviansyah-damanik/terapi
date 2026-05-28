@@ -30,11 +30,19 @@ new #[Layout('layouts::app')] #[Title('DICOM — Worklist')] class extends Compo
     public ?array $checkStudyResponse = null;
     public bool $showCheckStudyModal = false;
 
+    public bool $showViewerModal = false;
+    public string $viewerIframeUrl = '';
+    public string $viewerLabel = '';
+
     public function mount(): void
     {
-        $this->filterStartDate = now()->format('Y-m-d');
-        $this->filterEndDate = now()->format('Y-m-d');
-        $this->viewerUrl = ConfigurationHelper::get('dicom.viewer_url', '');
+        if (!isset($this->filterStartDate)) {
+            $this->filterStartDate = now()->format('Y-m-d');
+        }
+        if (!isset($this->filterEndDate)) {
+            $this->filterEndDate = now()->format('Y-m-d');
+        }
+        $this->viewerUrl = ConfigurationHelper::get('dicom.orthanc.viewer_url', '');
         $this->loadOrders();
     }
 
@@ -111,6 +119,13 @@ new #[Layout('layouts::app')] #[Title('DICOM — Worklist')] class extends Compo
         }
     }
 
+    public function openViewer(string $studyUid, string $orthancId, string $label = ''): void
+    {
+        $this->viewerIframeUrl = $this->buildViewerUrl($studyUid, $orthancId);
+        $this->viewerLabel = $label ?: $studyUid;
+        $this->showViewerModal = true;
+    }
+
     public function checkStudyStatus(string $accessionNumber): void
     {
         $this->errorMessage = '';
@@ -118,7 +133,7 @@ new #[Layout('layouts::app')] #[Title('DICOM — Worklist')] class extends Compo
         try {
             $syncService = new \App\Services\Dicom\OrthancSyncService();
             $check = $syncService->checkAndUpdateStudy($accessionNumber);
-            
+
             $this->checkStudyResponse = $check;
             $this->showCheckStudyModal = true;
 
@@ -252,22 +267,19 @@ new #[Layout('layouts::app')] #[Title('DICOM — Worklist')] class extends Compo
                     </x-atoms.table-cell>
                     <x-atoms.table-cell align="center" action>
                         <x-atoms.button size="sm" variant="ghost" icon="arrow-path"
-                            wire:click="checkStudyStatus('{{ $accessionNumber }}')" 
-                            wire:loading.attr="disabled"
-                            wire:target="checkStudyStatus('{{ $accessionNumber }}')"
-                            tooltip="Cek Study" />
+                            wire:click="checkStudyStatus('{{ $accessionNumber }}')" wire:loading.attr="disabled"
+                            wire:target="checkStudyStatus('{{ $accessionNumber }}')" tooltip="Cek Study" />
 
                         <x-atoms.button size="sm" variant="ghost" icon="eye"
                             wire:click="viewDetail('{{ $accessionNumber }}')" tooltip="Detail Lengkap" />
 
                         @if ($studyUid && $orthancId && $viewerUrl)
-                            <a href="{{ $this->buildViewerUrl($studyUid, $orthancId) }}" target="_blank"
-                                class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 transition-colors">
-                                <flux:icon name="photo" class="w-3.5 h-3.5" />
-                                Lihat
-                            </a>
+                            <x-atoms.button size="sm" variant="ghost" icon="photo"
+                                wire:click="openViewer('{{ $studyUid }}', '{{ $orthancId }}', '{{ $noorder }}')"
+                                tooltip="Buka Viewer DICOM" />
                         @else
-                            <span class="text-zinc-300 dark:text-primary-dark-700">—</span>
+                            <x-atoms.button size="sm" variant="ghost" icon="photo" :disabled="true"
+                                tooltip="Study belum tersedia di PACS" />
                         @endif
                     </x-atoms.table-cell>
                 </x-molecules.table-row>
@@ -281,8 +293,10 @@ new #[Layout('layouts::app')] #[Title('DICOM — Worklist')] class extends Compo
             @endforelse
         </x-organisms.table>
 
-        <div class="px-6 py-4 border-t border-zinc-100 dark:border-primary-dark-700 bg-zinc-50/50 dark:bg-primary-dark-800/20">
-            <h4 class="text-xs font-semibold text-zinc-700 dark:text-primary-dark-300 mb-2">Keterangan Status DICOM:</h4>
+        <div
+            class="px-6 py-4 border-t border-zinc-100 dark:border-primary-dark-700 bg-zinc-50/50 dark:bg-primary-dark-800/20">
+            <h4 class="text-xs font-semibold text-zinc-700 dark:text-primary-dark-300 mb-2">Keterangan Status DICOM:
+            </h4>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
                 <div class="flex items-center gap-1.5 text-zinc-500 dark:text-primary-dark-400">
                     <span class="w-2 h-2 rounded-full bg-zinc-400"></span>
@@ -366,7 +380,8 @@ new #[Layout('layouts::app')] #[Title('DICOM — Worklist')] class extends Compo
                             <div class="grid grid-cols-2 gap-4 pt-3 border-t border-blue-100 dark:border-blue-900/20">
                                 <div>
                                     <p class="text-[10px] text-zinc-500">Study Instance UID</p>
-                                    <p class="text-[10px] font-mono break-all">{{ $selectedOrder['study_instance_uid'] }}</p>
+                                    <p class="text-[10px] font-mono break-all">
+                                        {{ $selectedOrder['study_instance_uid'] }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[10px] text-zinc-500">AE Title Target</p>
@@ -392,23 +407,67 @@ new #[Layout('layouts::app')] #[Title('DICOM — Worklist')] class extends Compo
         @if ($checkStudyResponse)
             <div class="space-y-4">
                 @if (($checkStudyResponse['success'] ?? false) && ($checkStudyResponse['exists'] ?? false))
-                    <div class="p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-lg text-sm flex items-center gap-2">
+                    <div
+                        class="p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-lg text-sm flex items-center gap-2">
                         <flux:icon name="check-circle" class="w-5 h-5" />
                         Study ditemukan di PACS.
                     </div>
                 @else
-                    <div class="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-lg text-sm flex items-center gap-2">
+                    <div
+                        class="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-lg text-sm flex items-center gap-2">
                         <flux:icon name="exclamation-triangle" class="w-5 h-5" />
                         {{ $checkStudyResponse['message'] ?? 'Study belum tersedia atau terjadi kesalahan.' }}
                     </div>
                 @endif
 
-                <x-atoms.code-block language="json" maxHeight="max-h-96">{{ json_encode($checkStudyResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</x-atoms.code-block>
+                <x-atoms.code-block language="json"
+                    maxHeight="max-h-96">{{ json_encode($checkStudyResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</x-atoms.code-block>
             </div>
         @endif
         <x-slot:footer>
             <div class="flex justify-end">
-                <x-atoms.button variant="primary" wire:click="$set('showCheckStudyModal', false)">Tutup</x-atoms.button>
+                <x-atoms.button variant="primary"
+                    wire:click="$set('showCheckStudyModal', false)">Tutup</x-atoms.button>
+            </div>
+        </x-slot:footer>
+    </x-organisms.modal>
+
+    {{-- Modal DICOM Viewer --}}
+    <x-organisms.modal wire:model="showViewerModal" name="modal-dicom-viewer" :title="'Viewer DICOM — ' . $viewerLabel" maxWidth="full">
+        @if ($showViewerModal && $viewerIframeUrl)
+            <div class="relative w-full" style="height: 75dvh;" x-data="{ blocked: false }">
+                <iframe src="{{ $viewerIframeUrl }}"
+                    class="w-full h-full rounded-lg border border-zinc-200 dark:border-primary-dark-700"
+                    allowfullscreen x-on:error="blocked = true" x-on:load="blocked = false">
+                </iframe>
+
+                {{-- Fallback jika iframe diblokir --}}
+                <div x-show="blocked" x-cloak
+                    class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-50 dark:bg-primary-dark-900 rounded-lg border border-zinc-200 dark:border-primary-dark-700">
+                    <flux:icon name="exclamation-triangle" class="w-10 h-10 text-amber-400" />
+                    <div class="text-center space-y-1">
+                        <p class="text-sm font-semibold text-zinc-700 dark:text-primary-dark-200">
+                            Viewer tidak dapat ditampilkan di dalam modal
+                        </p>
+                        <p class="text-xs text-zinc-400 dark:text-primary-dark-500">
+                            Server DICOM memblokir embedding. Buka di tab baru.
+                        </p>
+                    </div>
+                    <x-atoms.button icon="arrow-top-right-on-square" href="{{ $viewerIframeUrl }}" target="_blank"
+                        :navigate="false">
+                        Buka di Tab Baru
+                    </x-atoms.button>
+                </div>
+            </div>
+        @endif
+
+        <x-slot:footer>
+            <div class="flex items-center justify-between">
+                <x-atoms.button variant="ghost" icon="arrow-top-right-on-square" href="{{ $viewerIframeUrl }}"
+                    target="_blank" :navigate="false">
+                    Buka di Tab Baru
+                </x-atoms.button>
+                <x-atoms.button variant="ghost" wire:click="$set('showViewerModal', false)">Tutup</x-atoms.button>
             </div>
         </x-slot:footer>
     </x-organisms.modal>

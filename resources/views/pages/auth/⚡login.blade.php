@@ -295,8 +295,8 @@ new #[Layout('layouts::auth', ['title' => 'Login'])] class extends Component {
                         <div class="flex-1 border-t border-zinc-200 dark:border-primary-dark-700"></div>
                     </div>
 
-                    <a href="{{ route('oauth.redirect') }}"
-                        class="mt-4 flex items-center justify-center gap-2 w-full rounded-full border border-primary-200 dark:border-primary-800 px-4 py-2.5 text-sm font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors">
+                    <a href="{{ $isLoading ? '#' : route('oauth.redirect') }}"
+                        class="mt-4 flex items-center justify-center gap-2 w-full rounded-full border border-primary-200 dark:border-primary-800 px-4 py-2.5 text-sm font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors {{ $isLoading ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' }}">
                         <flux:icon name="shield-check" class="size-4 shrink-0" />
                         Login dengan OAuth RS
                     </a>

@@ -14,6 +14,8 @@ new class extends Component {
     public string $ssOrgId = '';
     public string $ssKodePpk = '';
     public string $ssNamaPpk = '';
+    public string $ssDicomWebhookUser = '';
+    public string $ssDicomWebhookPassword = '';
 
     public function mount(): void
     {
@@ -26,6 +28,8 @@ new class extends Component {
         $this->ssOrgId = ConfigurationHelper::get('satusehat.organization_id', '');
         $this->ssKodePpk = ConfigurationHelper::get('satusehat.kode_ppk_kemenkes', '');
         $this->ssNamaPpk = ConfigurationHelper::get('satusehat.nama_ppk_kemenkes', '');
+        $this->ssDicomWebhookUser = ConfigurationHelper::get('satusehat.dicom_webhook_user', '');
+        $this->ssDicomWebhookPassword = ConfigurationHelper::get('satusehat.dicom_webhook_password', '');
     }
 
     public function saveSatuSehat(): void
@@ -39,6 +43,8 @@ new class extends Component {
         ConfigurationHelper::set('satusehat.nama_ppk_kemenkes', $this->ssNamaPpk);
         ConfigurationHelper::set('satusehat.client_id', $this->ssClientId, encrypted: true);
         ConfigurationHelper::set('satusehat.client_secret', $this->ssClientSecret, encrypted: true);
+        ConfigurationHelper::set('satusehat.dicom_webhook_user', $this->ssDicomWebhookUser, encrypted: true);
+        ConfigurationHelper::set('satusehat.dicom_webhook_password', $this->ssDicomWebhookPassword, encrypted: true);
 
         // Invalidasi token lama agar re-auth dengan credential baru
         Cache::forget(config('satusehat.cache.key', 'satusehat_access_token'));
@@ -61,8 +67,7 @@ new class extends Component {
                 </div>
                 <div>
                     <flux:label>Base URL</flux:label>
-                    <flux:input wire:model="ssBaseUrl"
-                        placeholder="https://api-satusehat-stg.dto.kemkes.go.id" />
+                    <flux:input wire:model="ssBaseUrl" placeholder="https://api-satusehat-stg.dto.kemkes.go.id" />
                 </div>
                 <div>
                     <flux:label>FHIR URL</flux:label>
@@ -87,7 +92,8 @@ new class extends Component {
                     <flux:input wire:model="ssClientId" placeholder="..." />
                 </div>
                 <div>
-                    <flux:label>Client Secret <span class="text-xs text-zinc-400 font-normal">(terenkripsi)</span></flux:label>
+                    <flux:label>Client Secret <span class="text-xs text-zinc-400 font-normal">(terenkripsi)</span>
+                    </flux:label>
                     <flux:input type="password" wire:model="ssClientSecret" placeholder="••••••••" />
                 </div>
                 <div>
@@ -112,6 +118,30 @@ new class extends Component {
                 </div>
             </div>
         </div>
+        <hr class="border-zinc-200 dark:border-primary-dark-700">
+        <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-primary-dark-400 mb-1">
+                Webhook DICOM</h4>
+            <p class="text-xs text-zinc-400 dark:text-primary-dark-500 mb-3">
+                Kredensial untuk endpoint webhook DICOM Router Kemenkes yang diletakkan sebagai parameter request
+                (<code class="font-mono text-xs">username</code> dan <code class="font-mono text-xs">password</code>).
+                Jika dikosongkan, endpoint menerima request tanpa autentikasi.
+                URL webhook: <span class="font-mono">{{ route('satusehat-dicom-webhook') }}</span>
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <flux:label>Username <span class="text-xs text-zinc-400 font-normal">(terenkripsi)</span>
+                    </flux:label>
+                    <flux:input wire:model="ssDicomWebhookUser" placeholder="webhook_user" autocomplete="off" />
+                </div>
+                <div>
+                    <flux:label>Password <span class="text-xs text-zinc-400 font-normal">(terenkripsi)</span>
+                    </flux:label>
+                    <flux:input type="password" wire:model="ssDicomWebhookPassword" placeholder="••••••••"
+                        autocomplete="new-password" />
+                </div>
+            </div>
+        </div>
     </form>
     <x-slot:footer>
         <div class="flex items-center gap-3">
@@ -119,8 +149,7 @@ new class extends Component {
             </x-atoms.button>
             <span wire:loading wire:target="saveSatuSehat"
                 class="text-sm text-zinc-500 dark:text-primary-dark-400">Menyimpan...</span>
-            <livewire:components.connection-result :url="rtrim($ssAuthUrl, '/') . '/accesstoken?grant_type=client_credentials'" method="POST"
-                :body="['client_id' => $ssClientId, 'client_secret' => $ssClientSecret]" :as-form="true"
+            <livewire:components.connection-result :url="rtrim($ssAuthUrl, '/') . '/accesstoken?grant_type=client_credentials'" method="POST" :body="['client_id' => $ssClientId, 'client_secret' => $ssClientSecret]" :as-form="true"
                 name="connection-ss-auth" title="Tes Koneksi — SatuSehat OAuth2" label="Tes Auth" variant="ghost"
                 icon="key" />
             <livewire:components.connection-result :url="rtrim($ssFhirUrl, '/') . '/metadata'" method="GET" :reachable="true"

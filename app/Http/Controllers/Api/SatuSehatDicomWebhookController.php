@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ConfigurationHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Dicom\DicomRouterResponse;
 use App\Models\Dicom\Worklist;
@@ -35,6 +36,10 @@ class SatuSehatDicomWebhookController extends Controller
      */
     public function handle(Request $request)
     {
+        if (!$this->isAuthorized($request)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
         $payload = $request->all();
 
         Log::channel('satusehat')->info('Webhook DICOM Router Received:', [
@@ -143,12 +148,12 @@ class SatuSehatDicomWebhookController extends Controller
                                 ['ihs_id' => $ihsId, 'status' => 'success', 'response' => $data, 'error_message' => null]
                             );
                             SatuSehatBundleLog::create([
-                                'bundle_id'     => $bundle->id,
+                                'bundle_id' => $bundle->id,
                                 'resource_type' => 'ImagingStudy',
-                                'local_id'      => $idStr,
-                                'ihs_id'        => $ihsId,
-                                'status'        => 'success',
-                                'response'      => $data,
+                                'local_id' => $idStr,
+                                'ihs_id' => $ihsId,
+                                'status' => 'success',
+                                'response' => $data,
                             ]);
                         }
                     }
@@ -179,6 +184,20 @@ class SatuSehatDicomWebhookController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    private function isAuthorized(Request $request): bool
+    {
+        $configUser = ConfigurationHelper::get('satusehat.dicom_webhook_user', '');
+        $configPass = ConfigurationHelper::get('satusehat.dicom_webhook_password', '');
+
+        // Jika tidak dikonfigurasi, terima semua request
+        if ($configUser === '' && $configPass === '') {
+            return true;
+        }
+
+        return $request->getUser() === $configUser
+            && $request->getPassword() === $configPass;
     }
 
     /**

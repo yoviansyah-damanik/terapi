@@ -1,10 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\GowaWebhookController;
 use App\Http\Controllers\Api\OrthancWebhookController;
 use App\Http\Controllers\Api\SatuSehatDicomWebhookController;
 use App\Http\Controllers\Api\StatusController;
-use App\Http\Controllers\Api\WahaWebhookController;
 use App\Http\Controllers\Api\V1\ApiAiController;
 use App\Http\Controllers\Api\V1\ApiAuthController;
 use App\Http\Controllers\Api\V1\ApiHospitalController;
@@ -121,7 +119,7 @@ Route::prefix('v1')
 
 // ── Webhook (tanpa auth — dipanggil service eksternal) ────────────────
 Route::middleware('throttle:api.webhook')->prefix('webhooks')->group(function () {
-    Route::post('/satusehat/dicom', [SatuSehatDicomWebhookController::class, 'handle']);
+    Route::post('/satusehat/dicom', [SatuSehatDicomWebhookController::class, 'handle'])->name('satusehat-dicom-webhook');
     Route::post('/orthanc/worklist', [OrthancWebhookController::class, 'handle'])
         ->name('orthanc-sync');
 });

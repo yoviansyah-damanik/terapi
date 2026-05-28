@@ -54,8 +54,7 @@ new class extends Component {
         ConfigurationHelper::set('dicom.router.default_ae', strtoupper($this->routerDefaultAe));
         ConfigurationHelper::set('dicom.router.default_host', $this->routerDefaultHost);
         ConfigurationHelper::set('dicom.router.default_port', (string) $this->routerDefaultPort);
-
-        $this->dispatch('toast', type: 'success', message: 'Konfigurasi DICOM berhasil disimpan.');
+$this->dispatch('toast', type: 'success', message: 'Konfigurasi DICOM berhasil disimpan.');
     }
 
     public function testSsConnection(): void
