@@ -74,7 +74,11 @@ class SyncBatchSatuSehatPractitionersJob implements ShouldQueue
             }
         }
 
-        return $query->limit($this->limit)->get();
+        if ($this->limit > 0) {
+            $query->limit($this->limit);
+        }
+
+        return $query;
     }
 
     public function tags(): array

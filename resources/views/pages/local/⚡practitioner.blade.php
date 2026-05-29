@@ -310,11 +310,25 @@ new #[Layout('layouts::app')] #[Title('Mapping Practitioner')] class extends Com
             return $emp;
         });
 
+        // Stat card data
+        $totalPegawai = 0;
+        try {
+            $totalPegawai = Pegawai::where('stts_aktif', 'AKTIF')->count();
+        } catch (\Throwable) {}
+
+        $totalSnomed    = EmployeeMap::count();
+        $totalBpjs      = BpjsPractitioner::count();
+        $totalSatuSehat = SatuSehatPractitioner::count();
+
         return [
             'items' => $employees,
             'bidangOptions' => $bidangOptions,
             'jabatanOptions' => $jabatanOptions,
             'departemenOptions' => $departemenOptions,
+            'totalPegawai' => $totalPegawai,
+            'totalSnomed' => $totalSnomed,
+            'totalBpjs' => $totalBpjs,
+            'totalSatuSehat' => $totalSatuSehat,
         ];
     }
 };
@@ -333,6 +347,34 @@ new #[Layout('layouts::app')] #[Title('Mapping Practitioner')] class extends Com
             </x-atoms.button>
         </x-slot:actions>
     </x-ui.page-header>
+
+    {{-- Stat Cards --}}
+    <div class="grid grid-cols-2 gap-4 mb-6 lg:grid-cols-4">
+        <x-organisms.stat-card
+            title="Total Pegawai Aktif"
+            :value="number_format($totalPegawai)"
+            color="zinc"
+            icon="user-group"
+            subtitle="Status aktif di SIMRS" />
+        <x-organisms.stat-card
+            title="SNOMED CT"
+            :value="number_format($totalSnomed)"
+            color="emerald"
+            icon="tag"
+            :subtitle="$totalPegawai > 0 ? number_format(min(100, round($totalSnomed / $totalPegawai * 100))) . '% terpetakan' : ''" />
+        <x-organisms.stat-card
+            title="UUID BPJS"
+            :value="number_format($totalBpjs)"
+            color="blue"
+            icon="identification"
+            :subtitle="$totalPegawai > 0 ? number_format(min(100, round($totalBpjs / $totalPegawai * 100))) . '% terdaftar' : ''" />
+        <x-organisms.stat-card
+            title="IHS Satu Sehat"
+            :value="number_format($totalSatuSehat)"
+            color="sky"
+            icon="cloud-arrow-up"
+            :subtitle="$totalPegawai > 0 ? number_format(min(100, round($totalSatuSehat / $totalPegawai * 100))) . '% terdaftar' : ''" />
+    </div>
 
     <x-organisms.data-panel>
         <x-slot:filter>
