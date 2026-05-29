@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('map_rad_specimen', function (Blueprint $table) {
+        Schema::create('map_rad_procedure', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('local_code')->unique();
             $table->string('system_code');
@@ -19,6 +19,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('map_rad_specimen');
+        Schema::dropIfExists('map_rad_procedure');
     }
 };

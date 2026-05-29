@@ -145,7 +145,7 @@ new #[Layout('layouts::app')] #[Title('BPJS — Procedure')] class extends Compo
                     'rad' => JnsPerawatanRadiologi::class,
                 };
 
-                $query = $modelClass::query();
+                $query = $modelClass::active();
 
                 if ($this->search) {
                     $query->where(fn($q) => $q->where('kd_jenis_prw', 'like', "%{$this->search}%")->orWhere('nm_perawatan', 'like', "%{$this->search}%"));
@@ -168,11 +168,11 @@ new #[Layout('layouts::app')] #[Title('BPJS — Procedure')] class extends Compo
         if (!$simrsError) {
             try {
                 $simrsCounts = [
-                    'ralan' => JnsPerawatan::count(),
-                    'ranap' => JnsPerawatanInap::count(),
-                    'lab' => JnsPerawatanLab::count(),
+                    'ralan' => JnsPerawatan::active()->count(),
+                    'ranap' => JnsPerawatanInap::active()->count(),
+                    'lab' => JnsPerawatanLab::active()->count(),
                     'item_lab' => TemplateLaboratorium::groupBy('id_template')->toBase()->getCountForPagination(),
-                    'rad' => JnsPerawatanRadiologi::count(),
+                    'rad' => JnsPerawatanRadiologi::active()->count(),
                 ];
             } catch (\Exception) {
             }
@@ -182,6 +182,15 @@ new #[Layout('layouts::app')] #[Title('BPJS — Procedure')] class extends Compo
         $unsyncedCount = array_sum(array_map(fn($t) => max(0, ($simrsCounts[$t] ?? 0) - ($registeredCounts[$t] ?? 0)), ['ralan', 'ranap', 'lab', 'item_lab', 'rad']));
         $unsyncedTabCount = max(0, ($simrsCounts[$tab] ?? 0) - ($registeredCounts[$tab] ?? 0));
 
+        $tabLabel = match ($this->tab) {
+            'ralan'    => 'Rawat Jalan',
+            'ranap'    => 'Rawat Inap',
+            'lab'      => 'Lab',
+            'item_lab' => 'Item Lab',
+            'rad'      => 'Radiologi',
+            default    => $this->tab,
+        };
+
         return [
             'items' => $items,
             'registered' => $registered,
@@ -190,6 +199,9 @@ new #[Layout('layouts::app')] #[Title('BPJS — Procedure')] class extends Compo
             'simrsCounts' => $simrsCounts,
             'unsyncedCount' => $unsyncedCount,
             'unsyncedTabCount' => $unsyncedTabCount,
+            'tabLabel' => $tabLabel,
+            'tabTotal' => $simrsCounts[$this->tab] ?? 0,
+            'tabRegistered' => $counts[$this->tab] ?? 0,
         ];
     }
 }; ?>
@@ -215,6 +227,66 @@ new #[Layout('layouts::app')] #[Title('BPJS — Procedure')] class extends Compo
             <p class="text-sm text-red-700 dark:text-red-300">Koneksi ke database SIMRS gagal. Data tidak dapat
                 ditampilkan.</p>
         </div>
+    @endif
+
+    {{-- Stat cards per tab --}}
+    @if (!$simrsError)
+        @php
+            $tabPct = $tabTotal > 0 ? min(100, round(($tabRegistered / $tabTotal) * 100)) : 0;
+            $tabColors = [
+                'ralan' => ['color' => 'blue',    'icon' => 'user'],
+                'ranap' => ['color' => 'violet',  'icon' => 'building-office'],
+                'lab'   => ['color' => 'emerald', 'icon' => 'beaker'],
+                'rad'   => ['color' => 'sky',     'icon' => 'photo'],
+            ];
+        @endphp
+
+        @if ($tab === 'item_lab')
+            {{-- Item Lab: template, tidak punya filter status aktif --}}
+            <div class="grid grid-cols-3 gap-4 mb-5">
+                <x-organisms.stat-card
+                    title="Total Template Lab"
+                    :value="number_format($tabTotal)"
+                    color="amber"
+                    icon="list-bullet"
+                    subtitle="Template pemeriksaan di SIMRS" />
+                <x-organisms.stat-card
+                    title="UUID Terdaftar"
+                    :value="number_format($tabRegistered)"
+                    color="emerald"
+                    icon="check-circle"
+                    :subtitle="$tabPct . '% dari total template'" />
+                <x-organisms.stat-card
+                    title="Coverage"
+                    :value="$tabPct . '%'"
+                    :color="$tabPct >= 80 ? 'emerald' : ($tabPct >= 40 ? 'amber' : 'red')"
+                    icon="chart-bar"
+                    :subtitle="number_format($unsyncedTabCount) . ' template belum terdaftar'" />
+            </div>
+        @else
+            {{-- Jenis pemeriksaan: ralan / ranap / lab / rad — punya filter status aktif --}}
+            @php $tc = $tabColors[$tab]; @endphp
+            <div class="grid grid-cols-3 gap-4 mb-5">
+                <x-organisms.stat-card
+                    title="Jenis {{ $tabLabel }} Aktif"
+                    :value="number_format($tabTotal)"
+                    :color="$tc['color']"
+                    :icon="$tc['icon']"
+                    subtitle="Status aktif di SIMRS" />
+                <x-organisms.stat-card
+                    title="UUID Terdaftar"
+                    :value="number_format($tabRegistered)"
+                    color="emerald"
+                    icon="check-circle"
+                    :subtitle="$tabPct . '% dari total aktif'" />
+                <x-organisms.stat-card
+                    title="Belum Terdaftar"
+                    :value="number_format($unsyncedTabCount)"
+                    :color="$unsyncedTabCount > 0 ? 'amber' : 'zinc'"
+                    icon="arrow-path"
+                    :subtitle="$unsyncedTabCount > 0 ? 'Perlu generate UUID' : 'Semua sudah terdaftar'" />
+            </div>
+        @endif
     @endif
 
     {{-- Tabs --}}

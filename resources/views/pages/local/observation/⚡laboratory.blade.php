@@ -103,7 +103,8 @@ new #[Layout('layouts::app')] #[Title('Lab — Mapping & UUID')] class extends C
             // Hanya tampilkan item milik jenis pemeriksaan yang sudah di-mapping ke LOINC
             $mappedJenis = LabMap::pluck('local_code')->toArray();
 
-            $mappedJenisList = JnsPerawatanLab::whereIn('kd_jenis_prw', $mappedJenis)
+            $mappedJenisList = JnsPerawatanLab::active()
+                ->whereIn('kd_jenis_prw', $mappedJenis)
                 ->orderBy('nm_perawatan')
                 ->get(['kd_jenis_prw', 'nm_perawatan']);
 
@@ -130,14 +131,14 @@ new #[Layout('layouts::app')] #[Title('Lab — Mapping & UUID')] class extends C
                 'labItems' => $labItems,
                 'mappedJenisList' => $mappedJenisList,
                 'bpjsRegistered' => collect(),
-                'totalSimrs' => JnsPerawatanLab::count(),
+                'totalSimrs' => JnsPerawatanLab::active()->count(),
                 'totalLoinc' => LabMap::count(),
                 'totalBpjs' => BpjsObservationLab::count(),
                 'unsyncedBpjs' => 0,
             ];
         }
 
-        $items = JnsPerawatanLab::query()->when($this->search, fn($q) => $q->where('kd_jenis_prw', 'like', "%{$this->search}%")->orWhere('nm_perawatan', 'like', "%{$this->search}%"))->orderBy('kd_jenis_prw')->paginate($this->perPage);
+        $items = JnsPerawatanLab::active()->when($this->search, fn($q) => $q->where('kd_jenis_prw', 'like', "%{$this->search}%")->orWhere('nm_perawatan', 'like', "%{$this->search}%"))->orderBy('kd_jenis_prw')->paginate($this->perPage);
 
         $codes = $items->pluck('kd_jenis_prw')->toArray();
         $mappings = LabMap::whereIn('local_code', $codes)->get()->keyBy('local_code');
@@ -164,7 +165,7 @@ new #[Layout('layouts::app')] #[Title('Lab — Mapping & UUID')] class extends C
         });
 
         $totalBpjs = BpjsObservationLab::count();
-        $totalSimrs = JnsPerawatanLab::count();
+        $totalSimrs = JnsPerawatanLab::active()->count();
         $totalLoinc = LabMap::count();
 
         return [
@@ -777,8 +778,10 @@ new #[Layout('layouts::app')] #[Title('Lab — Mapping & UUID')] class extends C
                             <p class="text-sm font-medium text-zinc-800 dark:text-primary-dark-100 leading-snug">
                                 {{ $item->Pemeriksaan }}
                             </p>
-                            <div class="flex flex-wrap items-center gap-1.5 mt-1 text-[11px] text-zinc-400 dark:text-primary-dark-500 font-medium">
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-primary-dark-700 text-zinc-600 dark:text-primary-dark-300 font-mono text-[10px]">
+                            <div
+                                class="flex flex-wrap items-center gap-1.5 mt-1 text-[11px] text-zinc-400 dark:text-primary-dark-500 font-medium">
+                                <span
+                                    class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-primary-dark-700 text-zinc-600 dark:text-primary-dark-300 font-mono text-[10px]">
                                     ID: {{ $item->id_template }}
                                 </span>
                                 @if ($item->satuan)

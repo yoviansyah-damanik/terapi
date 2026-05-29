@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Rules
+
+- **JANGAN PERNAH** jalankan `php artisan migrate:fresh` atau `migrate:fresh --seed` pada aplikasi ini — akan menghapus seluruh data produksi secara permanen.
+- Setiap halaman yang dibangun **wajib** menggunakan atomic design components yang tersedia
+- Setiap menambah menu baru di `config/sidebar.php`, **wajib** tambahkan `'permission'` key yang sesuai di entry tersebut dan daftarkan permission key-nya di `config/permissions.php` (`x-organisms.*`, `x-molecules.*`, `x-atoms.*`, `x-ui.*`, `x-form.*`) — jangan pakai elemen HTML mentah atau Flux components secara langsung jika sudah ada wrapper atomic design-nya.
+
 ## Commands
 
 ```bash

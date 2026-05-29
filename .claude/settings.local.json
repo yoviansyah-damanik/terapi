@@ -145,7 +145,16 @@
       "PowerShell(icacls \"D:\\\\WebApps\\\\terapi\\\\bootstrap\\\\cache\" /grant \"${env:USERNAME}:\\(OI\\)\\(CI\\)F\" /T)",
       "Bash(Get-ChildItem \"d:/WebApps/terapi/resources/views/livewire/configuration/\" -Name)",
       "Bash(Write-Host \"---\")",
-      "Bash(Get-ChildItem \"d:/WebApps/terapi/resources/views/pages/configuration/\" -Name)"
+      "Bash(Get-ChildItem \"d:/WebApps/terapi/resources/views/pages/configuration/\" -Name)",
+      "Bash(taskkill /F /IM python.exe /T)",
+      "Bash(tasklist)",
+      "PowerShell(Stop-Process -Name python -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process -Name python -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 28032,40744 -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2; Get-Process -Name python -ErrorAction SilentlyContinue | Select-Object Id, Name; if \\(-not \\(Get-Process -Name python -ErrorAction SilentlyContinue\\)\\) { \"no python running\" })",
+      "PowerShell(Get-Process -Name python -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Seconds 3; if \\(-not \\(Get-Process -Name python -ErrorAction SilentlyContinue\\)\\) { \"no python running\" } else { Get-Process -Name python | Select-Object Id })",
+      "PowerShell(Get-WmiObject Win32_Process -Filter \"name='python.exe'\" | ForEach-Object { $_.Terminate\\(\\) }; Start-Sleep -Seconds 3; if \\(-not \\(Get-Process -Name python -ErrorAction SilentlyContinue\\)\\) { \"all killed\" } else { \"still running: \" + \\(Get-Process -Name python\\).Count })",
+      "Bash(taskkill /F /IM python.exe)",
+      "PowerShell(Start-Process -FilePath \"taskkill\" -ArgumentList \"/F /IM python.exe\" -Wait -NoNewWindow; Start-Sleep 2; $p = Get-Process -Name python -ErrorAction SilentlyContinue; if \\($p\\) { \"still: $\\($p.Count\\)\" } else { \"all cleared\" })"
     ]
   }
 }

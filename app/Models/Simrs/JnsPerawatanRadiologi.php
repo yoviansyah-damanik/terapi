@@ -26,6 +26,11 @@ class JnsPerawatanRadiologi extends SimrsModel
         'kelas',
     ];
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', '1');
+    }
+
     public function snomedMap()
     {
         return $this->hasOne(\App\Models\Mapping\ProcedureMap::class, 'procedure_code', 'kd_jenis_prw')

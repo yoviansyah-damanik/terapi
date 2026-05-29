@@ -63,7 +63,7 @@ new #[Layout('layouts::app')] #[Title('Radiologi — Mapping & UUID')] class ext
 
     public function with(): array
     {
-        $items = JnsPerawatanRadiologi::query()->when($this->search, fn($q) => $q->where('kd_jenis_prw', 'like', "%{$this->search}%")->orWhere('nm_perawatan', 'like', "%{$this->search}%"))->orderBy('kd_jenis_prw')->paginate($this->perPage);
+        $items = JnsPerawatanRadiologi::query()->active()->when($this->search, fn($q) => $q->where('kd_jenis_prw', 'like', "%{$this->search}%")->orWhere('nm_perawatan', 'like', "%{$this->search}%"))->orderBy('kd_jenis_prw')->paginate($this->perPage);
 
         $codes = $items->pluck('kd_jenis_prw')->toArray();
         $mappings = RadMap::whereIn('local_code', $codes)->get()->keyBy('local_code');
@@ -100,7 +100,7 @@ new #[Layout('layouts::app')] #[Title('Radiologi — Mapping & UUID')] class ext
             return $item;
         });
 
-        $totalSimrs = JnsPerawatanRadiologi::count();
+        $totalSimrs = JnsPerawatanRadiologi::active()->count();
         $totalBpjs = BpjsObservationRadiology::count();
         $totalLoinc = RadMap::count();
 
@@ -339,8 +339,8 @@ new #[Layout('layouts::app')] #[Title('Radiologi — Mapping & UUID')] class ext
     </div>
 
     @php
-    $mappedCount = collect($items->items())->filter(fn($i) => $i->system_code)->count();
-    $specimenCount = collect($items->items())->filter(fn($i) => $i->specimen_code)->count();
+        $mappedCount = collect($items->items())->filter(fn($i) => $i->system_code)->count();
+        $specimenCount = collect($items->items())->filter(fn($i) => $i->specimen_code)->count();
     @endphp
 
     <x-organisms.data-panel>
@@ -414,254 +414,254 @@ new #[Layout('layouts::app')] #[Title('Radiologi — Mapping & UUID')] class ext
             </x-slot:headings>
 
             @forelse ($items as $item)
-            <x-molecules.table-row wire:key="rad-{{ $item->kd_jenis_prw }}">
-                <x-atoms.table-cell>
-                    <span
-                        class="inline-block font-mono text-xs font-bold px-2 py-1 rounded-md
+                <x-molecules.table-row wire:key="rad-{{ $item->kd_jenis_prw }}">
+                    <x-atoms.table-cell>
+                        <span
+                            class="inline-block font-mono text-xs font-bold px-2 py-1 rounded-md
                             bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300
                             ring-1 ring-primary-100 dark:ring-primary-800/40">
-                        {{ $item->kd_jenis_prw }}
-                    </span>
-                </x-atoms.table-cell>
-                <x-atoms.table-cell>
-                    <p class="text-sm font-medium text-zinc-800 dark:text-primary-dark-100 leading-snug">
-                        {{ $item->nm_perawatan }}
-                    </p>
-                </x-atoms.table-cell>
-                {{-- LOINC --}}
-                <x-atoms.table-cell>
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/loinc">
-                        @if ($item->system_code)
-                        <div class="flex items-start gap-2.5 min-w-0">
-                            <span
-                                class="mt-1 w-2 h-2 rounded-full bg-teal-400 dark:bg-teal-500 shrink-0 ring-2 ring-teal-100 dark:ring-teal-900/50"></span>
-                            <div class="min-w-0">
-                                <p class="font-mono text-xs font-bold text-teal-700 dark:text-teal-400">
-                                    {{ $item->system_code }}
-                                </p>
-                                <p
-                                    class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
-                                    {{ $item->system_term }}
-                                </p>
+                            {{ $item->kd_jenis_prw }}
+                        </span>
+                    </x-atoms.table-cell>
+                    <x-atoms.table-cell>
+                        <p class="text-sm font-medium text-zinc-800 dark:text-primary-dark-100 leading-snug">
+                            {{ $item->nm_perawatan }}
+                        </p>
+                    </x-atoms.table-cell>
+                    {{-- LOINC --}}
+                    <x-atoms.table-cell>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/loinc">
+                            @if ($item->system_code)
+                                <div class="flex items-start gap-2.5 min-w-0">
+                                    <span
+                                        class="mt-1 w-2 h-2 rounded-full bg-teal-400 dark:bg-teal-500 shrink-0 ring-2 ring-teal-100 dark:ring-teal-900/50"></span>
+                                    <div class="min-w-0">
+                                        <p class="font-mono text-xs font-bold text-teal-700 dark:text-teal-400">
+                                            {{ $item->system_code }}
+                                        </p>
+                                        <p
+                                            class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
+                                            {{ $item->system_term }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
+                                    <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
+                                    <span class="text-xs italic">Belum di-mapping</span>
+                                </div>
+                            @endif
+                            <div class="flex items-center gap-1 shrink-0">
+                                <x-atoms.button
+                                    wire:click="openModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
+                                    size="sm" icon="{{ $item->system_code ? 'pencil-square' : 'plus' }}"
+                                    variant="ghost"
+                                    class="opacity-0 group-hover/loinc:opacity-100 transition-all duration-150"
+                                    tooltip="{{ $item->system_code ? 'Ubah LOINC' : 'Petakan LOINC' }}" />
                             </div>
                         </div>
-                        @else
-                        <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
-                            <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
-                            <span class="text-xs italic">Belum di-mapping</span>
-                        </div>
-                        @endif
-                        <div class="flex items-center gap-1 shrink-0">
-                            <x-atoms.button
-                                wire:click="openModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
-                                size="sm" icon="{{ $item->system_code ? 'pencil-square' : 'plus' }}"
-                                variant="ghost"
-                                class="opacity-0 group-hover/loinc:opacity-100 transition-all duration-150"
-                                tooltip="{{ $item->system_code ? 'Ubah LOINC' : 'Petakan LOINC' }}" />
-                        </div>
-                    </div>
-                </x-atoms.table-cell>
-                {{-- SNOMED CT Spesimen --}}
-                <x-atoms.table-cell>
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/snomed">
-                        @if ($item->specimen_code)
-                        <div class="flex items-start gap-2.5">
-                            <span
-                                class="mt-1 w-2 h-2 rounded-full bg-violet-400 dark:bg-violet-500 shrink-0 ring-2 ring-violet-100 dark:ring-violet-900/50"></span>
-                            <div class="min-w-0">
-                                <p class="font-mono text-xs font-bold text-violet-700 dark:text-violet-400">
-                                    {{ $item->specimen_code }}
-                                </p>
-                                <p
-                                    class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
-                                    {{ $item->specimen_term }}
-                                </p>
+                    </x-atoms.table-cell>
+                    {{-- SNOMED CT Spesimen --}}
+                    <x-atoms.table-cell>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/snomed">
+                            @if ($item->specimen_code)
+                                <div class="flex items-start gap-2.5">
+                                    <span
+                                        class="mt-1 w-2 h-2 rounded-full bg-violet-400 dark:bg-violet-500 shrink-0 ring-2 ring-violet-100 dark:ring-violet-900/50"></span>
+                                    <div class="min-w-0">
+                                        <p class="font-mono text-xs font-bold text-violet-700 dark:text-violet-400">
+                                            {{ $item->specimen_code }}
+                                        </p>
+                                        <p
+                                            class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
+                                            {{ $item->specimen_term }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
+                                    <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
+                                    <span class="text-xs italic">Belum di-mapping</span>
+                                </div>
+                            @endif
+                            <div class="flex items-center gap-1 shrink-0">
+                                <x-atoms.button
+                                    wire:click="openSnomedModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
+                                    size="sm" icon="{{ $item->specimen_code ? 'pencil-square' : 'plus' }}"
+                                    variant="ghost"
+                                    class="opacity-0 group-hover/snomed:opacity-100 transition-all duration-150"
+                                    tooltip="{{ $item->specimen_code ? 'Ubah SNOMED' : 'Petakan SNOMED' }}" />
                             </div>
                         </div>
-                        @else
-                        <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
-                            <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
-                            <span class="text-xs italic">Belum di-mapping</span>
-                        </div>
-                        @endif
-                        <div class="flex items-center gap-1 shrink-0">
-                            <x-atoms.button
-                                wire:click="openSnomedModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
-                                size="sm" icon="{{ $item->specimen_code ? 'pencil-square' : 'plus' }}"
-                                variant="ghost"
-                                class="opacity-0 group-hover/snomed:opacity-100 transition-all duration-150"
-                                tooltip="{{ $item->specimen_code ? 'Ubah SNOMED' : 'Petakan SNOMED' }}" />
-                        </div>
-                    </div>
-                </x-atoms.table-cell>
-                {{-- Diagnostic Category --}}
-                <x-atoms.table-cell>
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/cat">
-                        @if ($item->diagnostic_category)
-                        <div class="flex items-start gap-2.5">
-                            <span
-                                class="mt-1 w-2 h-2 rounded-full bg-amber-400 dark:bg-amber-500 shrink-0 ring-2 ring-amber-100 dark:ring-amber-900/50"></span>
-                            <div class="min-w-0">
-                                <p class="font-mono text-xs font-bold text-amber-700 dark:text-amber-400">
-                                    {{ $item->diagnostic_category }}
-                                </p>
-                                <p
-                                    class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
-                                    {{ $item->diagnostic_category_term }}
-                                </p>
+                    </x-atoms.table-cell>
+                    {{-- Diagnostic Category --}}
+                    <x-atoms.table-cell>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/cat">
+                            @if ($item->diagnostic_category)
+                                <div class="flex items-start gap-2.5">
+                                    <span
+                                        class="mt-1 w-2 h-2 rounded-full bg-amber-400 dark:bg-amber-500 shrink-0 ring-2 ring-amber-100 dark:ring-amber-900/50"></span>
+                                    <div class="min-w-0">
+                                        <p class="font-mono text-xs font-bold text-amber-700 dark:text-amber-400">
+                                            {{ $item->diagnostic_category }}
+                                        </p>
+                                        <p
+                                            class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
+                                            {{ $item->diagnostic_category_term }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
+                                    <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
+                                    <span class="text-xs italic">Belum di-mapping</span>
+                                </div>
+                            @endif
+                            <div class="flex items-center gap-1 shrink-0">
+                                <x-atoms.button
+                                    wire:click="openCategoryModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
+                                    size="sm" icon="{{ $item->diagnostic_category ? 'pencil-square' : 'plus' }}"
+                                    variant="ghost"
+                                    class="opacity-0 group-hover/cat:opacity-100 transition-all duration-150"
+                                    tooltip="{{ $item->diagnostic_category ? 'Ubah Diagnostic Category' : 'Petakan Diagnostic Category' }}" />
                             </div>
                         </div>
-                        @else
-                        <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
-                            <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
-                            <span class="text-xs italic">Belum di-mapping</span>
+                    </x-atoms.table-cell>
+                    {{-- DICOM Router --}}
+                    <x-atoms.table-cell>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/mod">
+                            @if ($item->router_id)
+                                <div class="flex items-start gap-2.5">
+                                    <span
+                                        class="mt-1 w-2 h-2 rounded-full bg-blue-400 dark:bg-blue-500 shrink-0 ring-2 ring-blue-100 dark:ring-blue-900/50"></span>
+                                    <div class="min-w-0">
+                                        <p class="font-mono text-xs font-bold text-blue-700 dark:text-blue-400">
+                                            {{ $item->router_name }}
+                                        </p>
+                                        @if ($item->modality_name)
+                                            <p
+                                                class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
+                                                {{ $item->modality_name }}
+                                            </p>
+                                            <p
+                                                class="text-[10px] font-bold text-blue-600 dark:text-blue-500 leading-tight uppercase">
+                                                [{{ $item->modality_type }}]
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
+                                    <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
+                                    <span class="text-xs italic">Belum di-map</span>
+                                </div>
+                            @endif
+                            <div class="flex items-center gap-1 shrink-0">
+                                <x-atoms.button
+                                    wire:click="openRouterModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}', '{{ $item->router_id }}')"
+                                    size="sm" icon="{{ $item->router_id ? 'pencil-square' : 'plus' }}"
+                                    variant="ghost"
+                                    class="opacity-0 group-hover/mod:opacity-100 transition-all duration-150"
+                                    tooltip="{{ $item->router_id ? 'Ubah Router' : 'Petakan Router' }}" />
+                            </div>
                         </div>
-                        @endif
-                        <div class="flex items-center gap-1 shrink-0">
-                            <x-atoms.button
-                                wire:click="openCategoryModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
-                                size="sm" icon="{{ $item->diagnostic_category ? 'pencil-square' : 'plus' }}"
-                                variant="ghost"
-                                class="opacity-0 group-hover/cat:opacity-100 transition-all duration-150"
-                                tooltip="{{ $item->diagnostic_category ? 'Ubah Diagnostic Category' : 'Petakan Diagnostic Category' }}" />
-                        </div>
-                    </div>
-                </x-atoms.table-cell>
-                {{-- DICOM Router --}}
-                <x-atoms.table-cell>
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/mod">
-                        @if ($item->router_id)
-                        <div class="flex items-start gap-2.5">
+                    </x-atoms.table-cell>
+                    {{-- UUID BPJS --}}
+                    <x-atoms.table-cell>
+                        @if ($item->bpjs_uuid)
                             <span
-                                class="mt-1 w-2 h-2 rounded-full bg-blue-400 dark:bg-blue-500 shrink-0 ring-2 ring-blue-100 dark:ring-blue-900/50"></span>
-                            <div class="min-w-0">
-                                <p class="font-mono text-xs font-bold text-blue-700 dark:text-blue-400">
-                                    {{ $item->router_name }}
-                                </p>
-                                @if ($item->modality_name)
-                                <p
-                                    class="mt-0.5 text-xs text-zinc-500 dark:text-primary-dark-400 leading-snug line-clamp-2">
-                                    {{ $item->modality_name }}
-                                </p>
-                                <p
-                                    class="text-[10px] font-bold text-blue-600 dark:text-blue-500 leading-tight uppercase">
-                                    [{{ $item->modality_type }}]
-                                </p>
+                                class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">{{ $item->bpjs_uuid }}</span>
+                        @else
+                            <span class="text-xs italic text-zinc-400 dark:text-primary-dark-500">Belum
+                                terdaftar</span>
+                        @endif
+                    </x-atoms.table-cell>
+                    {{-- Aksi --}}
+                    <x-atoms.table-cell :action="true" align="center">
+                        <div class="flex items-center justify-center gap-1">
+                            {{-- Grup LOINC/SNOMED --}}
+                            <div
+                                class="flex items-center gap-0.5 border-r border-zinc-200 dark:border-primary-dark-600 pr-2 mr-1">
+                                @if ($item->system_code || $item->specimen_code || $item->diagnostic_category)
+                                    <flux:dropdown position="bottom right">
+                                        <x-atoms.button variant="ghost" icon="trash" size="sm"
+                                            class="text-red-500" tooltip="Hapus mapping" />
+                                        <flux:navmenu>
+                                            @if ($item->system_code)
+                                                <flux:navmenu.item
+                                                    wire:click="deleteMapping('{{ $item->kd_jenis_prw }}')"
+                                                    class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
+                                                    LOINC</flux:navmenu.item>
+                                            @endif
+                                            @if ($item->specimen_code)
+                                                <flux:navmenu.item
+                                                    wire:click="confirmDeleteSnomed('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
+                                                    class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
+                                                    SNOMED</flux:navmenu.item>
+                                            @endif
+                                            @if ($item->diagnostic_category)
+                                                <flux:navmenu.item
+                                                    wire:click="confirmDeleteCategory('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
+                                                    class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
+                                                    Category</flux:navmenu.item>
+                                            @endif
+                                            @if ($item->router_id)
+                                                <flux:navmenu.item
+                                                    wire:click="deleteRouterMapping('{{ $item->kd_jenis_prw }}')"
+                                                    class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
+                                                    Router Map</flux:navmenu.item>
+                                            @endif
+                                        </flux:navmenu>
+                                    </flux:dropdown>
+                                @endif
+                            </div>
+                            {{-- Grup BPJS UUID --}}
+                            <div class="flex items-center gap-0.5">
+                                @if (!$item->bpjs_uuid)
+                                    <x-atoms.button
+                                        wire:click="generateBpjsUuid('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
+                                        size="sm" variant="ghost" icon="plus-circle"
+                                        class="text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                                        tooltip="Generate UUID BPJS" />
+                                @else
+                                    <x-atoms.button variant="ghost"
+                                        wire:click="viewBpjsDetail('{{ $item->kd_jenis_prw }}')" size="sm"
+                                        icon="eye" tooltip="Lihat UUID BPJS" />
+                                    <x-atoms.button variant="ghost"
+                                        wire:click="confirmDeleteBpjs('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
+                                        size="sm" icon="trash" tooltip="Hapus UUID BPJS"
+                                        class="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" />
                                 @endif
                             </div>
                         </div>
-                        @else
-                        <div class="flex items-center gap-2 text-zinc-400 dark:text-primary-dark-500">
-                            <span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-primary-dark-600"></span>
-                            <span class="text-xs italic">Belum di-map</span>
-                        </div>
-                        @endif
-                        <div class="flex items-center gap-1 shrink-0">
-                            <x-atoms.button
-                                wire:click="openRouterModal('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}', '{{ $item->router_id }}')"
-                                size="sm" icon="{{ $item->router_id ? 'pencil-square' : 'plus' }}"
-                                variant="ghost"
-                                class="opacity-0 group-hover/mod:opacity-100 transition-all duration-150"
-                                tooltip="{{ $item->router_id ? 'Ubah Router' : 'Petakan Router' }}" />
-                        </div>
-                    </div>
-                </x-atoms.table-cell>
-                {{-- UUID BPJS --}}
-                <x-atoms.table-cell>
-                    @if ($item->bpjs_uuid)
-                    <span
-                        class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">{{ $item->bpjs_uuid }}</span>
-                    @else
-                    <span class="text-xs italic text-zinc-400 dark:text-primary-dark-500">Belum
-                        terdaftar</span>
-                    @endif
-                </x-atoms.table-cell>
-                {{-- Aksi --}}
-                <x-atoms.table-cell :action="true" align="center">
-                    <div class="flex items-center justify-center gap-1">
-                        {{-- Grup LOINC/SNOMED --}}
-                        <div
-                            class="flex items-center gap-0.5 border-r border-zinc-200 dark:border-primary-dark-600 pr-2 mr-1">
-                            @if ($item->system_code || $item->specimen_code || $item->diagnostic_category)
-                            <flux:dropdown position="bottom right">
-                                <x-atoms.button variant="ghost" icon="trash" size="sm"
-                                    class="text-red-500" tooltip="Hapus mapping" />
-                                <flux:navmenu>
-                                    @if ($item->system_code)
-                                    <flux:navmenu.item
-                                        wire:click="deleteMapping('{{ $item->kd_jenis_prw }}')"
-                                        class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
-                                        LOINC</flux:navmenu.item>
-                                    @endif
-                                    @if ($item->specimen_code)
-                                    <flux:navmenu.item
-                                        wire:click="confirmDeleteSnomed('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
-                                        class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
-                                        SNOMED</flux:navmenu.item>
-                                    @endif
-                                    @if ($item->diagnostic_category)
-                                    <flux:navmenu.item
-                                        wire:click="confirmDeleteCategory('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
-                                        class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
-                                        Category</flux:navmenu.item>
-                                    @endif
-                                    @if ($item->router_id)
-                                    <flux:navmenu.item
-                                        wire:click="deleteRouterMapping('{{ $item->kd_jenis_prw }}')"
-                                        class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40">Hapus
-                                        Router Map</flux:navmenu.item>
-                                    @endif
-                                </flux:navmenu>
-                            </flux:dropdown>
-                            @endif
-                        </div>
-                        {{-- Grup BPJS UUID --}}
-                        <div class="flex items-center gap-0.5">
-                            @if (!$item->bpjs_uuid)
-                            <x-atoms.button
-                                wire:click="generateBpjsUuid('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
-                                size="sm" variant="ghost" icon="plus-circle"
-                                class="text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                                tooltip="Generate UUID BPJS" />
-                            @else
-                            <x-atoms.button variant="ghost"
-                                wire:click="viewBpjsDetail('{{ $item->kd_jenis_prw }}')" size="sm"
-                                icon="eye" tooltip="Lihat UUID BPJS" />
-                            <x-atoms.button variant="ghost"
-                                wire:click="confirmDeleteBpjs('{{ $item->kd_jenis_prw }}', '{{ addslashes($item->nm_perawatan) }}')"
-                                size="sm" icon="trash" tooltip="Hapus UUID BPJS"
-                                class="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" />
-                            @endif
-                        </div>
-                    </div>
-                </x-atoms.table-cell>
-            </x-molecules.table-row>
+                    </x-atoms.table-cell>
+                </x-molecules.table-row>
             @empty
-            <tr>
-                <td colspan="6" class="px-5 py-16 text-center">
-                    <div class="flex flex-col items-center gap-3">
-                        <div
-                            class="flex items-center justify-center w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-primary-dark-700">
-                            <flux:icon name="camera" class="w-7 h-7 text-zinc-300 dark:text-primary-dark-500" />
+                <tr>
+                    <td colspan="6" class="px-5 py-16 text-center">
+                        <div class="flex flex-col items-center gap-3">
+                            <div
+                                class="flex items-center justify-center w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-primary-dark-700">
+                                <flux:icon name="camera" class="w-7 h-7 text-zinc-300 dark:text-primary-dark-500" />
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-zinc-500 dark:text-primary-dark-400">Tidak
+                                    ada data
+                                    pemeriksaan radiologi</p>
+                                <p class="mt-0.5 text-xs text-zinc-400 dark:text-primary-dark-500">Coba ubah
+                                    kata kunci
+                                    pencarian</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-semibold text-zinc-500 dark:text-primary-dark-400">Tidak
-                                ada data
-                                pemeriksaan radiologi</p>
-                            <p class="mt-0.5 text-xs text-zinc-400 dark:text-primary-dark-500">Coba ubah
-                                kata kunci
-                                pencarian</p>
-                        </div>
-                    </div>
-                </td>
-            </tr>
+                    </td>
+                </tr>
             @endforelse
         </x-organisms.table>
 
         @if ($items->hasPages())
-        <x-slot:footer>
-            {{ $items->links() }}
-        </x-slot:footer>
+            <x-slot:footer>
+                {{ $items->links() }}
+            </x-slot:footer>
         @endif
     </x-organisms.data-panel>
 
@@ -754,34 +754,34 @@ new #[Layout('layouts::app')] #[Title('Radiologi — Mapping & UUID')] class ext
     {{-- Modal Detail UUID BPJS --}}
     <x-organisms.modal wire:model="showBpjsDetailModal" maxWidth="sm" title="Detail UUID BPJS Radiologi">
         @if ($selectedBpjsItem)
-        <dl class="space-y-4">
-            <div>
-                <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Nama
-                    Pemeriksaan</dt>
-                <dd class="text-sm font-semibold text-zinc-800 dark:text-white">{{ $selectedBpjsItem->name }}</dd>
-            </div>
-            <div>
-                <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Kode
-                    Lokal</dt>
-                <dd class="font-mono text-sm font-bold text-primary-600 dark:text-primary-400">
-                    {{ $selectedBpjsItem->local_code }}
-                </dd>
-            </div>
-            <div>
-                <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Resource
-                    ID (UUID)</dt>
-                <dd class="font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400 break-all">
-                    {{ $selectedBpjsItem->id }}
-                </dd>
-            </div>
-            <div>
-                <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Dibuat
-                </dt>
-                <dd class="text-sm text-zinc-600 dark:text-primary-dark-300">
-                    {{ $selectedBpjsItem->created_at?->format('d M Y, H:i') }}
-                </dd>
-            </div>
-        </dl>
+            <dl class="space-y-4">
+                <div>
+                    <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Nama
+                        Pemeriksaan</dt>
+                    <dd class="text-sm font-semibold text-zinc-800 dark:text-white">{{ $selectedBpjsItem->name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Kode
+                        Lokal</dt>
+                    <dd class="font-mono text-sm font-bold text-primary-600 dark:text-primary-400">
+                        {{ $selectedBpjsItem->local_code }}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Resource
+                        ID (UUID)</dt>
+                    <dd class="font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400 break-all">
+                        {{ $selectedBpjsItem->id }}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-[10px] uppercase font-bold text-zinc-400 dark:text-primary-dark-500 mb-1">Dibuat
+                    </dt>
+                    <dd class="text-sm text-zinc-600 dark:text-primary-dark-300">
+                        {{ $selectedBpjsItem->created_at?->format('d M Y, H:i') }}
+                    </dd>
+                </div>
+            </dl>
         @endif
         <x-slot:footer>
             <div class="flex justify-end w-full">
@@ -862,35 +862,35 @@ new #[Layout('layouts::app')] #[Title('Radiologi — Mapping & UUID')] class ext
         <div class="space-y-4">
             <flux:select wire:model.live="selectedRouter" label="Pilih Router" placeholder="Pilih Router...">
                 @foreach ($routers as $router)
-                <flux:select.option value="{{ $router->id }}">{{ $router->name }} ({{ $router->ae_title }})
-                </flux:select.option>
+                    <flux:select.option value="{{ $router->id }}">{{ $router->name }} ({{ $router->ae_title }})
+                    </flux:select.option>
                 @endforeach
             </flux:select>
 
             @if ($selectedRouter)
-            @php
-            $activeRouter = $routers->firstWhere('id', $selectedRouter);
-            $modality = $activeRouter?->modality;
-            @endphp
-            @if ($modality)
-            <div
-                class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                <div class="flex items-center gap-2 mb-1">
-                    <flux:icon name="information-circle" class="w-4 h-4 text-blue-500" />
-                    <span class="text-xs font-bold text-blue-700 dark:text-blue-400">Modality Terhubung:</span>
-                </div>
-                <p class="text-xs text-blue-600 dark:text-blue-300">
-                    {{ $modality->ae_title ?? $activeRouter->ae_title }} [{{ $modality->modality_type }}]
-                    {{ $modality->description }}
-                </p>
-            </div>
-            @else
-            <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
-                <p class="text-xs text-red-600 dark:text-red-400 italic">
-                    Router ini belum memiliki modality. Mohon konfigurasi di menu Router.
-                </p>
-            </div>
-            @endif
+                @php
+                    $activeRouter = $routers->firstWhere('id', $selectedRouter);
+                    $modality = $activeRouter?->modality;
+                @endphp
+                @if ($modality)
+                    <div
+                        class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                        <div class="flex items-center gap-2 mb-1">
+                            <flux:icon name="information-circle" class="w-4 h-4 text-blue-500" />
+                            <span class="text-xs font-bold text-blue-700 dark:text-blue-400">Modality Terhubung:</span>
+                        </div>
+                        <p class="text-xs text-blue-600 dark:text-blue-300">
+                            {{ $modality->ae_title ?? $activeRouter->ae_title }} [{{ $modality->modality_type }}]
+                            {{ $modality->description }}
+                        </p>
+                    </div>
+                @else
+                    <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
+                        <p class="text-xs text-red-600 dark:text-red-400 italic">
+                            Router ini belum memiliki modality. Mohon konfigurasi di menu Router.
+                        </p>
+                    </div>
+                @endif
             @endif
         </div>
         <x-slot:footer>

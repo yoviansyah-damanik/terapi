@@ -124,7 +124,7 @@ new class extends Component {
                         <div>
                             <flux:label>Model</flux:label>
                             @if (!empty($availableModels))
-                                <flux:select wire:model="ollamaModel">
+                                <flux:select wire:model.live="ollamaModel">
                                     @foreach ($availableModels as $m)
                                         <flux:select.option value="{{ $m }}">{{ $m }}
                                         </flux:select.option>

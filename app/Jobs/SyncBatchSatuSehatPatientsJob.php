@@ -14,8 +14,9 @@ class SyncBatchSatuSehatPatientsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 1;
+    public int $tries = 3;
     public int $timeout = 3600;
+    public int $backoff = 60;
 
     public function __construct(
         public array $patientIds = [],
@@ -28,32 +29,41 @@ class SyncBatchSatuSehatPatientsJob implements ShouldQueue
     public function handle(): void
     {
         Log::info("SyncBatchSatuSehatPatients: Starting batch sync", [
-            'sync_all' => $this->syncAll,
-            'patient_ids' => count($this->patientIds),
-            'limit' => $this->limit,
+            'sync_all'   => $this->syncAll,
+            'patient_ids'=> count($this->patientIds),
+            'limit'      => $this->limit,
         ]);
 
-        $patients = $this->getUnsyncedPatients();
-
         $dispatched = 0;
-        foreach ($patients as $patient) {
+
+        $this->buildQuery()->cursor()->each(function ($patient) use (&$dispatched) {
             SyncSatuSehatPatientJob::dispatch($patient->no_ktp, $patient->no_rkm_medis)
                 ->delay(now()->addSeconds($dispatched * 2));
             $dispatched++;
-        }
+        });
 
-        Log::info("SyncBatchSatuSehatPatients: Dispatched jobs", [
-            'count' => $dispatched,
+        Log::info("SyncBatchSatuSehatPatients: Dispatched jobs", ['count' => $dispatched]);
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        Log::error("SyncBatchSatuSehatPatients: Job failed", [
+            'error'       => $e->getMessage(),
+            'sync_all'    => $this->syncAll,
+            'patient_ids' => count($this->patientIds),
+            'attempt'     => $this->attempts(),
         ]);
     }
 
     /**
-     * Memeriksa dan mengambil pasien yang belum tersinkronisasi ke SatuSehat.
-     * Karena menggunakan koneksi database yang berbeda, kita ambil list NIK terlebih dahulu.
+     * Bangun query pasien SIMRS yang belum tersinkronisasi.
+     * NIK yang sudah ada di lokal diambil dalam chunk kecil (500) untuk
+     * menghindari SQL clause NOT IN yang terlalu besar dan memory exhaustion.
      */
-    protected function getUnsyncedPatients()
+    protected function buildQuery()
     {
         $query = Pasien::query()
+            ->select(['no_ktp', 'no_rkm_medis'])
             ->whereNotNull('no_ktp')
             ->whereRaw('no_ktp REGEXP "^[0-9]{16}$"')
             ->where('no_ktp', '!=', '0000000000000000');
@@ -61,22 +71,31 @@ class SyncBatchSatuSehatPatientsJob implements ShouldQueue
         if (!$this->syncAll && !empty($this->patientIds)) {
             $query->whereIn('no_rkm_medis', $this->patientIds);
         } else {
-            // Ambil data NIK pasien yang sudah ada di database lokal/SatuSehat
-            $syncedNiks = \App\Models\SatuSehat\SatuSehatPatient::select('nik')
+            // Ambil NIK yang sudah tersinkronisasi dalam chunk kecil
+            // agar tidak membuat IN clause raksasa di satu query
+            $syncedNiks = [];
+            \App\Models\SatuSehat\SatuSehatPatient::select('nik')
                 ->whereNotNull('nik')
-                ->pluck('nik')
-                ->toArray();
+                ->chunk(500, function ($rows) use (&$syncedNiks) {
+                    foreach ($rows as $row) {
+                        $syncedNiks[] = $row->nik;
+                    }
+                });
 
-            // Kecualikan pasien yang sudah tersinkronisasi
             if (!empty($syncedNiks)) {
-                $query->whereNotIn('no_ktp', $syncedNiks);
+                // Split whereNotIn per 1000 nik untuk batasi ukuran SQL clause
+                $chunks = array_chunk($syncedNiks, 1000);
+                foreach ($chunks as $chunk) {
+                    $query->whereNotIn('no_ktp', $chunk);
+                }
             }
         }
 
-        if ($this->limit === 0)
-            return $query->get();
+        if ($this->limit > 0) {
+            $query->limit($this->limit);
+        }
 
-        return $query->limit($this->limit)->get();
+        return $query;
     }
 
     public function tags(): array

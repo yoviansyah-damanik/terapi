@@ -116,6 +116,24 @@ class ErmFhirService
     }
 
     /**
+     * Coba ambil resource duplikat dari SatuSehat via GET /{ResourceType}/{uuid}.
+     * UUID di-extract dari pesan error; return null jika tidak ditemukan atau GET gagal.
+     */
+    private function findDuplicateResource(object $service, \Throwable $error): ?array
+    {
+        $msg = $error->getMessage();
+        if (!preg_match('/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i', $msg, $matches)) {
+            return null;
+        }
+        try {
+            $response = $service->find($matches[0]);
+            return $response->success ? $response->data : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
      * Kirim Encounter berdasarkan data kunjungan SIMRS.
      *
      * @return array{success: bool, message: string, encounter?: SatuSehatEncounter}
@@ -365,8 +383,8 @@ class ErmFhirService
                     error: $e->getMessage()
                 );
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $code);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $code);
 
                     if ($found) {
                         $localId = $reg->no_rawat . '-CON_' . $code . '-' . $reg->tgl_registrasi->format('Ymd') . '-' . str_replace(':', '', $reg->jam_reg ?? '000000');
@@ -517,8 +535,8 @@ class ErmFhirService
             } catch (\Exception $e) {
                 $this->logBundleItem(bundle: $bundle, type: 'Procedure', localId: $code, status: 'failed', error: $e->getMessage());
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $code);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $code);
                     if ($found) {
                         SatuSehatProcedure::create([
                             'ihs_number' => $found['id'],
@@ -761,8 +779,8 @@ class ErmFhirService
                     );
 
                     if ($this->isDuplicate($e)) {
-                        $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                        $found = $this->findByIdentifier($searchResp, $localId);
+                        $found = $this->findDuplicateResource($service, $e)
+                            ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $localId);
                         if ($found) {
                             SatuSehatObservation::create([
                                 'ihs_number' => $found['id'],
@@ -957,8 +975,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $serviceReq->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($serviceReq, $e)
+                        ?? $this->findByIdentifier($serviceReq->searchByEncounter($encounter->ihs_number), $idStr);
                     if ($found) {
                         SatuSehatMedicationRequest::create([
                             'ihs_number' => $found['id'],
@@ -1122,8 +1140,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $serviceDisp->searchByContext($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($serviceDisp, $e)
+                        ?? $this->findByIdentifier($serviceDisp->searchByContext($encounter->ihs_number), $idStr);
                     if ($found) {
                         $quantity = (int) ceil($jml);
                         $unitCode = $map->denominator_code ?? 'TAB';
@@ -1358,8 +1376,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByContext($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByContext($encounter->ihs_number), $idStr);
                     if ($found) {
                         SatuSehatMedicationAdministration::create([
                             'ihs_number' => $found['id'],
@@ -1503,8 +1521,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $idStr);
                     if ($found) {
                         SatuSehatServiceRequest::create([
                             'ihs_number' => $found['id'],
@@ -1651,7 +1669,9 @@ class ErmFhirService
                 } catch (\Exception $e) {
                     if ($this->isDuplicate($e)) {
                         $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                        $found = $this->findByIdentifier($searchResp, $noOrder) ?? $this->findByIdentifier($searchResp, $idStr);
+                        $found = $this->findDuplicateResource($service, $e)
+                            ?? $this->findByIdentifier($searchResp, $noOrder)
+                            ?? $this->findByIdentifier($searchResp, $idStr);
                         if ($found) {
                             SatuSehatServiceRequest::create([
                                 'ihs_number' => $found['id'],
@@ -1782,7 +1802,9 @@ class ErmFhirService
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
                     $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $noOrder) ?? $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($searchResp, $noOrder)
+                        ?? $this->findByIdentifier($searchResp, $idStr);
                     if ($found) {
                         SatuSehatServiceRequest::create([
                             'ihs_number' => $found['id'],
@@ -2594,8 +2616,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $idStr);
                     if ($found) {
                         \App\Models\SatuSehat\SatuSehatDiagnosticReport::create([
                             'ihs_number' => $found['id'],
@@ -2831,7 +2853,9 @@ class ErmFhirService
                 } catch (\Exception $e) {
                     if ($this->isDuplicate($e)) {
                         $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                        $found = $this->findByIdentifier($searchResp, $acsn) ?? $this->findByIdentifier($searchResp, $idStr);
+                        $found = $this->findDuplicateResource($service, $e)
+                            ?? $this->findByIdentifier($searchResp, $acsn)
+                            ?? $this->findByIdentifier($searchResp, $idStr);
                         if ($found) {
                             \App\Models\SatuSehat\SatuSehatDiagnosticReport::create([
                                 'ihs_number' => $found['id'],
@@ -2960,9 +2984,12 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByIdentifier($idStr);
-                    if ($searchResp->success && !empty($searchResp->getResources())) {
-                        $found = $searchResp->getResources()[0];
+                    $found = $this->findDuplicateResource($service, $e);
+                    if (!$found) {
+                        $searchResp = $service->searchByIdentifier($idStr);
+                        $found = ($searchResp->success && !empty($searchResp->getResources())) ? $searchResp->getResources()[0] : null;
+                    }
+                    if ($found) {
                         \App\Models\SatuSehat\SatuSehatSpecimen::create([
                             'ihs_number' => $found['id'],
                             'local_id' => $idStr,
@@ -3086,9 +3113,12 @@ class ErmFhirService
                     $sent++;
                 } catch (\Exception $e) {
                     if ($this->isDuplicate($e)) {
-                        $searchResp = $service->searchByIdentifier($acsn);
-                        if ($searchResp->success && !empty($searchResp->getResources())) {
-                            $found = $searchResp->getResources()[0];
+                        $found = $this->findDuplicateResource($service, $e);
+                        if (!$found) {
+                            $searchResp = $service->searchByIdentifier($acsn);
+                            $found = ($searchResp->success && !empty($searchResp->getResources())) ? $searchResp->getResources()[0] : null;
+                        }
+                        if ($found) {
                             \App\Models\SatuSehat\SatuSehatSpecimen::create([
                                 'ihs_number' => $found['id'],
                                 'local_id' => $idStr,
@@ -3285,8 +3315,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $idStr);
                     if ($found) {
                         \App\Models\SatuSehat\SatuSehatObservation::create([
                             'ihs_number' => $found['id'],
@@ -3764,8 +3794,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encIhs);
-                    $found = $this->findByIdentifier($searchResp, $identifier);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encIhs), $identifier);
                     if ($found) {
                         \App\Models\SatuSehat\SatuSehatComposition::create([
                             'ihs_number' => $found['id'],
@@ -3914,8 +3944,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $identifier);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $identifier);
                     if ($found) {
                         \App\Models\SatuSehat\SatuSehatComposition::create([
                             'ihs_number' => $found['id'],
@@ -4026,8 +4056,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $idStr);
                     if ($found) {
                         \App\Models\SatuSehat\SatuSehatClinicalImpression::create([
                             'ihs_number' => $found['id'],
@@ -4191,8 +4221,8 @@ class ErmFhirService
             } catch (\Exception $e) {
                 $itemLabel = "Alergi: " . ($allergyMap?->system_display ?? $allergyMap->system_code ?? $idStr);
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByPatient($encounter->patient_ihs);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByPatient($encounter->patient_ihs), $idStr);
                     if ($found) {
                         \App\Models\SatuSehat\SatuSehatAllergyIntolerance::create([
                             'ihs_number' => $found['id'],
@@ -4570,8 +4600,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByPatient($encounter->patient_ihs);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByPatient($encounter->patient_ihs), $idStr);
                     if ($found) {
                         \App\Models\SatuSehat\SatuSehatImmunization::create([
                             'ihs_number' => $found['id'],
@@ -4746,8 +4776,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchBySubject($encounter->patient_ihs);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchBySubject($encounter->patient_ihs), $idStr);
                     if ($found) {
                         $isVaccine = str_starts_with($namaObat ?? '', 'Vaksin');
                         SatuSehatMedicationStatement::create([
@@ -4890,8 +4920,8 @@ class ErmFhirService
             } catch (\Exception $e) {
                 $itemLabel = "CarePlan: " . str_replace('|', ' ', $idStr);
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByEncounter($encounter->ihs_number);
-                    $found = $this->findByIdentifier($searchResp, $idStr);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $idStr);
                     if ($found) {
                         SatuSehatCarePlan::create([
                             'ihs_number' => $found['id'],
@@ -5071,8 +5101,8 @@ class ErmFhirService
                 $sent++;
             } catch (\Exception $e) {
                 if ($this->isDuplicate($e)) {
-                    $searchResp = $service->searchByPatient($encounter->patient_ihs);
-                    $found = $this->findByIdentifier($searchResp, $noResep);
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByPatient($encounter->patient_ihs), $noResep);
                     if ($found) {
                         SatuSehatQuestionnaireResponse::create([
                             'ihs_number' => $found['id'],
@@ -5600,8 +5630,8 @@ class ErmFhirService
                             $this->throttle();
                         } catch (\Exception $e) {
                             if ($this->isDuplicate($e)) {
-                                $searchResp = $obsService->searchByEncounter($encounter->ihs_number);
-                                $found = $this->findByIdentifier($searchResp, $loinc['code']);
+                                $found = $this->findDuplicateResource($obsService, $e)
+                                    ?? $this->findByIdentifier($obsService->searchByEncounter($encounter->ihs_number), $loinc['code']);
 
                                 if ($found) {
                                     \App\Models\SatuSehat\SatuSehatObservation::create([
@@ -6015,8 +6045,8 @@ class ErmFhirService
             return ['success' => true, 'message' => 'Medication Composition berhasil dikirim (' . count($groupedEntries) . ' entries).', 'count' => 1, 'items' => [['id' => $localId, 'status' => 'ok', 'sent_at' => $sentAt]]];
         } catch (\Exception $e) {
             if ($this->isDuplicate($e)) {
-                $searchResp = $service->searchByEncounter($encIhs);
-                $found = $this->findByIdentifier($searchResp, $localId);
+                $found = $this->findDuplicateResource($service, $e)
+                    ?? $this->findByIdentifier($service->searchByEncounter($encIhs), $localId);
                 if ($found) {
                     SatuSehatComposition::create(array_merge($baseRecord, [
                         'ihs_number' => $found['id'],
@@ -6325,6 +6355,27 @@ class ErmFhirService
                 $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'ok', 'message' => '', 'sent_at' => $sentAt];
                 $sent++;
             } catch (\Exception $e) {
+                if ($this->isDuplicate($e)) {
+                    $found = $this->findDuplicateResource($service, $e)
+                        ?? $this->findByIdentifier($service->searchByEncounter($encounter->ihs_number), $idStr);
+                    if ($found) {
+                        SatuSehatDocumentReference::create([
+                            'ihs_number' => $found['id'],
+                            'local_id' => $noResep,
+                            'doc_type' => SatuSehatDocumentReference::TYPE_PRESCRIPTION,
+                            'patient_ihs' => $encounter->patient_ihs,
+                            'encounter_ihs' => $encounter->ihs_number,
+                            'author_ihs' => $encounter->practitioner_ihs,
+                            'status' => 'current',
+                            'doc_status' => 'final',
+                            'raw_response' => $found,
+                            'synced_at' => now(),
+                        ]);
+                        $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'ok', 'message' => 'Sudah ada di Satu Sehat (duplikat disinkronkan).', 'sent_at' => $sentAt];
+                        $sent++;
+                        continue;
+                    }
+                }
                 $this->logBundleItem(bundle: $bundle, type: 'DocumentReference', localId: $idStr, status: 'failed', error: $e->getMessage());
                 $errors[] = "[ERR] [{$noResep}]: " . $e->getMessage();
                 $items[] = ['id' => $idStr, 'label' => "Doc.Ref: {$noResep}", 'status' => 'fail', 'message' => $e->getMessage(), 'sent_at' => $sentAt];

@@ -136,7 +136,7 @@ class AiService
             $payload['format'] = 'json';
         }
 
-        $response = Http::timeout(120)->post("{$url}/api/chat", $payload);
+        $response = Http::connectTimeout(10)->timeout(120)->post("{$url}/api/chat", $payload);
 
         if (! $response->successful()) {
             $httpStatus = $response->status();
