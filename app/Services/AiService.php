@@ -22,11 +22,11 @@ class AiService
 
         try {
             $result = match ($provider) {
-                'claude'  => $this->sendWithClaude($systemPrompt, $userPrompt),
-                'openai'  => $this->sendWithOpenAI($systemPrompt, $userPrompt, $responseFormat),
-                'gemini'  => $this->sendWithGemini($systemPrompt, $userPrompt, $responseFormat),
-                'grok'    => $this->sendWithGrok($systemPrompt, $userPrompt, $responseFormat),
-                default   => $this->sendWithOllama($systemPrompt, $userPrompt, $responseFormat),
+                'claude' => $this->sendWithClaude($systemPrompt, $userPrompt),
+                'openai' => $this->sendWithOpenAI($systemPrompt, $userPrompt, $responseFormat),
+                'gemini' => $this->sendWithGemini($systemPrompt, $userPrompt, $responseFormat),
+                'grok' => $this->sendWithGrok($systemPrompt, $userPrompt, $responseFormat),
+                default => $this->sendWithOllama($systemPrompt, $userPrompt, $responseFormat),
             };
         } catch (\Exception $e) {
             $status = 'error';
@@ -36,19 +36,19 @@ class AiService
         $durationMs = (int) round((microtime(true) - $startTime) * 1000);
 
         $modelDetail = match ($provider) {
-            'claude'  => ConfigurationHelper::get('ai.claude_model', 'claude-sonnet-4-6'),
-            'openai'  => ConfigurationHelper::get('ai.openai_model', 'gpt-4o'),
-            'gemini'  => ConfigurationHelper::get('ai.gemini_model', 'gemini-2.5-flash'),
-            'grok'    => ConfigurationHelper::get('ai.grok_model', 'grok-2-latest'),
-            default   => ConfigurationHelper::get('ai.ollama_model', 'llama3'),
+            'claude' => ConfigurationHelper::get('ai.claude_model', 'claude-sonnet-4-6'),
+            'openai' => ConfigurationHelper::get('ai.openai_model', 'gpt-4o'),
+            'gemini' => ConfigurationHelper::get('ai.gemini_model', 'gemini-2.5-flash'),
+            'grok' => ConfigurationHelper::get('ai.grok_model', 'grok-2-latest'),
+            default => ConfigurationHelper::get('ai.ollama_model', 'llama3'),
         };
 
         $baseUrlDetail = match ($provider) {
-            'claude'  => ConfigurationHelper::get('ai.claude_url', 'https://api.anthropic.com'),
-            'openai'  => ConfigurationHelper::get('ai.openai_url', 'https://api.openai.com'),
-            'gemini'  => ConfigurationHelper::get('ai.gemini_url', 'https://generativelanguage.googleapis.com'),
-            'grok'    => ConfigurationHelper::get('ai.grok_url', 'https://api.x.ai'),
-            default   => ConfigurationHelper::get('ai.ollama_url', 'http://localhost:11434'),
+            'claude' => ConfigurationHelper::get('ai.claude_url', 'https://api.anthropic.com'),
+            'openai' => ConfigurationHelper::get('ai.openai_url', 'https://api.openai.com'),
+            'gemini' => ConfigurationHelper::get('ai.gemini_url', 'https://generativelanguage.googleapis.com'),
+            'grok' => ConfigurationHelper::get('ai.grok_url', 'https://api.x.ai'),
+            default => ConfigurationHelper::get('ai.ollama_url', 'http://localhost:11434'),
         };
 
         try {
@@ -82,11 +82,11 @@ class AiService
         $provider = ConfigurationHelper::get('ai.provider', 'ollama');
 
         return match ($provider) {
-            'claude'  => $this->testClaude(),
-            'openai'  => $this->testOpenAI(),
-            'gemini'  => $this->testGemini(),
-            'grok'    => $this->testGrok(),
-            default   => $this->testOllama(),
+            'claude' => $this->testClaude(),
+            'openai' => $this->testOpenAI(),
+            'gemini' => $this->testGemini(),
+            'grok' => $this->testGrok(),
+            default => $this->testOllama(),
         };
     }
 
@@ -120,15 +120,15 @@ class AiService
 
     private function sendWithOllama(string $systemPrompt, string $userPrompt, string $responseFormat = 'text'): string
     {
-        $url   = ConfigurationHelper::get('ai.ollama_url', 'http://localhost:11434');
+        $url = ConfigurationHelper::get('ai.ollama_url', 'http://localhost:11434');
         $model = ConfigurationHelper::get('ai.ollama_model', 'llama3');
 
         $payload = [
-            'model'  => $model,
+            'model' => $model,
             'stream' => false,
             'messages' => [
                 ['role' => 'system', 'content' => $systemPrompt],
-                ['role' => 'user',   'content' => $userPrompt],
+                ['role' => 'user', 'content' => $userPrompt],
             ],
         ];
 
@@ -136,9 +136,9 @@ class AiService
             $payload['format'] = 'json';
         }
 
-        $response = Http::connectTimeout(10)->timeout(120)->post("{$url}/api/chat", $payload);
+        $response = Http::connectTimeout(10)->timeout(0)->post("{$url}/api/chat", $payload);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             $httpStatus = $response->status();
             throw new \RuntimeException("[HTTP:{$httpStatus}] Ollama: " . substr($response->body(), 0, 200));
         }
@@ -148,8 +148,8 @@ class AiService
 
     private function sendWithClaude(string $systemPrompt, string $userPrompt): string
     {
-        $url   = ConfigurationHelper::get('ai.claude_url', 'https://api.anthropic.com');
-        $key   = ConfigurationHelper::get('ai.claude_key', '');
+        $url = ConfigurationHelper::get('ai.claude_url', 'https://api.anthropic.com');
+        $key = ConfigurationHelper::get('ai.claude_key', '');
         $model = ConfigurationHelper::get('ai.claude_model', 'claude-sonnet-4-6');
 
         if (empty($key)) {
@@ -158,19 +158,19 @@ class AiService
 
         $response = Http::timeout(60)
             ->withHeaders([
-                'x-api-key'         => $key,
+                'x-api-key' => $key,
                 'anthropic-version' => '2023-06-01',
             ])
             ->post(rtrim($url, '/') . '/v1/messages', [
-                'model'      => $model,
+                'model' => $model,
                 'max_tokens' => 2048,
-                'system'     => $systemPrompt,
-                'messages'   => [
+                'system' => $systemPrompt,
+                'messages' => [
                     ['role' => 'user', 'content' => $userPrompt],
                 ],
             ]);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             $httpStatus = $response->status();
             throw new \RuntimeException("[HTTP:{$httpStatus}] Claude: " . substr($response->body(), 0, 200));
         }
@@ -180,8 +180,8 @@ class AiService
 
     private function sendWithOpenAI(string $systemPrompt, string $userPrompt, string $responseFormat = 'text'): string
     {
-        $url   = ConfigurationHelper::get('ai.openai_url', 'https://api.openai.com');
-        $key   = ConfigurationHelper::get('ai.openai_key', '');
+        $url = ConfigurationHelper::get('ai.openai_url', 'https://api.openai.com');
+        $key = ConfigurationHelper::get('ai.openai_key', '');
         $model = ConfigurationHelper::get('ai.openai_model', 'gpt-4o');
 
         if (empty($key)) {
@@ -189,10 +189,10 @@ class AiService
         }
 
         $payload = [
-            'model'    => $model,
+            'model' => $model,
             'messages' => [
                 ['role' => 'system', 'content' => $systemPrompt],
-                ['role' => 'user',   'content' => $userPrompt],
+                ['role' => 'user', 'content' => $userPrompt],
             ],
         ];
 
@@ -204,7 +204,7 @@ class AiService
             ->withToken($key)
             ->post(rtrim($url, '/') . '/v1/chat/completions', $payload);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             $httpStatus = $response->status();
             throw new \RuntimeException("[HTTP:{$httpStatus}] OpenAI: " . substr($response->body(), 0, 200));
         }
@@ -214,8 +214,8 @@ class AiService
 
     private function sendWithGemini(string $systemPrompt, string $userPrompt, string $responseFormat = 'text'): string
     {
-        $url   = ConfigurationHelper::get('ai.gemini_url', 'https://generativelanguage.googleapis.com');
-        $key   = ConfigurationHelper::get('ai.gemini_key', '');
+        $url = ConfigurationHelper::get('ai.gemini_url', 'https://generativelanguage.googleapis.com');
+        $key = ConfigurationHelper::get('ai.gemini_key', '');
         $model = ConfigurationHelper::get('ai.gemini_model', 'gemini-2.5-flash');
 
         if (empty($key)) {
@@ -242,7 +242,7 @@ class AiService
             ])
             ->post(rtrim($url, '/') . "/v1beta/models/{$model}:generateContent", $payload);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             $httpStatus = $response->status();
             throw new \RuntimeException("[HTTP:{$httpStatus}] Gemini: " . substr($response->body(), 0, 200));
         }
@@ -252,8 +252,8 @@ class AiService
 
     private function sendWithGrok(string $systemPrompt, string $userPrompt, string $responseFormat = 'text'): string
     {
-        $url   = ConfigurationHelper::get('ai.grok_url', 'https://api.x.ai');
-        $key   = ConfigurationHelper::get('ai.grok_key', '');
+        $url = ConfigurationHelper::get('ai.grok_url', 'https://api.x.ai');
+        $key = ConfigurationHelper::get('ai.grok_key', '');
         $model = ConfigurationHelper::get('ai.grok_model', 'grok-2-latest');
 
         if (empty($key)) {
@@ -261,10 +261,10 @@ class AiService
         }
 
         $payload = [
-            'model'    => $model,
+            'model' => $model,
             'messages' => [
                 ['role' => 'system', 'content' => $systemPrompt],
-                ['role' => 'user',   'content' => $userPrompt],
+                ['role' => 'user', 'content' => $userPrompt],
             ],
         ];
 
@@ -276,7 +276,7 @@ class AiService
             ->withToken($key)
             ->post(rtrim($url, '/') . '/v1/chat/completions', $payload);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             $httpStatus = $response->status();
             throw new \RuntimeException("[HTTP:{$httpStatus}] Grok: " . substr($response->body(), 0, 200));
         }
@@ -290,7 +290,7 @@ class AiService
 
     private function testOllama(): array
     {
-        $url   = ConfigurationHelper::get('ai.ollama_url', 'http://localhost:11434');
+        $url = ConfigurationHelper::get('ai.ollama_url', 'http://localhost:11434');
         $model = ConfigurationHelper::get('ai.ollama_model', 'llama3');
 
         try {
@@ -298,14 +298,14 @@ class AiService
 
             if ($response->successful()) {
                 $models = collect($response->json('models', []))->pluck('name')->toArray();
-                $found  = in_array($model, $models);
+                $found = in_array($model, $models);
 
                 return [
                     'success' => true,
                     'message' => $found
                         ? "Terhubung. Model '{$model}' tersedia."
                         : "Terhubung, tapi model '{$model}' tidak ditemukan. Model tersedia: " . implode(', ', $models),
-                    'models'  => $models,
+                    'models' => $models,
                 ];
             }
 
@@ -317,8 +317,8 @@ class AiService
 
     private function testClaude(): array
     {
-        $url   = ConfigurationHelper::get('ai.claude_url', 'https://api.anthropic.com');
-        $key   = ConfigurationHelper::get('ai.claude_key', '');
+        $url = ConfigurationHelper::get('ai.claude_url', 'https://api.anthropic.com');
+        $key = ConfigurationHelper::get('ai.claude_key', '');
         $model = ConfigurationHelper::get('ai.claude_model', 'claude-sonnet-4-6');
 
         if (empty($key)) {
@@ -328,13 +328,13 @@ class AiService
         try {
             $response = Http::timeout(15)
                 ->withHeaders([
-                    'x-api-key'         => $key,
+                    'x-api-key' => $key,
                     'anthropic-version' => '2023-06-01',
                 ])
                 ->post(rtrim($url, '/') . '/v1/messages', [
-                    'model'      => $model,
+                    'model' => $model,
                     'max_tokens' => 10,
-                    'messages'   => [['role' => 'user', 'content' => 'ping']],
+                    'messages' => [['role' => 'user', 'content' => 'ping']],
                 ]);
 
             if ($response->successful()) {
@@ -350,8 +350,8 @@ class AiService
 
     private function testOpenAI(): array
     {
-        $url   = ConfigurationHelper::get('ai.openai_url', 'https://api.openai.com');
-        $key   = ConfigurationHelper::get('ai.openai_key', '');
+        $url = ConfigurationHelper::get('ai.openai_url', 'https://api.openai.com');
+        $key = ConfigurationHelper::get('ai.openai_key', '');
         $model = ConfigurationHelper::get('ai.openai_model', 'gpt-4o');
 
         if (empty($key)) {
@@ -376,8 +376,8 @@ class AiService
 
     private function testGemini(): array
     {
-        $url   = ConfigurationHelper::get('ai.gemini_url', 'https://generativelanguage.googleapis.com');
-        $key   = ConfigurationHelper::get('ai.gemini_key', '');
+        $url = ConfigurationHelper::get('ai.gemini_url', 'https://generativelanguage.googleapis.com');
+        $key = ConfigurationHelper::get('ai.gemini_key', '');
         $model = ConfigurationHelper::get('ai.gemini_model', 'gemini-2.5-flash');
 
         if (empty($key)) {
@@ -412,8 +412,8 @@ class AiService
 
     private function testGrok(): array
     {
-        $url   = ConfigurationHelper::get('ai.grok_url', 'https://api.x.ai');
-        $key   = ConfigurationHelper::get('ai.grok_key', '');
+        $url = ConfigurationHelper::get('ai.grok_url', 'https://api.x.ai');
+        $key = ConfigurationHelper::get('ai.grok_key', '');
         $model = ConfigurationHelper::get('ai.grok_model', 'grok-2-latest');
 
         if (empty($key)) {
