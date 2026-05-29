@@ -14,8 +14,9 @@ class SyncBatchSatuSehatPractitionersJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 1;
+    public int $tries = 3;
     public int $timeout = 600;
+    public int $backoff = 60;
 
     public function __construct(
         public array $employeeIds = [],
@@ -27,33 +28,42 @@ class SyncBatchSatuSehatPractitionersJob implements ShouldQueue
 
     public function handle(): void
     {
-        try {
-            $employees = $this->getUnsyncedPractitioners();
+        Log::info("SyncBatchSatuSehatPractitioners: Starting batch sync", [
+            'sync_all'     => $this->syncAll,
+            'employee_ids' => count($this->employeeIds),
+            'limit'        => $this->limit,
+        ]);
 
-            $count = 0;
-            foreach ($employees as $employee) {
-                SyncSatuSehatPractitionerJob::dispatch($employee->no_ktp, $employee->nik)
-                    ->delay(now()->addSeconds($count * 2));
-                $count++;
-            }
+        $dispatched = 0;
 
-            Log::info("SyncBatchSatuSehatPractitioners: Dispatched {$count} sync jobs");
+        $this->buildQuery()->cursor()->each(function ($employee) use (&$dispatched) {
+            SyncSatuSehatPractitionerJob::dispatch($employee->no_ktp, $employee->nik)
+                ->delay(now()->addSeconds($dispatched * 2));
+            $dispatched++;
+        });
 
-        } catch (\Exception $e) {
-            Log::error("SyncBatchSatuSehatPractitioners: Error", [
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
+        Log::info("SyncBatchSatuSehatPractitioners: Dispatched jobs", ['count' => $dispatched]);
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        Log::error("SyncBatchSatuSehatPractitioners: Job failed", [
+            'error'        => $e->getMessage(),
+            'sync_all'     => $this->syncAll,
+            'employee_ids' => count($this->employeeIds),
+            'attempt'      => $this->attempts(),
+        ]);
     }
 
     /**
-     * Memeriksa dan mengambil data pegawai yang belum tersinkronisasi ke SatuSehat.
-     * Karena menggunakan koneksi database yang berbeda, kita ambil list NIK terlebih dahulu.
+     * Bangun query pegawai SIMRS yang belum tersinkronisasi ke SatuSehat.
+     * NIK (KTP) yang sudah ada di lokal diambil dalam chunk kecil (500) untuk
+     * menghindari SQL clause NOT IN yang terlalu besar dan memory exhaustion.
      */
-    protected function getUnsyncedPractitioners()
+    protected function buildQuery()
     {
         $query = Pegawai::query()
+            ->select(['no_ktp', 'nik'])
             ->whereNotNull('no_ktp')
             ->where('stts_aktif', 'AKTIF')
             ->whereRaw('no_ktp REGEXP "^[0-9]{16}$"')
@@ -62,15 +72,19 @@ class SyncBatchSatuSehatPractitionersJob implements ShouldQueue
         if (!$this->syncAll && !empty($this->employeeIds)) {
             $query->whereIn('nik', $this->employeeIds);
         } else {
-            // Ambil data NIK (KTP) practitioner yang sudah ada di database lokal/SatuSehat
-            $syncedNiks = \App\Models\SatuSehat\SatuSehatPractitioner::select('nik')
+            $syncedNiks = [];
+            \App\Models\SatuSehat\SatuSehatPractitioner::select('nik')
                 ->whereNotNull('nik')
-                ->pluck('nik')
-                ->toArray();
+                ->chunk(500, function ($rows) use (&$syncedNiks) {
+                    foreach ($rows as $row) {
+                        $syncedNiks[] = $row->nik;
+                    }
+                });
 
-            // Kecualikan practitioner yang sudah tersinkronisasi
             if (!empty($syncedNiks)) {
-                $query->whereNotIn('no_ktp', $syncedNiks);
+                foreach (array_chunk($syncedNiks, 1000) as $chunk) {
+                    $query->whereNotIn('no_ktp', $chunk);
+                }
             }
         }
 
