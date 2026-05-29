@@ -1,7 +1,6 @@
     {{-- Modal AI Smart Mapping Evaluator --}}
-    <x-organisms.modal wire:model="showAiModal" heading="Review Prediksi AI"
-        description="Pilih kandidat SNOMED CT terbaik per baris. Abaikan baris yang salah sasaran." maxWidth="6xl"
-        title="">
+    <x-organisms.modal wire:model="showAiModal" title="Review Prediksi AI"
+        description="Pilih kandidat SNOMED CT terbaik per baris. Abaikan baris yang salah sasaran." maxWidth="6xl">
         <div class="space-y-6">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
