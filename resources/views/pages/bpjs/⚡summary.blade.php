@@ -138,6 +138,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
         subtitle="Analitik data rekam medis elektronik dan pemantauan status integrasi UUID FHIR BPJS." />
 
     {{-- eRM Terkirim --}}
+    @php $canErm = auth()->user()?->hasPermission('bpjs.erm'); @endphp
     <section>
         <div class="flex items-center gap-2 mb-4">
             <h2 class="text-lg font-bold text-zinc-800 dark:text-primary-dark-100 flex items-center gap-2">
@@ -148,28 +149,26 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
         </div>
 
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {{-- Total --}}
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.erm') }}" title="Total Terkirim"
-                value="{{ number_format($ermTotal) }}" color="zinc"
+            <x-organisms.stat-card @if ($canErm) wire:navigate href="{{ route('bpjs.erm') }}" @endif
+                title="Total Terkirim" value="{{ number_format($ermTotal) }}" color="zinc"
                 subtitle="{{ number_format($ermBulanIni) }} bulan ini" />
-
-            {{-- Per encounter_type --}}
             @foreach ([
-        'AMB' => ['label' => 'Rawat Jalan', 'color' => 'sky'],
-        'EMER' => ['label' => 'IGD', 'color' => 'red'],
-        'IMP' => ['label' => 'Rawat Inap', 'color' => 'violet'],
-    ] as $type => $meta)
-                @php
-                    $sub = $ermTotal > 0 ? round((($ermCounts[$type] ?? 0) / $ermTotal) * 100) . '% dari total' : '';
-                @endphp
-                <x-organisms.stat-card wire:navigate href="{{ route('bpjs.erm') }}" title="{{ $meta['label'] }}"
-                    value="{{ number_format($ermCounts[$type] ?? 0) }}" color="{{ $meta['color'] }}"
-                    subtitle="{{ $sub }}" />
+                'AMB'  => ['label' => 'Rawat Jalan', 'color' => 'sky'],
+                'EMER' => ['label' => 'IGD',          'color' => 'red'],
+                'IMP'  => ['label' => 'Rawat Inap',  'color' => 'violet'],
+            ] as $type => $meta)
+                @php $sub = $ermTotal > 0 ? round((($ermCounts[$type] ?? 0) / $ermTotal) * 100) . '% dari total' : ''; @endphp
+                <x-organisms.stat-card @if ($canErm) wire:navigate href="{{ route('bpjs.erm') }}" @endif
+                    title="{{ $meta['label'] }}" value="{{ number_format($ermCounts[$type] ?? 0) }}"
+                    color="{{ $meta['color'] }}" subtitle="{{ $sub }}" />
             @endforeach
         </div>
     </section>
 
     {{-- vClaim SEP --}}
+    @if (auth()->user()?->hasPermission('bpjs.vclaim'))
+    {{-- vClaim SEP --}}
+    @php $canVclaim = auth()->user()?->hasPermission('bpjs.vclaim'); @endphp
     <section>
         <div class="flex items-center gap-2 mb-4">
             <h2 class="text-lg font-bold text-zinc-800 dark:text-primary-dark-100 flex items-center gap-2">
@@ -177,36 +176,35 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
                 vClaim SEP
             </h2>
             <div class="h-px flex-1 bg-gradient-to-r from-zinc-200 to-transparent dark:from-primary-dark-800 ml-4"></div>
-            <x-atoms.button wire:navigate href="{{ route('bpjs.vclaim') }}" variant="ghost" size="sm"
-                icon="arrow-right">Lihat Detail</x-atoms.button>
+            @if ($canVclaim)
+                <x-atoms.button wire:navigate href="{{ route('bpjs.vclaim') }}" variant="ghost" size="sm" icon="arrow-right">Lihat Detail</x-atoms.button>
+            @endif
         </div>
 
         <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim') }}" title="Total SEP"
-                :value="number_format($sep['sepTotal'])" color="zinc"
+            <x-organisms.stat-card @if ($canVclaim) wire:navigate href="{{ route('bpjs.vclaim') }}" @endif
+                title="Total SEP" :value="number_format($sep['sepTotal'])" color="zinc"
                 :subtitle="number_format($sep['sepBulanIni']) . ' bulan ini'" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'ralan']) }}"
+            <x-organisms.stat-card @if ($canVclaim) wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'ralan']) }}" @endif
                 title="Rawat Jalan" :value="number_format($sep['sepRalan'])" color="blue"
                 :subtitle="$sep['sepTotal'] > 0 ? round($sep['sepRalan'] / $sep['sepTotal'] * 100) . '% dari total' : ''" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'ranap']) }}"
+            <x-organisms.stat-card @if ($canVclaim) wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'ranap']) }}" @endif
                 title="Rawat Inap" :value="number_format($sep['sepRanap'])" color="emerald"
                 :subtitle="$sep['sepTotal'] > 0 ? round($sep['sepRanap'] / $sep['sepTotal'] * 100) . '% dari total' : ''" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'igd']) }}"
+            <x-organisms.stat-card @if ($canVclaim) wire:navigate href="{{ route('bpjs.vclaim', ['filterJenis' => 'igd']) }}" @endif
                 title="IGD" :value="number_format($sep['sepIgd'])" color="red"
                 :subtitle="$sep['sepTotal'] > 0 ? round($sep['sepIgd'] / $sep['sepTotal'] * 100) . '% dari total' : ''" />
             @php
                 $sepHariIni = 0;
-                try {
-                    $sepHariIni = \App\Models\Simrs\BridgingSep::whereDate('tglsep', today())->count();
-                } catch (\Throwable) {}
+                try { $sepHariIni = \App\Models\Simrs\BridgingSep::whereDate('tglsep', today())->count(); } catch (\Throwable) {}
             @endphp
-            <x-organisms.stat-card wire:navigate
-                href="{{ route('bpjs.vclaim', ['filterMode' => 'tanggal', 'filterTanggal' => now()->format('Y-m-d')]) }}"
+            <x-organisms.stat-card @if ($canVclaim) wire:navigate href="{{ route('bpjs.vclaim', ['filterMode' => 'tanggal', 'filterTanggal' => now()->format('Y-m-d')]) }}" @endif
                 title="SEP Hari Ini" :value="number_format($sepHariIni)" color="sky" />
         </div>
     </section>
 
     {{-- Antrean Online --}}
+    @php $canAntrean = auth()->user()?->hasPermission('bpjs.antrean_online'); @endphp
     <section>
         <div class="flex items-center gap-2 mb-4">
             <h2 class="text-lg font-bold text-zinc-800 dark:text-primary-dark-100 flex items-center gap-2">
@@ -214,30 +212,29 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
                 Antrean Online
             </h2>
             <div class="h-px flex-1 bg-gradient-to-r from-zinc-200 to-transparent dark:from-primary-dark-800 ml-4"></div>
-            <x-atoms.button wire:navigate href="{{ route('bpjs.antrean-online') }}" variant="ghost" size="sm"
-                icon="arrow-right">Lihat Detail</x-atoms.button>
+            @if ($canAntrean)
+                <x-atoms.button wire:navigate href="{{ route('bpjs.antrean-online') }}" variant="ghost" size="sm" icon="arrow-right">Lihat Detail</x-atoms.button>
+            @endif
         </div>
 
         <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Total Booking"
-                :value="number_format($antrean['antreanTotal'])" color="zinc" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Hari Ini"
-                :value="number_format($antrean['antreanHariIni'])" color="sky" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Bulan Ini"
-                :value="number_format($antrean['antreanBulanIni'])" color="violet" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Selesai"
+            <x-organisms.stat-card @if ($canAntrean) wire:navigate href="{{ route('bpjs.antrean-online') }}" @endif title="Total Booking" :value="number_format($antrean['antreanTotal'])" color="zinc" />
+            <x-organisms.stat-card @if ($canAntrean) wire:navigate href="{{ route('bpjs.antrean-online') }}" @endif title="Hari Ini" :value="number_format($antrean['antreanHariIni'])" color="sky" />
+            <x-organisms.stat-card @if ($canAntrean) wire:navigate href="{{ route('bpjs.antrean-online') }}" @endif title="Bulan Ini" :value="number_format($antrean['antreanBulanIni'])" color="violet" />
+            <x-organisms.stat-card @if ($canAntrean) wire:navigate href="{{ route('bpjs.antrean-online') }}" @endif title="Selesai"
                 :value="number_format($antrean['antreanSelesai'])" color="emerald"
                 :subtitle="$antrean['antreanTotal'] > 0 ? round($antrean['antreanSelesai'] / $antrean['antreanTotal'] * 100) . '% dari total' : ''" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Batal"
+            <x-organisms.stat-card @if ($canAntrean) wire:navigate href="{{ route('bpjs.antrean-online') }}" @endif title="Batal"
                 :value="number_format($antrean['antreanBatal'])" color="red"
                 :subtitle="$antrean['antreanTotal'] > 0 ? round($antrean['antreanBatal'] / $antrean['antreanTotal'] * 100) . '% dari total' : ''" />
-            <x-organisms.stat-card wire:navigate href="{{ route('bpjs.antrean-online') }}" title="Terdaftar SIMRS"
+            <x-organisms.stat-card @if ($canAntrean) wire:navigate href="{{ route('bpjs.antrean-online') }}" @endif title="Terdaftar SIMRS"
                 :value="number_format($antrean['antreanTerdaftar'])" color="amber"
                 :subtitle="$antrean['antreanTotal'] > 0 ? round($antrean['antreanTerdaftar'] / $antrean['antreanTotal'] * 100) . '% dari total' : ''" />
         </div>
     </section>
 
     {{-- FHIR Resource --}}
+    @php $canFhir = auth()->user()?->hasPermission('bpjs.fhir_resource'); @endphp
     @php
         $groups = [
             ['key' => 'patient', 'title' => 'Patient', 'color' => 'blue', 'icon' => 'users', 'data' => $patient],
@@ -354,12 +351,12 @@ new #[Layout('layouts::app')] #[Title('Ringkasan BPJS Kesehatan')] class extends
                                 <div
                                     class="w-1.5 h-1.5 rounded-full {{ $item['mapped'] > 0 ? 'bg-sky-400 dark:bg-sky-500' : 'bg-zinc-200 dark:bg-primary-dark-700' }} transition-colors">
                                 </div>
-                                <span
-                                    class="text-xs font-medium transition-colors text-zinc-600 dark:text-primary-dark-400 group-hover/sub:text-zinc-900 dark:group-hover/sub:text-primary-dark-200">
-                                    <a href="{{ route($item['route']) }}" wire:navigate
-                                        class="hover:underline hover:text-sky-600 dark:hover:text-sky-400">
+                                <span class="text-xs font-medium transition-colors text-zinc-600 dark:text-primary-dark-400 group-hover/sub:text-zinc-900 dark:group-hover/sub:text-primary-dark-200">
+                                    @if ($canFhir)
+                                        <a href="{{ route($item['route']) }}" wire:navigate class="hover:underline hover:text-sky-600 dark:hover:text-sky-400">{{ $item['label'] }}</a>
+                                    @else
                                         {{ $item['label'] }}
-                                    </a>
+                                    @endif
                                 </span>
                             </div>
                             <div class="flex items-center gap-1.5">

@@ -319,16 +319,16 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
 
     @php
         $groups = [
-            ['key' => 'patient',           'title' => 'Patient',              'color' => 'cyan',    'icon' => 'users',             'data' => $patient,           'syncable' => true],
-            ['key' => 'organization',      'title' => 'Organization',         'color' => 'indigo',  'icon' => 'building-library',  'data' => $organization,      'syncable' => true],
-            ['key' => 'source',            'title' => 'Source (ICD)',         'color' => 'zinc',    'icon' => 'document-text',     'data' => $source,            'syncable' => true],
-            ['key' => 'clinical',          'title' => 'Clinical',             'color' => 'violet',  'icon' => 'clipboard-document-check', 'data' => $clinical,          'syncable' => true],
-            ['key' => 'practitioner',      'title' => 'Practitioner',         'color' => 'sky',     'icon' => 'user-group',        'data' => $practitioner,      'syncable' => true],
-            ['key' => 'observation',       'title' => 'Observation',          'color' => 'amber',   'icon' => 'beaker',            'data' => $observation,       'syncable' => true],
-            ['key' => 'medication',        'title' => 'Medication',           'color' => 'emerald', 'icon' => 'archive-box',       'data' => $medication,        'syncable' => true],
-            ['key' => 'device',            'title' => 'Device',               'color' => 'rose',    'icon' => 'cpu-chip',          'data' => $device,            'syncable' => true],
-            ['key' => 'allergy',           'title' => 'Allergy Intolerance',  'color' => 'orange',  'icon' => 'shield-exclamation','data' => $allergy,           'syncable' => true],
-            ['key' => 'healthcare_service','title' => 'Healthcare Service',   'color' => 'teal',    'icon' => 'building-office-2', 'data' => $healthcare_service,'syncable' => true],
+            ['key' => 'patient',           'title' => 'Patient',              'color' => 'cyan',    'icon' => 'users',                    'data' => $patient,           'syncable' => true, 'permission' => 'local.patient'],
+            ['key' => 'organization',      'title' => 'Organization',         'color' => 'indigo',  'icon' => 'building-library',          'data' => $organization,      'syncable' => true, 'permission' => 'local.organization'],
+            ['key' => 'source',            'title' => 'Source (ICD)',         'color' => 'zinc',    'icon' => 'document-text',             'data' => $source,            'syncable' => true, 'permission' => 'local.source'],
+            ['key' => 'clinical',          'title' => 'Clinical',             'color' => 'violet',  'icon' => 'clipboard-document-check',  'data' => $clinical,          'syncable' => true, 'permission' => 'local.clinical'],
+            ['key' => 'practitioner',      'title' => 'Practitioner',         'color' => 'sky',     'icon' => 'user-group',                'data' => $practitioner,      'syncable' => true, 'permission' => 'local.practitioner'],
+            ['key' => 'observation',       'title' => 'Observation',          'color' => 'amber',   'icon' => 'beaker',                    'data' => $observation,       'syncable' => true, 'permission' => 'local.observation'],
+            ['key' => 'medication',        'title' => 'Medication',           'color' => 'emerald', 'icon' => 'archive-box',               'data' => $medication,        'syncable' => true, 'permission' => 'local.medication'],
+            ['key' => 'device',            'title' => 'Device',               'color' => 'rose',    'icon' => 'cpu-chip',                  'data' => $device,            'syncable' => true, 'permission' => 'local.device'],
+            ['key' => 'allergy',           'title' => 'Allergy Intolerance',  'color' => 'orange',  'icon' => 'shield-exclamation',        'data' => $allergy,           'syncable' => true, 'permission' => 'local.allergy'],
+            ['key' => 'healthcare_service','title' => 'Healthcare Service',   'color' => 'teal',    'icon' => 'building-office-2',         'data' => $healthcare_service,'syncable' => true, 'permission' => 'local.healthcare_service'],
         ];
 
         $colorMap = [
@@ -347,6 +347,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
 
     @foreach ($groups as $group)
         @php
+            $groupCanLink = auth()->user()?->hasPermission($group['permission']);
             $c           = $colorMap[$group['color']];
             $items       = $group['data'];
             $groupTotal  = collect($items)->sum('total');
@@ -398,7 +399,7 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
                         <span
                             class="text-xs font-medium tabular-nums {{ $c['text'] }} w-8 text-right">{{ $groupPct }}%</span>
                     </div>
-                    @if ($group['syncable'])
+                    @if ($group['syncable'] && auth()->user()?->isAdmin())
                         <x-atoms.button
                             wire:click="openSyncModal('{{ $group['key'] }}', '{{ $group['title'] }}')"
                             variant="ghost" size="sm" icon="arrow-path">
@@ -417,47 +418,47 @@ new #[Layout('layouts::app')] #[Title('Ringkasan Local Terminology')] class exte
                             $hasBpjsItem = isset($item['bpjs']);
                             $hasSsItem   = isset($item['satusehat']);
                         @endphp
-                        <a wire:navigate href="{{ route($item['route']) }}"
-                            class="group flex flex-col gap-3 p-4 bg-white dark:bg-primary-dark-800 border border-zinc-200/80 dark:border-primary-dark-700/60 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-150">
+                        @if ($groupCanLink)
+                            <a wire:navigate href="{{ route($item['route']) }}"
+                                class="group flex flex-col gap-3 p-4 bg-white dark:bg-primary-dark-800 border border-zinc-200/80 dark:border-primary-dark-700/60 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-150">
+                        @else
+                            <div class="flex flex-col gap-3 p-4 bg-white dark:bg-primary-dark-800 border border-zinc-200/80 dark:border-primary-dark-700/60 rounded-2xl shadow-sm">
+                        @endif
                             <div class="flex items-start justify-between gap-2">
-                                <span
-                                    class="text-sm font-semibold text-zinc-700 dark:text-primary-dark-200 leading-tight">{{ $item['label'] }}</span>
-                                <span
-                                    class="text-xs font-bold tabular-nums {{ $c['text'] }} shrink-0">{{ $pct }}%</span>
+                                <span class="text-sm font-semibold text-zinc-700 dark:text-primary-dark-200 leading-tight">{{ $item['label'] }}</span>
+                                <span class="text-xs font-bold tabular-nums {{ $c['text'] }} shrink-0">{{ $pct }}%</span>
                             </div>
                             <div class="h-1.5 rounded-full bg-zinc-100 dark:bg-primary-dark-700 overflow-hidden">
-                                <div class="h-full rounded-full {{ $c['bar'] }} transition-all duration-500"
-                                    style="width: {{ $pct }}%"></div>
+                                <div class="h-full rounded-full {{ $c['bar'] }} transition-all duration-500" style="width: {{ $pct }}%"></div>
                             </div>
-                            <div
-                                class="flex items-center justify-between text-xs text-zinc-400 dark:text-primary-dark-500">
+                            <div class="flex items-center justify-between text-xs text-zinc-400 dark:text-primary-dark-500">
                                 <span>
-                                    <span
-                                        class="font-semibold {{ $c['text'] }}">{{ number_format($item['mapped']) }}</span>
+                                    <span class="font-semibold {{ $c['text'] }}">{{ number_format($item['mapped']) }}</span>
                                     ter-mapping
                                 </span>
                                 <span>{{ number_format($item['total']) }} total</span>
                             </div>
                             @if ($hasBpjsItem || $hasSsItem)
-                                <div
-                                    class="flex items-center gap-3 pt-1 border-t border-zinc-100 dark:border-primary-dark-700/50 flex-wrap">
+                                <div class="flex items-center gap-3 pt-1 border-t border-zinc-100 dark:border-primary-dark-700/50 flex-wrap">
                                     @if ($hasBpjsItem)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs text-cyan-600 dark:text-cyan-400 font-medium">
+                                        <span class="inline-flex items-center gap-1 text-xs text-cyan-600 dark:text-cyan-400 font-medium">
                                             <flux:icon name="identification" class="w-3 h-3" />
                                             {{ number_format($item['bpjs']) }} BPJS UUID
                                         </span>
                                     @endif
                                     @if ($hasSsItem)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                                        <span class="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                                             <flux:icon name="check-badge" class="w-3 h-3" />
                                             {{ number_format($item['satusehat']) }} Satu Sehat
                                         </span>
                                     @endif
                                 </div>
                             @endif
-                        </a>
+                        @if ($groupCanLink)
+                            </a>
+                        @else
+                            </div>
+                        @endif
                     @endforeach
                 </div>
 

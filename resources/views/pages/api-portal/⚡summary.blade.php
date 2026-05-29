@@ -512,40 +512,21 @@ new #[Layout('layouts::app')] #[Title('Ringkasan API')] class extends Component 
             <div class="grid grid-cols-2 gap-3">
                 @php
                     $quickLinks = [
-                        [
-                            'href' => route('api-portal.management'),
-                            'title' => 'Manajemen API',
-                            'desc' => 'Kelola user, token, dan hak akses',
-                            'icon' => 'key',
-                            'color' => 'blue',
-                        ],
-                        [
-                            'href' => route('api-portal.logs'),
-                            'title' => 'Log API',
-                            'desc' => 'Detail traffic, breakdown per scope & user',
-                            'icon' => 'queue-list',
-                            'color' => 'zinc',
-                        ],
-                        [
-                            'href' => route('api-portal.documentation'),
-                            'title' => 'Dokumentasi',
-                            'desc' => 'Referensi endpoint dan autentikasi',
-                            'icon' => 'book-open',
-                            'color' => 'emerald',
-                        ],
-                        [
-                            'href' => route('api-portal.integration'),
-                            'title' => 'Integrasi',
-                            'desc' => 'Panduan integrasi TTE, BPJS, Satu Sehat',
-                            'icon' => 'code-bracket',
-                            'color' => 'violet',
-                        ],
+                        ['href' => route('api-portal.management'),    'title' => 'Manajemen API', 'desc' => 'Kelola user, token, dan hak akses',         'icon' => 'key',          'color' => 'blue',    'permission' => 'api_portal.management'],
+                        ['href' => route('api-portal.logs'),          'title' => 'Log API',       'desc' => 'Detail traffic, breakdown per scope & user', 'icon' => 'queue-list',   'color' => 'zinc',    'permission' => 'api_portal.logs'],
+                        ['href' => route('api-portal.documentation'), 'title' => 'Dokumentasi',   'desc' => 'Referensi endpoint dan autentikasi',         'icon' => 'book-open',    'color' => 'emerald', 'permission' => 'api_portal.documentation'],
+                        ['href' => route('api-portal.integration'),   'title' => 'Integrasi',     'desc' => 'Panduan integrasi TTE, BPJS, Satu Sehat',   'icon' => 'code-bracket', 'color' => 'violet',  'permission' => 'api_portal.integration'],
                     ];
                 @endphp
                 @foreach ($quickLinks as $link)
-                    <x-molecules.action-card href="{{ $link['href'] }}" wire:navigate title="{{ $link['title'] }}"
-                        description="{{ $link['desc'] }}" icon="{{ $link['icon'] }}"
-                        color="{{ $link['color'] }}" />
+                    @if (auth()->user()?->hasPermission($link['permission']))
+                        <x-molecules.action-card href="{{ $link['href'] }}" wire:navigate
+                            title="{{ $link['title'] }}" description="{{ $link['desc'] }}"
+                            icon="{{ $link['icon'] }}" color="{{ $link['color'] }}" />
+                    @else
+                        <x-molecules.action-card title="{{ $link['title'] }}" description="{{ $link['desc'] }}"
+                            icon="{{ $link['icon'] }}" color="{{ $link['color'] }}" />
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -555,11 +536,16 @@ new #[Layout('layouts::app')] #[Title('Ringkasan API')] class extends Component 
     <x-organisms.card-box title="Keamanan API" subtitle="Status perlindungan & insiden aktif" :padding="false"
         variant="danger" class="mb-6">
         <x-slot:footer>
-            <a href="{{ route('api-portal.security') }}" wire:navigate
-                class="text-xs text-primary-500 hover:text-primary-600 dark:text-primary-400 flex items-center gap-1 w-full justify-end px-5 py-3">
-                Detail
-                <flux:icon.arrow-right class="w-3.5 h-3.5" />
-            </a>
+            @if (auth()->user()?->hasPermission('api_portal.security'))
+                <a href="{{ route('api-portal.security') }}" wire:navigate
+                    class="text-xs text-primary-500 hover:text-primary-600 dark:text-primary-400 flex items-center gap-1 w-full justify-end px-5 py-3">
+                    Detail <flux:icon.arrow-right class="w-3.5 h-3.5" />
+                </a>
+            @else
+                <span class="text-xs text-zinc-400 dark:text-primary-dark-600 flex items-center gap-1 w-full justify-end px-5 py-3 opacity-50">
+                    Detail <flux:icon.arrow-right class="w-3.5 h-3.5" />
+                </span>
+            @endif
         </x-slot:footer>
 
         <div class="p-5">

@@ -138,10 +138,16 @@ new #[Layout('layouts::app')] #[Title('DICOM — Ringkasan')] class extends Comp
             <div>
                 <p class="text-sm font-semibold text-red-800 dark:text-red-300">Orthanc Tidak Terhubung</p>
                 <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">{{ $orthancError }}</p>
-                <a href="{{ route('configuration.connectivity', ['tab' => 'dicom']) }}" wire:navigate
-                    class="text-xs text-red-700 dark:text-red-400 underline mt-1 inline-block">
-                    Buka Konfigurasi
-                </a>
+                @if (auth()->user()?->hasPermission('configuration.connectivity'))
+                    <a href="{{ route('configuration.connectivity', ['tab' => 'dicom']) }}" wire:navigate
+                        class="text-xs text-red-700 dark:text-red-400 underline mt-1 inline-block">
+                        Buka Konfigurasi
+                    </a>
+                @else
+                    <span class="text-xs text-red-600 dark:text-red-400 mt-1 inline-block opacity-60">
+                        Buka Konfigurasi
+                    </span>
+                @endif
             </div>
         </div>
         @endif

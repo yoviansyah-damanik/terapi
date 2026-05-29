@@ -287,7 +287,7 @@ new #[Layout('layouts::auth', ['title' => 'Login'])] class extends Component {
             </form>
 
             {{-- OAuth RS Login --}}
-            @if (config('services.oauth_rs.base_url'))
+            {{-- @if (config('services.oauth_rs.base_url'))
                 <div class="mt-6">
                     <div class="relative flex items-center">
                         <div class="flex-1 border-t border-zinc-200 dark:border-primary-dark-700"></div>
@@ -305,7 +305,7 @@ new #[Layout('layouts::auth', ['title' => 'Login'])] class extends Component {
                         <p class="mt-2 text-xs text-center text-red-500">{{ $message }}</p>
                     @enderror
                 </div>
-            @endif
+            @endif --}}
 
             {{-- Footer --}}
             <p class="mt-8 text-sm text-center text-primary-400 dark:text-primary-500">
