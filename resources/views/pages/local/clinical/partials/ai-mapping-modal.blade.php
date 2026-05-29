@@ -2,32 +2,30 @@
     <x-organisms.modal wire:model="showAiModal" title="Review Prediksi AI"
         description="Pilih kandidat SNOMED CT terbaik per baris. Abaikan baris yang salah sasaran." maxWidth="6xl">
         <div class="space-y-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    {{-- Deep Scan Toggle --}}
-                    <label class="flex items-center gap-2 cursor-pointer select-none">
-                        <div
-                            class="flex items-center gap-1.5 text-xs font-medium {{ $useDeepScanAi ? 'text-purple-700 dark:text-purple-400' : 'text-zinc-500 dark:text-zinc-400' }}">
-                            <flux:icon name="cpu-chip" class="w-3.5 h-3.5" />
-                            Deep Scan AI
-                        </div>
-                        <flux:switch wire:model.live="useDeepScanAi" :disabled="$isAiProcessing" />
-                    </label>
+            <div class="flex items-center justify-between gap-3">
+                {{-- Deep Scan Toggle --}}
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <div
+                        class="flex items-center gap-1.5 text-xs font-medium {{ $useDeepScanAi ? 'text-purple-700 dark:text-purple-400' : 'text-zinc-500 dark:text-zinc-400' }}">
+                        <flux:icon name="cpu-chip" class="w-3.5 h-3.5" />
+                        Deep Scan AI
+                    </div>
+                    <flux:switch wire:model.live="useDeepScanAi" :disabled="$isAiProcessing" />
+                </label>
 
-                    @if ($isAiProcessing)
-                        <div
-                            class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 rounded-full border border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700/50">
-                            <flux:icon.loading class="w-3.5 h-3.5" />
-                            <span>Memproses (Sisa {{ count($aiQueue) }} baris)...</span>
-                        </div>
-                    @else
-                        <div
-                            class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-full border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-700/50">
-                            <flux:icon name="check-circle" class="w-3.5 h-3.5" />
-                            <span>Selesai Analisa AI</span>
-                        </div>
-                    @endif
-                </div>
+                @if ($isAiProcessing)
+                    <div
+                        class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 rounded-full border border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700/50">
+                        <flux:icon.loading class="w-3.5 h-3.5" />
+                        <span>Memproses (Sisa {{ count($aiQueue) }} baris)...</span>
+                    </div>
+                @else
+                    <div
+                        class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-full border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-700/50">
+                        <flux:icon name="check-circle" class="w-3.5 h-3.5" />
+                        <span>Selesai Analisa AI</span>
+                    </div>
+                @endif
             </div>
 
             {{-- Panel Konfirmasi Error (muncul saat proses dijeda) --}}
